@@ -4,7 +4,7 @@
         <div class="w-full max-w-xs">
             <ValidationObserver v-slot="{ handleSubmit }">
                 <form @submit.prevent="handleSubmit(register)" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <h1 class="text-center border-b-2 border-purple-500 mb-6 pb-2">ユーザー登録</h1>
+                    <h5 class="text-center border-b-2 border-purple-500 mb-6 pb-2">ユーザー登録</h5>
 
                     <transition name="validateError">
                         <div v-if="registerErrorMessages" class="mb-6">

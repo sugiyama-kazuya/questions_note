@@ -4,12 +4,18 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import store from './store'
 import SystemError from "./pages/errors/System";
+import Index from "./pages/Index";
 
 Vue.use(VueRouter)
 
 export default new VueRouter({
     mode: 'history',
     routes: [
+        {
+          path: '/home',
+          name: 'home',
+          component: Index,
+        },
         {
             path: '/register',
             name: 'register',
