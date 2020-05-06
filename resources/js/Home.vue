@@ -1,5 +1,5 @@
 <template>
-    <div class="h-full font-sans">
+    <div class="h-100 font-sans">
         <router-view/>
     </div>
 </template>

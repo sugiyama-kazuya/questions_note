@@ -10,7 +10,7 @@
     <title>Document</title>
 </head>
 <body>
-<div id="app" class="h-screen">
+<div id="app" class="h-100">
     <Home/>
 </div>
 <script src="{{ mix('js/app.js') }}" defer></script>
