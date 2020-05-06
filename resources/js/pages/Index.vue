@@ -1,6 +1,10 @@
 <template>
   <div class="relative h-full">
-    <Header />
+    <Header>
+      <template v-slot:titleName>
+        <h5>HOME</h5>
+      </template>
+    </Header>
     <Footer />
   </div>
 </template>
