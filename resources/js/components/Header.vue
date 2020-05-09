@@ -1,6 +1,6 @@
 <template>
-  <div class="absolute inset-x-0 top-0">
-    <header class="flex mb-2 h-30 p-3 bg-indigo-400">
+  <div class="h-15">
+    <header class="flex mb-2 h-40 p-3 bg-indigo-400">
       <div class="w-1/3"></div>
       <div class="w-1/3 text-center text-white flex items-center justify-center">
         <slot name="titleName"></slot>
