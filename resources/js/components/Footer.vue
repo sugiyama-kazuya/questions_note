@@ -1,5 +1,5 @@
 <template>
-  <footer class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 text-white">
+  <footer class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 text-white h-10">
     <div class="w-1/4 flex flex-col items-center justify-center">
       <font-awesome-icon icon="book-open" class="text-3xl" />Index
     </div>
