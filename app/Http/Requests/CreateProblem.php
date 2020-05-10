@@ -3,9 +3,16 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class CreateProblem extends FormRequest
 {
+
+    public function loginUserId()
+    {
+        return Auth::id();
+    }
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -24,10 +31,12 @@ class CreateProblem extends FormRequest
     public function rules()
     {
         return [
-            'problem' => 'required',
-            'answer' => 'required',
+            'problem' => 'required|max:255',
+            'answer' => 'required|max:255',
             'category' => 'required',
-            'exerciseBook' => 'required'
+            'exerciseBook' => ['required',Rule::unique('exercise_books','name')->where(function ($query){
+                return $query->where('user_id', $this->loginUserId());
+            })]
         ];
     }
 
