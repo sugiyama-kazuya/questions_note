@@ -9,6 +9,7 @@ use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBookName;
 use App\Http\Requests\CreateProblem;
 use App\Http\Requests\CreateAnswer;
+use App\Http\Requests\CreateNewExerciseBooksName;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -113,5 +114,10 @@ class ProblemController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function createExerciseBooksName(CreateNewExerciseBooksName $req)
+    {
+        return $req;
     }
 }
