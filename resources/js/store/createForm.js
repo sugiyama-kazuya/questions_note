@@ -6,7 +6,8 @@ const state = {
     isNewProblem: null,
     errorMessage: null,
     newExerciseName: null,
-    newExerciseNameErrMsg: null
+    newExerciseNameErrMsg: null,
+    displayData: null
 };
 
 const getters = {};
@@ -33,10 +34,22 @@ const mutations = {
     },
     setCreateExerciseBooksNameErr(state, message) {
         state.newExerciseNameErrMsg = message;
+    },
+    setCreationScreen(state, data) {
+        state.displayData = data;
     }
 };
 
 const actions = {
+    async displayCreatingScreen(context) {
+        const response = await axios
+            .get("api/problems/create")
+            .catch(error => error.response || error);
+
+        console.log(response.data);
+
+        context.commit("setCreationScreen", response.data);
+    },
     async createProblem(context, formData) {
         const response = await axios
             .post("api/problems", formData)

@@ -13,7 +13,7 @@
       <slot name="add-list"></slot>
       <li
         v-for="item in items"
-        :key="item.name"
+        :key="item.id"
         @click="select(item.name)"
         class="list-none w-full h-2.5rem py-2 hover:bg-gray-300"
       >{{item.name }}</li>

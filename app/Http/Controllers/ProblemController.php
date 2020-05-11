@@ -23,16 +23,20 @@ class ProblemController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
-     *
+     *問題作成画面の表示
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(ExerciseBookName $exercise_book)
     {
+        $exercise_books_name_list = $exercise_book->where('user_id', Auth::id())->get(['id','name']);
+
+        Log::debug($exercise_books_name_list);
+
+        return $exercise_books_name_list;
 
     }
 
