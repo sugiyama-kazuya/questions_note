@@ -4,7 +4,9 @@ const state = {
     isCategory: null,
     isExercise: null,
     isNewProblem: null,
-    errorMessage: null
+    errorMessage: null,
+    newExerciseName: null,
+    newExerciseNameErrMsg: null
 };
 
 const getters = {};
@@ -25,6 +27,12 @@ const mutations = {
     },
     setCreateProblemErrorMsg(state, message) {
         state.errorMessage = message;
+    },
+    setCreateExerciseBooksName(state, data) {
+        state.newExerciseName = data;
+    },
+    setCreateExerciseBooksNameErr(state, message) {
+        state.newExerciseNameErrMsg = message;
     }
 };
 
@@ -37,6 +45,23 @@ const actions = {
         if (response.status === UNPROCESSABLE_ENTITY) {
             context.commit("setCreateProblemErrorMsg", resoponse.data.errors);
         }
+    },
+    async createExerciseBooksName(context, data) {
+        console.log(data);
+        const response = await axios
+            .post("api/problems/newExerciseName", data)
+            .catch(error => error.response || error);
+
+        console.log(response);
+
+        if (response.status === UNPROCESSABLE_ENTITY) {
+            context.commit(
+                "setCreateExerciseBooksNameErr",
+                response.data.errors
+            );
+            return;
+        }
+        context.commit("setCreateExerciseBooksName", response.data);
     }
 };
 

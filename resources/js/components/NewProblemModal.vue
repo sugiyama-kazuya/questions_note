@@ -10,10 +10,20 @@
                 <transition name="validateError">
                   <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
                 </transition>
+                <transition name="validateError">
+                  <div v-if="validateErrMsg">
+                    <p
+                      v-for="msg in validateErrMsg.name"
+                      :key="msg"
+                      class="text-red-500 text-xs italic"
+                    >{{msg}}</p>
+                  </div>
+                </transition>
+
                 <label class="block text-gray-700 font-bold" for="username">問題集の名前</label>
                 <input
                   type="text"
-                  v-model="data"
+                  v-model="exerciseBooksNameForm.name"
                   class="shadow-sm appearance-none border rounded w-full h-2.5rem p-2 focus:outline-none focus:shadow-outline"
                 />
               </ValidationProvider>
@@ -56,17 +66,36 @@ export default {
     }
   },
   data: () => ({
-    data: ""
+    exerciseBooksNameForm: {
+      name: ""
+    }
   }),
-
   methods: {
     cancel() {
       this.$store.commit("createForm/setNewProblemModal", false);
     },
-    addNewProblem() {
-      this.$emit("selected", this.data);
-      this.$store.commit("createForm/setNewProblemModal", false);
-      this.$store.commit("createForm/setCloseModal", false);
+    async addNewProblem() {
+      this.$store.commit("createForm/setCreateExerciseBooksNameErr", null);
+      await this.$store.dispatch(
+        "createForm/createExerciseBooksName",
+        this.exerciseBooksNameForm
+      );
+
+      if (this.$store.state.createForm.newExerciseNameErrMsg === null) {
+        const exerciseBooksName = await this.$store.state.createForm
+          .newExerciseName.name;
+
+        this.$emit("selected", exerciseBooksName);
+        this.$store.commit("createForm/setNewProblemModal", false);
+        this.$store.commit("createForm/setCloseModal", false);
+
+        return;
+      }
+    }
+  },
+  computed: {
+    validateErrMsg() {
+      return this.$store.state.createForm.newExerciseNameErrMsg;
     }
   }
 };
