@@ -34,9 +34,7 @@ class CreateProblem extends FormRequest
             'problem' => 'required|max:255',
             'answer' => 'required|max:255',
             'category' => 'required',
-            'exerciseBook' => ['required',Rule::unique('exercise_books','name')->where(function ($query){
-                return $query->where('user_id', $this->loginUserId());
-            })]
+            'exerciseBook' => 'required'
         ];
     }
 
