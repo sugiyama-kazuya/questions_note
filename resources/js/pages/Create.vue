@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 relative flex flex-col">
-    <Header>
+    <Header class="h-15">
       <template v-slot:titleName>
         <h5 class="m-0">Create</h5>
       </template>
@@ -201,11 +201,7 @@ export default {
       { name: "経済" },
       { name: "プログラミング" }
     ],
-    exerciseBooks: [
-      { name: "PHPについて" },
-      { name: "JAVAについて" },
-      { name: "RUBYについて" }
-    ],
+    exerciseBooks: [],
     isSelectActive: false,
     isExerciseActive: false
   }),
@@ -240,18 +236,32 @@ export default {
       this.form.category = category;
       this.selectedCategory = category;
     },
-    exerciseBookPush(exerciseBook) {
-      this.form.exerciseBook = exerciseBook;
-      this.selectedExerciseBook = exerciseBook;
+    LengthLimit(name) {
+      let nameLength = name.length;
+      if (nameLength >= 12) {
+        const exerciseBookName = name.substring(0, 12) + "...";
+        return exerciseBookName;
+      }
+      return name;
+    },
+    async exerciseBookPush(name) {
+      this.form.exerciseBook = name;
+      const afterLengthLimitName = await this.LengthLimit(name);
+      this.selectedExerciseBook = afterLengthLimitName;
     },
     async newProblemCreate() {
       await this.$store.dispatch("createForm/createProblem", this.form);
     }
+  },
+  async created() {
+    await this.$store.dispatch("createForm/displayCreatingScreen");
+
+    this.exerciseBooks = this.$store.state.createForm.displayData;
   }
 };
 </script>
 
-<style>
+<style scoped>
 .modal-mask {
   position: fixed;
   z-index: 9999;

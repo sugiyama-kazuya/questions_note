@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateProblem extends FormRequest
 {
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -24,8 +26,8 @@ class CreateProblem extends FormRequest
     public function rules()
     {
         return [
-            'problem' => 'required',
-            'answer' => 'required',
+            'problem' => 'required|max:255',
+            'answer' => 'required|max:255',
             'category' => 'required',
             'exerciseBook' => 'required'
         ];

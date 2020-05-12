@@ -9,6 +9,6 @@ class ExerciseBook extends Model
     protected $table = 'exercise_books';
 
     protected $fillable = [
-        'name', 'problem_id', 'user_id'
+        'exercise_books_name_id', 'problem_id', 'user_id'
     ];
 }

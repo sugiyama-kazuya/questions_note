@@ -23,4 +23,4 @@ Route::get('/user', function(){
 })->name('user');
 
 Route::resource('problems', 'ProblemController');
-
+Route::post('problems/newExerciseName', 'ProblemController@createExerciseBooksName')->name('problems.newExerciseName');
