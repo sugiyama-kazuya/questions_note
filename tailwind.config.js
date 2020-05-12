@@ -19,7 +19,14 @@ module.exports = {
             "80": "80%",
             "90": "90%",
             "1rem": "1rem",
-            "2.5rem": "2.5rem"
+            "2.5rem": "2.5rem",
+            "3rem" : "3rem",
+            "4rem" : "4rem",
+            "5rem" : "5rem",
+            "6rem" : "6rem",
+            "7rem" : "7rem",
+            "8rem" : "8rem",
+
         },
         padding: {
             "9rem": "9rem"

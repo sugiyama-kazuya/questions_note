@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 relative flex flex-col">
-    <Header>
+    <Header class="h-15">
       <template v-slot:titleName>
         <h5 class="m-0">Create</h5>
       </template>
@@ -261,7 +261,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .modal-mask {
   position: fixed;
   z-index: 9999;
