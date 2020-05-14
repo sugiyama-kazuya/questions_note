@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Problem;
 use App\ExerciseBook;
-use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBookName;
 use App\Http\Requests\CreateProblem;
-use App\Http\Requests\CreateAnswer;
 use App\Http\Requests\CreateNewExerciseBooksName;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -21,8 +19,15 @@ class ProblemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ExerciseBook $exercise_book)
     {
+        $exercise_books = $exercise_book->with('user:id,name','problem:id,updated_at','exerciseBooksName:id,name')->get();
+
+        $exercise_books = $exercise_books->map(function ($data){
+            return $data->only(['id','user','problem','exerciseBooksName']);
+        });
+
+        return $exercise_books;
     }
 
     /**
