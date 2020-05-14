@@ -15,7 +15,7 @@
         </template>
       </Header>
       <main>
-          <ProblemCard></ProblemCard>
+          <ProblemCard v-for="cardData in problemCardData" :key="cardData.id" :cardData="cardData" class="mb-4"></ProblemCard>
       </main>
     </div>
     <Footer />
@@ -33,7 +33,17 @@ export default {
     Header,
     Footer,
     ProblemCard
-  }
+  },
+    data() {
+      return {
+            problemCardData: []
+      }
+    },
+    async created(){
+        await this.$store.dispatch("listProblem/getProblmeCard")
+        this.problemCardData = await this.$store.state.listProblem.problemCardData
+        console.log(this.problemCardData)
+    }
 };
 </script>
 
