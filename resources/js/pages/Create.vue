@@ -277,13 +277,7 @@ export default {
   position: absolute;
   top: 18%;
 }
-.st-select_title {
-  height: 15%;
-}
 
-.st-select_body {
-  height: 85%;
-}
 
 .st-new-problem {
   position: absolute;

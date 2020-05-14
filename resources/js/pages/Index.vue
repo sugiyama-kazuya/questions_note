@@ -1,7 +1,7 @@
 <template>
   <div class="relative h-100">
     <div class="h-90 bg-gray-200">
-      <Header>
+      <Header class="h-20">
         <template v-slot:titleName>
           <h5>HOME</h5>
         </template>
@@ -14,7 +14,7 @@
           </div>
         </template>
       </Header>
-      <main>
+      <main class="overflow-y-scroll h-80">
           <ProblemCard v-for="cardData in problemCardData" :key="cardData.id" :cardData="cardData" class="mb-4"></ProblemCard>
       </main>
     </div>

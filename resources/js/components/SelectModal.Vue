@@ -51,4 +51,11 @@ export default {
 </script>
 
 <style>
+    .st-select_title {
+        height: 15%;
+    }
+
+    .st-select_body {
+        height: 85%;
+    }
 </style>
