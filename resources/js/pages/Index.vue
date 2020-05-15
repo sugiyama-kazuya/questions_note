@@ -1,21 +1,26 @@
 <template>
   <div class="relative h-100">
     <div class="h-90 bg-gray-200">
-      <Header class="h-20">
+      <Header class="h-8">
         <template v-slot:titleName>
           <h5>HOME</h5>
         </template>
-        <template v-slot:createBtn>
-          <div class="flex justify-center my-4">
-            <div class="inline-flex w-4/5 st-border">
-              <button class="w-1/2 bg-indigo-500 text-white py-2 px-4">新着</button>
-              <button class="w-1/2 bg-white py-2 px-4 text-indigo-500">人気順</button>
-            </div>
-          </div>
-        </template>
       </Header>
-      <main class="overflow-y-scroll h-80">
-          <ProblemCard v-for="cardData in problemCardData" :key="cardData.id" :cardData="cardData" class="mb-4"></ProblemCard>
+
+      <div class="flex justify-center items-center h-10 px-3 round-sm">
+        <div class="inline-flex w-4/5 st-border h-60">
+          <button class="w-1/2 bg-indigo-500 text-white py-2 px-4">新着</button>
+          <button class="w-1/2 bg-white py-2 px-4 text-indigo-500">人気順</button>
+        </div>
+      </div>
+
+      <main class="overflow-y-scroll h-82 py-2">
+        <ProblemCard
+          v-for="cardData in problemCardData"
+          :key="cardData.id"
+          :cardData="cardData"
+          class="mb-4"
+        ></ProblemCard>
       </main>
     </div>
     <Footer />
@@ -34,16 +39,16 @@ export default {
     Footer,
     ProblemCard
   },
-    data() {
-      return {
-            problemCardData: []
-      }
-    },
-    async created(){
-        await this.$store.dispatch("listProblem/getProblmeCard")
-        this.problemCardData = await this.$store.state.listProblem.problemCardData
-        console.log(this.problemCardData)
-    }
+  data() {
+    return {
+      problemCardData: []
+    };
+  },
+  async created() {
+    await this.$store.dispatch("listProblem/getProblmeCard");
+    this.problemCardData = await this.$store.state.listProblem.problemCardData;
+    console.log(this.problemCardData);
+  }
 };
 </script>
 
