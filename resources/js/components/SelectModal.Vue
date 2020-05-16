@@ -15,7 +15,7 @@
         v-for="item in items"
         :key="item.id"
         @click="select(item.name)"
-        class="list-none w-full h-2.5rem py-2 hover:bg-gray-300"
+        class="list-none w-full h-2.5rem leading-10 hover:bg-gray-300"
       >{{item.name }}</li>
     </div>
   </div>
@@ -51,11 +51,11 @@ export default {
 </script>
 
 <style>
-    .st-select_title {
-        height: 15%;
-    }
+.st-select_title {
+  height: 15%;
+}
 
-    .st-select_body {
-        height: 85%;
-    }
+.st-select_body {
+  height: 85%;
+}
 </style>
