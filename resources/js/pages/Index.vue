@@ -15,6 +15,7 @@
       </div>
 
       <main class="overflow-y-scroll h-82 py-2">
+        <Loading if="isLoading" :loading="isLoading" />
         <ProblemCard
           v-for="cardData in problemCardData"
           :key="cardData.id"
@@ -31,21 +32,26 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProblemCard from "../components/ProblemCard";
+import Loading from "../components/Loading";
 
 export default {
   name: "Index",
   components: {
     Header,
     Footer,
-    ProblemCard
+    ProblemCard,
+    Loading
   },
   data() {
     return {
-      problemCardData: {}
+      problemCardData: {},
+      isLoading: false
     };
   },
   async created() {
+    this.isLoading = true;
     await this.$store.dispatch("listProblem/getProblmeCard");
+    this.isLoading = false;
     this.problemCardData = await this.$store.state.listProblem.problemCardData;
     console.log(this.problemCardData);
   }
