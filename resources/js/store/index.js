@@ -5,6 +5,7 @@ import auth from "./auth";
 import error from "./error";
 import createForm from "./createForm";
 import listProblem from "./listProblem";
+import playProblem from "./playProblem";
 
 Vue.use(Vuex);
 
@@ -13,7 +14,8 @@ const store = new Vuex.Store({
         auth,
         error,
         createForm,
-        listProblem
+        listProblem,
+        playProblem
     }
 });
 
