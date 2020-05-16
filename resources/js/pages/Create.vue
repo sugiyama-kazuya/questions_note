@@ -1,125 +1,133 @@
 <template>
-  <div class="h-100 relative flex flex-col">
-    <Header class="h-15">
-      <template v-slot:titleName>
-        <h5 class="m-0">Create</h5>
-      </template>
-      <template v-slot:createBtn>
-        <div class="w-full box-border px-3 h-16 focus:outline-none focus:shadow-outline">
-          <button
-            class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-            type="submit"
-            form="createForm"
-          >作成</button>
+  <div class="h-100 relative">
+    <div class="h-90">
+      <Header class="h-8">
+        <template v-slot:titleName>
+          <h5 class="m-0">Create</h5>
+        </template>
+      </Header>
+
+      <div
+        class="w-full box-border px-3 h-16 focus:outline-none focus:shadow-outline h-10 flex items-center"
+      >
+        <button
+          class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full h-60"
+          type="submit"
+          form="createForm"
+        >作成</button>
+      </div>
+
+      <main class="w-full overflow-y-scroll h-82">
+        <div class="h-90">
+          <ValidationObserver v-slot="{ handleSubmit }">
+            <form class="pb-8" id="createForm" @submit.prevent="handleSubmit(newProblemCreate)">
+              <div class="bg-gray-200 p-3 mb-3">
+                <label class="px-3 block text-gray-700 font-bold mb-2" for="problem">問題</label>
+                <ValidationProvider name="問題" rules="required" v-slot="{errors}">
+                  <transition name="validateError">
+                    <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
+                  </transition>
+                  <textarea
+                    v-model="form.problem"
+                    class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows="6"
+                    cols="40"
+                    placeholder="問題文"
+                  ></textarea>
+                </ValidationProvider>
+
+                <div class="flex justify-between px-3 items-center">
+                  <p class="m-0">画像を選択</p>
+                  <div class="text-right">
+                    <label>
+                      <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
+                      <input type="file" class="hidden" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 解答の追加 -->
+              <div class="bg-gray-200 p-3 mb-3">
+                <label class="px-3 block text-gray-700 font-bold mb-2" for="answer">解答</label>
+                <ValidationProvider name="解答" rules="required" v-slot="{errors}">
+                  <transition name="validateError">
+                    <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
+                  </transition>
+                  <textarea
+                    v-model="form.answer"
+                    class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows="6"
+                    cols="40"
+                    placeholder="解答文"
+                  ></textarea>
+                </ValidationProvider>
+                <div class="flex justify-between px-3 items-center">
+                  <p class="m-0">画像を選択</p>
+                  <div class="text-right">
+                    <label>
+                      <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
+                      <input type="file" class="hidden" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- カテゴリの追加 -->
+              <ValidationProvider name="カテゴリ" rules="required" v-slot="{errors}">
+                <transition name="validateError">
+                  <p v-if="errors[0]" class="text-red-500 text-xs italic pl-3">{{errors[0]}}</p>
+                </transition>
+                <div class="flex flex-col bg-gray-200 mb-3">
+                  <div class="flex">
+                    <div class="py-2 px-4">
+                      <font-awesome-icon
+                        icon="clipboard-list"
+                        class="text-3xl text-gray-400 text-primary"
+                      />
+                    </div>
+                    <div
+                      @click="openCategoryModal"
+                      class="flex justify-between w-full items-center"
+                    >
+                      <div>カテゴリ</div>
+                      <div class="mr-8 flex items-center">
+                        <p class="m-0 mr-3">{{selectedCategory}}</p>
+                        <input type="text" class="hidden" v-model="form.category" />
+                        <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ValidationProvider>
+
+              <!-- 問題集への追加 -->
+              <ValidationProvider name="問題への追加" rules="required" v-slot="{errors}">
+                <transition name="validateError">
+                  <p v-if="errors[0]" class="text-red-500 text-xs italic pl-3">{{errors[0]}}</p>
+                </transition>
+
+                <div class="flex flex-col bg-gray-200 mb-6">
+                  <div class="flex">
+                    <div class="py-2 px-4">
+                      <font-awesome-icon icon="book" class="text-3xl text-gray-400 text-primary" />
+                    </div>
+                    <div @click="openExericeModal" class="flex justify-between w-full items-center">
+                      <div>問題への追加</div>
+                      <div class="mr-8 flex items-center">
+                        <p class="m-0 mr-3">{{selectedExerciseBook}}</p>
+                        <input type="text" class="hidden" v-model="form.exerciseBook" />
+                        <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ValidationProvider>
+            </form>
+          </ValidationObserver>
         </div>
-      </template>
-    </Header>
-
-    <main class="w-full h-75 overflow-y-scroll">
-      <ValidationObserver v-slot="{ handleSubmit }">
-        <form class="pb-8" id="createForm" @submit.prevent="handleSubmit(newProblemCreate)">
-          <div class="bg-gray-200 p-3 mb-3">
-            <label class="px-3 block text-gray-700 font-bold mb-2" for="problem">問題</label>
-            <ValidationProvider name="問題" rules="required" v-slot="{errors}">
-              <transition name="validateError">
-                <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
-              </transition>
-              <textarea
-                v-model="form.problem"
-                class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                rows="6"
-                cols="40"
-                placeholder="問題文"
-              ></textarea>
-            </ValidationProvider>
-
-            <div class="flex justify-between px-3 items-center">
-              <p class="m-0">画像を選択</p>
-              <div class="text-right">
-                <label>
-                  <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
-                  <input type="file" class="hidden" />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- 解答の追加 -->
-          <div class="bg-gray-200 p-3 mb-3">
-            <label class="px-3 block text-gray-700 font-bold mb-2" for="answer">解答</label>
-            <ValidationProvider name="解答" rules="required" v-slot="{errors}">
-              <transition name="validateError">
-                <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
-              </transition>
-              <textarea
-                v-model="form.answer"
-                class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                rows="6"
-                cols="40"
-                placeholder="解答文"
-              ></textarea>
-            </ValidationProvider>
-            <div class="flex justify-between px-3 items-center">
-              <p class="m-0">画像を選択</p>
-              <div class="text-right">
-                <label>
-                  <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
-                  <input type="file" class="hidden" />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- カテゴリの追加 -->
-          <ValidationProvider name="カテゴリ" rules="required" v-slot="{errors}">
-            <transition name="validateError">
-              <p v-if="errors[0]" class="text-red-500 text-xs italic pl-3">{{errors[0]}}</p>
-            </transition>
-            <div class="flex flex-col bg-gray-200 mb-3">
-              <div class="flex">
-                <div class="py-2 px-4">
-                  <font-awesome-icon
-                    icon="clipboard-list"
-                    class="text-3xl text-gray-400 text-primary"
-                  />
-                </div>
-                <div @click="openCategoryModal" class="flex justify-between w-full items-center">
-                  <div>カテゴリ</div>
-                  <div class="mr-8 flex items-center">
-                    <p class="m-0 mr-3">{{selectedCategory}}</p>
-                    <input type="text" class="hidden" v-model="form.category" />
-                    <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ValidationProvider>
-
-          <!-- 問題集への追加 -->
-          <ValidationProvider name="問題への追加" rules="required" v-slot="{errors}">
-            <transition name="validateError">
-              <p v-if="errors[0]" class="text-red-500 text-xs italic pl-3">{{errors[0]}}</p>
-            </transition>
-
-            <div class="flex flex-col bg-gray-200 mb-6">
-              <div class="flex">
-                <div class="py-2 px-4">
-                  <font-awesome-icon icon="book" class="text-3xl text-gray-400 text-primary" />
-                </div>
-                <div @click="openExericeModal" class="flex justify-between w-full items-center">
-                  <div>問題への追加</div>
-                  <div class="mr-8 flex items-center">
-                    <p class="m-0 mr-3">{{selectedExerciseBook}}</p>
-                    <input type="text" class="hidden" v-model="form.exerciseBook" />
-                    <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ValidationProvider>
-        </form>
-      </ValidationObserver>
-    </main>
+      </main>
+    </div>
 
     <!-- セレクトモーダル-->
     <!-- カテゴリ-->
@@ -276,13 +284,6 @@ export default {
 .st-absolute {
   position: absolute;
   top: 18%;
-}
-.st-select_title {
-  height: 15%;
-}
-
-.st-select_body {
-  height: 85%;
 }
 
 .st-new-problem {
