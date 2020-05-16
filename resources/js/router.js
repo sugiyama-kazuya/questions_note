@@ -24,7 +24,7 @@ export default new VueRouter({
             component: Create
         },
         {
-            path: "/problem",
+            path: "/problem/:id(\\d+)",
             name: "problem",
             component: Problem
         },

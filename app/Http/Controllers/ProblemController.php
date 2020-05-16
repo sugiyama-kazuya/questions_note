@@ -9,6 +9,7 @@ use App\ExerciseBook;
 use App\ExerciseBookName;
 use App\Http\Requests\CreateProblem;
 use App\Http\Requests\CreateNewExerciseBooksName;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -94,11 +95,18 @@ class ProblemController extends Controller
     /**
      * 問題画面の表示
      *
-     * @param  int  $id
+     * @param  int  $exercise_books_id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($exercise_books_id)
     {
+        $problem_data = Problem::where('user_id', Auth::id())->where('exercise_book_id', $exercise_books_id)->get();
+
+        $problem_count = $problem_data->count('id');
+
+        $problem_data = Arr::add(['problem' => $problem_data], 'count', $problem_count);
+
+        return response()->json(['problem_data' => $problem_data]);
     }
 
     /**
