@@ -34,9 +34,6 @@ module.exports = {
             "7rem": "7rem",
             "8rem": "8rem"
         },
-        lineHeight: {
-            "400": "400%"
-        },
         extend: {}
     },
     variants: {},
