@@ -8,7 +8,7 @@
             </Header>
 
             <div
-                class="w-full box-border px-3 h-16 focus:outline-none focus:shadow-outline h-10 flex items-center"
+                class="w-full box-border px-3 h-16 focus:outline-none h-10 flex items-center"
             >
                 <button
                     class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full h-60"
