@@ -9,7 +9,7 @@
 
 <script>
 export default {
-    name: "EndModalBtn",
+    name: "CenterModalBtn",
     props: {
         text: {
             type: String,

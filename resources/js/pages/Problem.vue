@@ -16,6 +16,7 @@
                 </template>
                 <template v-slot:rightSide>
                     <font-awesome-icon
+                        @click="inMiddleEnd"
                         icon="times"
                         class="text-4xl text-white"
                     ></font-awesome-icon>
@@ -129,12 +130,12 @@
             </main>
         </div>
         <Footer />
-        <transition name="problem-end-modal">
+        <transition name="center-modal">
             <CenterModal v-if="isProblemEndModal">
                 <template>
                     <div class="p-3">
                         <div v-if="isCurrectAnswerAll" class="p-3">
-                            <p>全問正解です！</p>
+                            <p class="text-lg">全問正解です！</p>
                         </div>
                         <div v-if="!isCurrectAnswerAll" class="text-center p-3">
                             <p>{{ `トータル：${currentProblemData.count}` }}</p>
@@ -142,20 +143,41 @@
                             <p>{{ `不正解数：${incurrectCount}` }}</p>
                         </div>
                         <div class="flex justify-end">
-                            <EndModalBtn
+                            <CenterModalBtn
                                 v-if="!isCurrectAnswerAll"
                                 @click.native="incorrectProblemAgain"
                                 :text="endModal.restartText"
                                 :color="'bg-blue-400'"
                                 class="mr-2"
                             />
-                            <EndModalBtn
+                            <CenterModalBtn
                                 @click.native="goHome"
                                 :text="endModal.endText"
                             />
                         </div>
                     </div>
                 </template>
+            </CenterModal>
+        </transition>
+        <transition name="center-modal">
+            <CenterModal v-if="endConfimationModal" :backColor="false">
+                <div class="py-5 px-3">
+                    <div class="p-4 text-center text-lg mb-2">
+                        <span>本当に終了でよろしいですか？</span>
+                    </div>
+                    <div class="flex justify-center p-2">
+                        <CenterModalBtn
+                            @click.native="goHome"
+                            :text="'一覧へ'"
+                            :color="'bg-blue-400'"
+                            class="mr-2"
+                        />
+                        <CenterModalBtn　
+                            @click.native="endConfimationModal = false"
+                            :text="'問題へ戻る'"
+                        />
+                    </div>
+                </div>
             </CenterModal>
         </transition>
     </div>
@@ -168,7 +190,7 @@ import Loading from "../components/Loading";
 import CenterModal from "../components/CenterModal";
 import DefaultBtn from "../components/defaultBtn";
 import AnswerCorrectnessBtn from "../components/AnswerCorrectnessBtn";
-import EndModalBtn from "../components/ProblemPlay/EndModalBtn";
+import CenterModalBtn from "../components/ProblemPlay/CenterModalBtn";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faTimes,
@@ -187,7 +209,7 @@ export default {
         FontAwesomeIcon,
         Loading,
         CenterModal,
-        EndModalBtn,
+        CenterModalBtn,
         AnswerCorrectnessBtn,
         DefaultBtn
     },
@@ -213,7 +235,8 @@ export default {
             endModal: {
                 restartText: "もう一度",
                 endText: "一覧へ"
-            }
+            },
+            endConfimationModal: false
         };
     },
     async mounted() {
@@ -311,6 +334,9 @@ export default {
         },
         goHome() {
             this.$router.push("/home");
+        },
+        inMiddleEnd() {
+            this.endConfimationModal = true;
         }
     },
     computed: {
@@ -334,13 +360,13 @@ export default {
 </script>
 
 <style scoped>
-.problem-end-modal-enter-active,
-.problem-end-modal-leave-active {
-    transition: opacity 0.5s;
+.center-modal-enter-active,
+.center-modal-leave-active {
+    transition: opacity 0.2s;
 }
 
-.problem-end-modal-enter,
-.problem-end-modal-leave-to {
+.center-modal-enter,
+.center-modal-leave-to {
     opacity: 0;
 }
 

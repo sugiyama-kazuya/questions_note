@@ -1,5 +1,5 @@
 <template>
-    <div class="modal-mask relative">
+    <div :class="backColor ? 'bg-color' : ''" class="modal-mask relative">
         <div class="bg-white rounded w-2/3 m-0 m-auto shadow modal-view">
             <slot></slot>
         </div>
@@ -8,7 +8,12 @@
 
 <script>
 export default {
-    name: "CenterModal"
+    name: "CenterModal",
+    props: {
+        backColor: {
+            type: Boolean
+        }
+    }
 };
 </script>
 
@@ -20,9 +25,12 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
     display: table;
     transition: opacity 0.3s ease;
+}
+
+.bg-color {
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-view {
