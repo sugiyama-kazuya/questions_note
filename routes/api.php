@@ -18,9 +18,15 @@ Route::post('/register', 'Auth\RegisterController@register')->name('register');
 Route::post('/login', 'Auth\LoginController@login')->name('login');
 Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
-Route::get('/user', function(){
-   return Auth::user();
+Route::get('/user', function () {
+    return Auth::user();
 })->name('user');
 
 Route::resource('problems', 'ProblemController');
 Route::post('problems/newExerciseName', 'ProblemController@createExerciseBooksName')->name('problems.newExerciseName');
+
+Route::get('likes/count', 'LikeController@index')->name('likes.count');
+Route::get('islikedby/{id}', 'isLikedByController');
+Route::get('countLikes/{id}', 'CountLikesController');
+Route::put('like', 'LikeController@like')->name('like');
+Route::delete('unlike', 'LikeController@unlike')->name('unlike');

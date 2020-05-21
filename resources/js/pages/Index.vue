@@ -9,12 +9,21 @@
 
       <div class="flex justify-center items-center h-10 px-3 round-sm">
         <div class="inline-flex w-4/5 st-border h-60">
-          <button class="w-1/2 bg-indigo-500 text-white py-2 px-4">新着</button>
-          <button class="w-1/2 bg-white py-2 px-4 text-indigo-500">人気順</button>
+          <button
+            @click="newArrivalsOrder"
+            class="w-1/2 bg-white text-indigo-500 py-2 px-4 focus:outline-none"
+            :class="{ 'is-tab-active': displayTab.isNewActive }"
+          >新着</button>
+          <button
+            @click="popularOrder"
+            class="w-1/2 bg-white py-2 px-4 text-indigo-500 focus:outline-none"
+            :class="{ 'is-tab-active': displayTab.isPopularActive }"
+          >人気順</button>
         </div>
       </div>
 
       <main class="overflow-y-scroll h-82 py-2">
+        <Loading if="isLoading" :loading="isLoading" />
         <ProblemCard
           v-for="cardData in problemCardData"
           :key="cardData.id"
@@ -31,23 +40,56 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProblemCard from "../components/ProblemCard";
+import Loading from "../components/Loading";
 
 export default {
   name: "Index",
   components: {
     Header,
     Footer,
-    ProblemCard
+    ProblemCard,
+    Loading
   },
   data() {
     return {
-      problemCardData: {}
+      problemCardData: {},
+      isLoading: false,
+      displayTab: {
+        isNewActive: false,
+        isPopularActive: false
+      }
     };
   },
-  async created() {
+  async mounted() {
+    this.isLoading = true;
     await this.$store.dispatch("listProblem/getProblmeCard");
-    this.problemCardData = await this.$store.state.listProblem.problemCardData;
-    console.log(this.problemCardData);
+    this.problemCardData = this.$store.state.listProblem.problemCardData;
+
+    this.displayTab.isNewActive = true;
+
+    this.$nextTick(function() {
+      this.isLoading = false;
+    });
+  },
+  methods: {
+    async newArrivalsOrder() {
+      this.displayTab.isPopularActive = false;
+      this.displayTab.isNewActive = true;
+
+      this.isLoading = true;
+      await this.$store.dispatch("listProblem/getProblmeCard");
+      this.isLoading = false;
+
+      this.problemCardData = await this.$store.state.listProblem
+        .problemCardData;
+    },
+    async popularOrder() {
+      this.displayTab.isNewActive = false;
+      this.displayTab.isPopularActive = true;
+    },
+    isLike() {
+      this;
+    }
   }
 };
 </script>
@@ -55,5 +97,10 @@ export default {
 <style scoped>
 .st-border {
   border: 1px solid #667eea;
+}
+
+.is-tab-active {
+  background-color: #667eea !important;
+  color: #fff !important;
 }
 </style>
