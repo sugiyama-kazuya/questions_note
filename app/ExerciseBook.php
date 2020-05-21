@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ExerciseBook extends Model
 {
@@ -19,20 +20,20 @@ class ExerciseBook extends Model
     protected $dateFormat = "Y/m/d";
 
     protected $fillable = [
-        'exercise_books_name_id', 'user_id','created_at', 'updated_at'
+        'exercise_books_name_id', 'user_id', 'created_at', 'updated_at'
     ];
 
-    public function user() :BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo('App\User');
     }
 
-    public function problem() :BelongsTo
+    public function problem(): BelongsTo
     {
         return $this->belongsTo('App\Problem');
     }
 
-    public function exerciseBooksName() :BelongsTo
+    public function exerciseBooksName(): BelongsTo
     {
         return $this->belongsTo('App\ExerciseBookName');
     }
@@ -43,8 +44,47 @@ class ExerciseBook extends Model
      * @param $value
      * @return string
      */
-    public function getUpdatedAtAttribute($value)
+    public function getUpdatedAtAttribute($value): string
     {
         return Carbon::parse($value)->format("Y/m/d");
+    }
+
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
+
+    /**
+     * 問題集のいいね数を取得
+     *
+     * @return integer
+     */
+    public function getCountLikesAttribute()
+    {
+        return $this->likes()->count();
+    }
+
+    /**
+     * 問題集にいいねをしているか否か
+     *
+     * @param User|null $user
+     * @param [type] $id
+     * @return boolean
+     */
+    public function isLikedBy(?User $user): bool
+    {
+        return $user
+            ? (bool) $this->likes()->where('users.id', $user->id)->count() : false;
+    }
+
+    /**
+     * 問題集を取得
+     *
+     * @param [type] $id
+     * @return object
+     */
+    public function currentExerciseBook($id): object
+    {
+        return self::find($id);
     }
 }
