@@ -172,7 +172,7 @@
                             :color="'bg-blue-400'"
                             class="mr-2"
                         />
-                        <CenterModalBtn　
+                        <CenterModalBtn
                             @click.native="endConfimationModal = false"
                             :text="'問題へ戻る'"
                         />
@@ -188,7 +188,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
 import CenterModal from "../components/CenterModal";
-import DefaultBtn from "../components/defaultBtn";
+import DefaultBtn from "../components/DefaultBtn";
 import AnswerCorrectnessBtn from "../components/AnswerCorrectnessBtn";
 import CenterModalBtn from "../components/ProblemPlay/CenterModalBtn";
 import { library } from "@fortawesome/fontawesome-svg-core";
