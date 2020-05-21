@@ -32,9 +32,14 @@ module.exports = {
             "5rem": "5rem",
             "6rem": "6rem",
             "7rem": "7rem",
-            "8rem": "8rem"
+            "8rem": "8rem",
+            "12rem": "12rem"
         },
-        extend: {}
+        extend: {
+            width: {
+                "50%": "50%"
+            }
+        }
     },
     variants: {},
     plugins: []
