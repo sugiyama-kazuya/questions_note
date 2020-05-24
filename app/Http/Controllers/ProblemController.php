@@ -22,20 +22,12 @@ class ProblemController extends Controller
      */
     public function index(ExerciseBook $exercise_book)
     {
-        //        問題カードに必要なデータを取得
-        $exercise_books = $exercise_book->with('user:id,name', 'exerciseBooksName:id,name')->get();
+        // 問題カードに必要なデータを取得
+        $exercise_books = $exercise_book->with('user', 'exerciseBooksName')->get();
 
-        //        必要なデータの絞り込み
-        $exercise_books = $exercise_books->map(function ($data) {
-            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName']);
-        });
+        $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
 
-        //        重複している問題は一つに絞る
-        $exercise_books = $exercise_books->unique(function ($item) {
-            return $item['user_id'] . $item['exercise_books_name_id'];
-        });
-
-        return $exercise_books;
+        return response()->json(['exerciseBooks' => $exercise_books]);
     }
 
     /**
