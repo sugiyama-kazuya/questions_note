@@ -20,7 +20,7 @@ export default new VueRouter({
             component: Index
         },
         {
-            path: "/profile",
+            path: "/profile/:userId",
             name: "profile",
             component: Profile
         },

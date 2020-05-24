@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExerciseBook extends Model
 {
@@ -28,9 +29,9 @@ class ExerciseBook extends Model
         return $this->belongsTo('App\User');
     }
 
-    public function problem(): BelongsTo
+    public function problem(): HasMany
     {
-        return $this->belongsTo('App\Problem');
+        return $this->hasMany('App\Problem');
     }
 
     public function exerciseBooksName(): BelongsTo
@@ -55,7 +56,7 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題集のいいね数を取得
+     * 対象の問題集のいいね数を取得
      *
      * @return integer
      */
@@ -65,7 +66,7 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題集にいいねをしているか否か
+     * 対象の問題集にいいねをしているか否か
      *
      * @param User|null $user
      * @param [type] $id
@@ -78,7 +79,7 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題集を取得
+     * 対象の問題集を取得
      *
      * @param [type] $id
      * @return object
@@ -86,5 +87,25 @@ class ExerciseBook extends Model
     public function currentExerciseBook($id): object
     {
         return self::find($id);
+    }
+
+    /**
+     * 問題カードを表示する為に必要なデータの絞り込み
+     *
+     * @return object
+     */
+    public function filteringRequiredData($exercise_books): object
+    {
+        //        必要なデータの絞り込み
+        $exercise_books = $exercise_books->map(function ($data) {
+            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName']);
+        });
+
+        //        重複している問題は一つに絞る
+        $exercise_books = $exercise_books->unique(function ($item) {
+            return $item['user_id'] . $item['exercise_books_name_id'];
+        });
+
+        return $exercise_books;
     }
 }
