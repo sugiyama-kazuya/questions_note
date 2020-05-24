@@ -63,7 +63,7 @@ export default {
   async mounted() {
     this.isLoading = true;
     await this.$store.dispatch("listProblem/getProblmeCard");
-    this.problemCardData = this.$store.state.listProblem.problemCardData;
+    this.problemCardData = this.$store.state.listProblem.problemCardData.exerciseBooks;
 
     this.displayTab.isNewActive = true;
 
@@ -80,8 +80,8 @@ export default {
       await this.$store.dispatch("listProblem/getProblmeCard");
       this.isLoading = false;
 
-      this.problemCardData = await this.$store.state.listProblem
-        .problemCardData;
+      this.problemCardData = await this.$store.state.listProblem.problemCardData
+        .exerciseBooks;
     },
     async popularOrder() {
       this.displayTab.isNewActive = false;
