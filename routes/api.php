@@ -32,3 +32,5 @@ Route::put('like', 'LikeController@like')->name('like');
 Route::delete('unlike', 'LikeController@unlike')->name('unlike');
 
 Route::get('ownProblemExercizeBooks/{id}', 'GetOwnProblemExercizeBooksController');
+
+Route::get('orderFavorite', 'OrderFavoriteController');

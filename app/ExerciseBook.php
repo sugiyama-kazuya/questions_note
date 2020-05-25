@@ -94,14 +94,20 @@ class ExerciseBook extends Model
      *
      * @return object
      */
-    public function filteringRequiredData($exercise_books): object
+    public function filteringRequiredData($exercise_books, $likes = false): object
     {
         //        必要なデータの絞り込み
-        $exercise_books = $exercise_books->map(function ($data) {
-            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName']);
-        });
+        if (!$likes) {
+            $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName']);
+            });
+        } else {
+            $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName', 'likes']);
+            });
+        }
 
-        //        重複している問題は一つに絞る
+        //    重複している問題は一つに絞る
         $exercise_books = $exercise_books->unique(function ($item) {
             return $item['user_id'] . $item['exercise_books_name_id'];
         });
