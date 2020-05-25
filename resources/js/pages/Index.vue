@@ -78,17 +78,24 @@ export default {
 
       this.isLoading = true;
       await this.$store.dispatch("listProblem/getProblmeCard");
-      this.isLoading = false;
 
       this.problemCardData = await this.$store.state.listProblem.problemCardData
         .exerciseBooks;
+      this.isLoading = false;
     },
     async popularOrder() {
       this.displayTab.isNewActive = false;
       this.displayTab.isPopularActive = true;
-    },
-    isLike() {
-      this;
+
+      this.isLoading = true;
+      const response = await axios
+        .get("/api/orderFavorite")
+        .catch(error => error.response || error);
+
+      console.log(response.data);
+
+      this.problemCardData = response.data.exerciseBooks;
+      this.isLoading = false;
     }
   }
 };
