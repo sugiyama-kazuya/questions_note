@@ -8,18 +8,15 @@
       </Header>
 
       <div class="flex justify-center items-center h-10 px-3 round-sm">
-        <div class="inline-flex w-4/5 st-border h-60">
-          <button
-            @click="newArrivalsOrder"
-            class="w-1/2 bg-white text-indigo-500 py-2 px-4 focus:outline-none"
-            :class="{ 'is-tab-active': displayTab.isNewActive }"
-          >新着</button>
-          <button
-            @click="popularOrder"
-            class="w-1/2 bg-white py-2 px-4 text-indigo-500 focus:outline-none"
-            :class="{ 'is-tab-active': displayTab.isPopularActive }"
-          >人気順</button>
-        </div>
+        <ChangeTabBtn
+          @left-click="newArrivalsOrder"
+          @right-click="popularOrder"
+          :isLeftActive="displayTab.isNewActive"
+          :isRightActive="displayTab.isPopularActive"
+        >
+          <template v-slot:leftBtnText>新着</template>
+          <template v-slot:rightBtnText>人気順</template>
+        </ChangeTabBtn>
       </div>
 
       <main class="overflow-y-scroll h-82 py-2">
@@ -41,6 +38,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ProblemCard from "../components/ProblemCard";
 import Loading from "../components/Loading";
+import ChangeTabBtn from "../components/ChangeTabBtn";
 
 export default {
   name: "Index",
@@ -48,7 +46,8 @@ export default {
     Header,
     Footer,
     ProblemCard,
-    Loading
+    Loading,
+    ChangeTabBtn
   },
   data() {
     return {
@@ -104,10 +103,5 @@ export default {
 <style scoped>
 .st-border {
   border: 1px solid #667eea;
-}
-
-.is-tab-active {
-  background-color: #667eea !important;
-  color: #fff !important;
 }
 </style>
