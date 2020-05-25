@@ -8,7 +8,7 @@
       </Header>
 
       <main class="overflow-y-scroll h-92">
-        <div class="bg-white shadow-xl mb-4">
+        <div class="bg-white shadow-xl">
           <div class="text-right py-3 px-3">
             <DefaultBtn :height="'h-3rem'" :width="'w-1/3'">
               <template>フォローする</template>
@@ -32,6 +32,18 @@
           </div>
         </div>
 
+        <div class="flex justify-center items-center h-10 px-3 my-3 round-sm">
+          <ChangeTabBtn
+            @left-click="ownExerciseBooks"
+            @right-click="favoriteOrder"
+            :isLeftActive="displayTab.isOwnExerciseBooks"
+            :isRightActive="displayTab.isFavoriteOrder"
+          >
+            <template v-slot:leftBtnText>問題</template>
+            <template v-slot:rightBtnText>お気に入り</template>
+          </ChangeTabBtn>
+        </div>
+
         <Loading if="isLoading" :loading="isLoading" />
         <ProblemCard
           v-for="cardData in problemCardData"
@@ -53,6 +65,7 @@ import Footer from "../components/Footer";
 import DefaultBtn from "../components/DefaultBtn";
 import ProblemCard from "../components/ProblemCard";
 import Loading from "../components/Loading";
+import ChangeTabBtn from "../components/ChangeTabBtn";
 import { INTERNAL_SERVER_ERROR } from "../util";
 
 export default {
@@ -62,13 +75,32 @@ export default {
     Footer,
     DefaultBtn,
     ProblemCard,
-    Loading
+    Loading,
+    ChangeTabBtn
   },
   data() {
     return {
       problemCardData: {},
+      displayTab: {
+        isOwnExerciseBooks: true,
+        isFavoriteOrder: false
+      },
       isLoading: false
     };
+  },
+  methods: {
+    ownExerciseBooks() {
+      this.displayTab.isOwnExerciseBooks = true;
+      this.displayTab.isFavoriteOrder = false;
+
+      console.log("左");
+    },
+    favoriteOrder() {
+      this.displayTab.isOwnExerciseBooks = false;
+      this.displayTab.isFavoriteOrder = true;
+
+      console.log("右");
+    }
   },
   async mounted() {
     this.isLoading = true;
