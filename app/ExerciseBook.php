@@ -72,10 +72,10 @@ class ExerciseBook extends Model
      * @param [type] $id
      * @return boolean
      */
-    public function isLikedBy(?User $user): bool
+    public function isLikedBy(int $user_id = null): bool
     {
-        return $user
-            ? (bool) $this->likes()->where('users.id', $user->id)->count() : false;
+        return $user_id
+            ? (bool) $this->likes()->where('users.id', $user_id)->count() : false;
     }
 
     /**
@@ -92,26 +92,30 @@ class ExerciseBook extends Model
     /**
      * 問題カードを表示する為に必要なデータの絞り込み
      *
+     * @param $exercise_books object
+     * @param $likes Boolean DBから取得時にlikesテーブルも取得しているか否か
      * @return object
      */
-    public function filteringRequiredData($exercise_books, $likes = false): object
+    public function filteringRequiredData($exercise_books, int $user_id = null): object
     {
-        //        必要なデータの絞り込み
-        if (!$likes) {
-            $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName']);
-            });
-        } else {
-            $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName', 'likes']);
-            });
-        }
+        // いいねの数といいねがされているか否かの変数を代入
+        $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
+            $exercise_books_data = $data;
+            $exercise_books_data['favolite_count'] = $data['likes']->count();
+            $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
+            return $exercise_books_data;
+        });
 
-        //    重複している問題は一つに絞る
-        $exercise_books = $exercise_books->unique(function ($item) {
-            return $item['user_id'] . $item['exercise_books_name_id'];
+        //        必要なデータの絞り込み
+        $exercise_books = $exercise_books->map(function ($data) {
+            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName', 'favolite_count', 'is_liked_by']);
         });
 
         return $exercise_books;
+    }
+
+    public function getExerciseBookDataFormat()
+    {
+        return $this->with(['user:id,name', 'exerciseBooksName:id,name', 'likes']);
     }
 }

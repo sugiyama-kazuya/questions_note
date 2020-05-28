@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\ExerciseBook;
 use Illuminate\Support\Facades\Log;
 
-class GetOwnProblemExercizeBooksController extends Controller
+class GetOwnExercizeBooksController extends Controller
 {
     /**
      * 自身の問題集を取得
@@ -17,10 +17,10 @@ class GetOwnProblemExercizeBooksController extends Controller
      */
     public function __invoke(ExerciseBook $exercise_book, $user_id)
     {
-        $exercise_books = $exercise_book->with('user', 'exerciseBooksName')->where('user_id', $user_id)->get();
+        $exercise_books = $exercise_book->getExerciseBookDataFormat($likes = true)->where('user_id', $user_id)->get();
 
-        $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
+        $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $likes = true);
 
-        return response()->json(['exerciseBooks' => $exercise_books]);
+        return response()->json(['exercise_books' => $exercise_books]);
     }
 }
