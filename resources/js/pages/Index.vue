@@ -62,7 +62,7 @@ export default {
   async mounted() {
     this.isLoading = true;
     await this.$store.dispatch("listProblem/getProblmeCard");
-    this.problemCardData = this.$store.state.listProblem.problemCardData.exerciseBooks;
+    this.problemCardData = this.$store.state.listProblem.problemCardData.exercise_books;
 
     this.displayTab.isNewActive = true;
 
@@ -79,7 +79,7 @@ export default {
       await this.$store.dispatch("listProblem/getProblmeCard");
 
       this.problemCardData = await this.$store.state.listProblem.problemCardData
-        .exerciseBooks;
+        .exercise_books;
       this.isLoading = false;
     },
     async popularOrder() {
@@ -93,7 +93,7 @@ export default {
 
       console.log(response.data);
 
-      this.problemCardData = response.data.exerciseBooks;
+      this.problemCardData = response.data.exercise_books;
       this.isLoading = false;
     }
   }
