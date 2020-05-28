@@ -120,11 +120,11 @@ export default {
   },
   async mounted() {
     console.log(this.cardData.id);
+    this.count = this.cardData.favolite_count;
+    this.isLikedBy = this.cardData.is_liked_by;
     const isLike = await this.isLikedByApi(this.cardData.id);
-    const countLikes = await this.countLikes(this.cardData.id);
 
     isLike ? (this.isLikedBy = isLike) : (this.isLikedBy = false);
-    countLikes ? (this.count = countLikes) : (this.count = 0);
   },
   watch: {
     async isLikedBy(newIsLikedBy, oldIsLikedBy) {

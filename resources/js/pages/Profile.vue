@@ -89,30 +89,43 @@ export default {
     };
   },
   methods: {
-    ownExerciseBooks() {
+    async ownExerciseBooks() {
       this.displayTab.isOwnExerciseBooks = true;
       this.displayTab.isFavoriteOrder = false;
 
-      console.log("左");
+      this.isLoading = true;
+      await this.getOwnExercizeBooks();
+      this.isLoading = false;
     },
-    favoriteOrder() {
+    async favoriteOrder() {
       this.displayTab.isOwnExerciseBooks = false;
       this.displayTab.isFavoriteOrder = true;
 
-      console.log("右");
+      this.isLoading = true;
+
+      const response = await axios
+        .get("/api/ownFavoriteExerciseBooks")
+        .catch(error => error.resoponse);
+
+      this.problemCardData = response.data.exercise_books;
+      this.isLoading = false;
+    },
+    async getOwnExercizeBooks() {
+      const url = `/api/ownExercizeBooks/${this.$route.params.userId}`;
+
+      const response = await axios.get(url).catch(error => error.response);
+
+      if (response.status === INTERNAL_SERVER_ERROR) {
+        this.$router.push("/500");
+      }
+
+      this.problemCardData = response.data.exercise_books;
     }
   },
   async mounted() {
     this.isLoading = true;
-    const url = `/api/ownProblemExercizeBooks/${this.$route.params.userId}`;
-    const response = await axios.get(url).catch(error => error.response);
-
-    if (response.status === INTERNAL_SERVER_ERROR) {
-      this.$router.push("/500");
-    }
-
+    const exerciseBooks = await this.getOwnExercizeBooks();
     this.isLoading = false;
-    this.problemCardData = response.data.exerciseBooks;
   }
 };
 </script>

@@ -22,12 +22,17 @@ class ProblemController extends Controller
      */
     public function index(ExerciseBook $exercise_book)
     {
+        $login_user_id = Auth::id();
         // 問題カードに必要なデータを取得
-        $exercise_books = $exercise_book->with('user', 'exerciseBooksName')->get();
+        $exercise_books = $exercise_book->getExerciseBookDataFormat()->get();
 
-        $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
+        if ($login_user_id) {
+            $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
+        } else {
+            $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
+        }
 
-        return response()->json(['exerciseBooks' => $exercise_books]);
+        return response()->json(['exercise_books' => $exercise_books]);
     }
 
     /**
@@ -63,12 +68,15 @@ class ProblemController extends Controller
 
         $exercise_book_name_id = $exercise_book_name->where('user_id', $login_user_id)->where('name', $req->exerciseBook)->first('id')->id;
 
-        $exercise_book->fill([
-            'exercise_books_name_id' => $exercise_book_name_id,
-            'user_id' => $login_user_id,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ])->save();
+        $exercise_book->where('user_id', $login_user_id)->firstOrCreate(
+            ['exercise_books_name_id' => $exercise_book_name_id],
+            [
+                'exercise_books_name_id' => $exercise_book_name_id,
+                'user_id' => $login_user_id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
 
         // 先ほど登録した問題集のIDを取得
         $insert_exercise_book_id = $exercise_book->where('user_id', $login_user_id)->where('exercise_books_name_id', $exercise_book_name_id)->first('id')->id;

@@ -31,6 +31,7 @@ Route::get('countLikes/{id}', 'CountLikesController');
 Route::put('like', 'LikeController@like')->name('like');
 Route::delete('unlike', 'LikeController@unlike')->name('unlike');
 
-Route::get('ownProblemExercizeBooks/{id}', 'GetOwnProblemExercizeBooksController');
+Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
 
 Route::get('orderFavorite', 'OrderFavoriteController');
+Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');

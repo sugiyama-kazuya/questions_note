@@ -16,7 +16,7 @@ class IsLikedByController extends Controller
      */
     public function __invoke(ExerciseBook $exercise_book, $id)
     {
-        $isLikedBy = $exercise_book->currentExerciseBook($id)->isLikedBy(Auth::user());
+        $isLikedBy = $exercise_book->currentExerciseBook($id)->isLikedBy(Auth::id());
 
         return ['isLike' => $isLikedBy];
     }
