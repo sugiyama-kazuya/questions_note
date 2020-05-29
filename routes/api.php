@@ -35,3 +35,13 @@ Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
 
 Route::get('orderFavorite', 'OrderFavoriteController');
 Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');
+
+Route::resource('profile', 'ProfileController');
+
+// userに関するルーティング
+Route::prefix('user')->name('user.')->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::put('{id}/follow', 'UserController@follow')->name('follow');
+        Route::delete('{id}/follow', 'UserController@unfollow')->name('unfollow');
+    });
+});
