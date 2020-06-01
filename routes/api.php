@@ -43,5 +43,7 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::put('{id}/follow', 'UserController@follow')->name('follow');
         Route::delete('{id}/follow', 'UserController@unfollow')->name('unfollow');
+        Route::get('{id}/followers', 'UserController@followersCount')->name('followers');
+        Route::get('{id}/follwings', 'UserController@follwingsCount')->name('follwings');
     });
 });
