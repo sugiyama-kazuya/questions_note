@@ -100,7 +100,8 @@ class ProblemController extends Controller
      */
     public function show($exercise_books_id)
     {
-        $problem_data = Problem::where('user_id', Auth::id())->where('exercise_book_id', $exercise_books_id)->get();
+
+        $problem_data = Problem::where('exercise_book_id', $exercise_books_id)->get();
 
         $problem_count = $problem_data->count('id');
 
