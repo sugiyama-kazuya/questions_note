@@ -8,27 +8,41 @@
       </Header>
 
       <main class="overflow-y-scroll h-92">
-        <div class="bg-white shadow-xl">
-          <div class="text-right py-3 px-3">
-            <DefaultBtn :height="'h-3rem'" :width="'w-1/3'">
-              <template>フォローする</template>
-            </DefaultBtn>
-          </div>
-          <div class="flex flex-col justify-center items-center">
-            <div class>
-              <img
-                class="rounded-full h-12rem w-48"
-                src="http://placeimg.com/350/250/people"
-                alt="プロフィール画像"
-              />
+        <div class="flex bg-white shadow-xl py-3 px-4">
+          <div class="flex flex-col w-1/2">
+            <div class="text-center p-2">
+              <span>{{userData.name}}</span>
             </div>
-            <div class="p-3">
-              <span>kazuya</span>
+            <div class="flex justify-center">
+              <div class="w-50 relative img-circle">
+                <img
+                  class="m-0 h-100 bg-cover absolute inset-0 img-profile"
+                  src="http://placeimg.com/350/250/people"
+                  alt="プロフィール画像"
+                />
+              </div>
             </div>
           </div>
-          <div class="flex items-center justify-center p-4">
-            <div class="mr-4">フォロー 1</div>
-            <div>フォロワー 2</div>
+          <div class="w-1/2 flex flex-col text-right">
+            <div class="w-full h-30 flex justify-end">
+              <DefaultBtn
+                v-if="!isLoginUser"
+                @click-btn="isFollow"
+                :text="btnTextColor"
+                :color="btnBgColor"
+                :height="'h-3rem'"
+                :width="'w-2/3'"
+                class="h-100"
+              >
+                <template>{{btnText}}</template>
+              </DefaultBtn>
+            </div>
+            <div class="h-70 flex flex-col items-center justify-end">
+              <div class="flex flex-col">
+                <span class="mb-2 text-left">フォロー {{followingsCount}}</span>
+                <span class="text-left">フォロワー {{followersCount}}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -81,11 +95,15 @@ export default {
   data() {
     return {
       problemCardData: {},
+      userData: {},
       displayTab: {
         isOwnExerciseBooks: true,
         isFavoriteOrder: false
       },
-      isLoading: false
+      isLoading: false,
+      isFollowedBy: false,
+      followingsCount: "",
+      followersCount: ""
     };
   },
   methods: {
@@ -119,15 +137,87 @@ export default {
         this.$router.push("/500");
       }
 
+      console.log(response.data);
+
       this.problemCardData = response.data.exercise_books;
+    },
+    async isFollow() {
+      const url = `/api/user/${this.$route.params.userId}/follow`;
+      if (this.isFollowedBy) {
+        this.isFollowedBy = false;
+        const response = await axios
+          .delete(url)
+          .catch(error => error.response || error);
+
+        if (response.status === INTERNAL_SERVER_ERROR) {
+          this.$router.push("/500");
+          return;
+        }
+      } else {
+        this.isFollowedBy = true;
+        const response = await axios
+          .put(url)
+          .catch(error => error.response || error);
+
+        if (response.status === INTERNAL_SERVER_ERROR) {
+          this.$router.push("/500");
+          return;
+        }
+      }
     }
   },
   async mounted() {
     this.isLoading = true;
     const exerciseBooks = await this.getOwnExercizeBooks();
+    const userUrl = `/api/profile/${this.$route.params.userId}`;
+    const response = await axios
+      .get(userUrl)
+      .catch(error => error.response || error);
+
+    this.userData = response.data.user;
+    this.followersCount = response.data.user.followers_count;
+    this.followingsCount = response.data.user.followings_count;
+    this.isFollowedBy = response.data.user.is_followed_by;
     this.isLoading = false;
+    console.log(this.$store.state.auth.user);
+  },
+  computed: {
+    btnBgColor() {
+      return this.isFollowedBy ? "bg-blue-400" : "white";
+    },
+    btnTextColor() {
+      return this.isFollowedBy ? "text-white" : "text-blue-400";
+    },
+    btnText() {
+      return this.isFollowedBy ? "フォロー中" : "フォローする";
+    },
+    isLoginUser() {
+      return this.$store.state.auth.user.id === this.$route.params.userId
+        ? true
+        : false;
+    }
+  },
+  watch: {
+    async isFollowedBy() {
+      const url = `/api/user/${this.$route.params.userId}/followers`;
+      const response = await axios
+        .get(url)
+        .catch(error => error.response || error);
+
+      this.followersCount = response.data.follower_count;
+    }
   }
 };
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.img-circle:before {
+  display: block;
+  content: "";
+  padding-bottom: 100%;
+}
+
+.img-profile {
+  border-radius: 50%;
+}
+</style>
