@@ -151,7 +151,7 @@ import Loading from "../components/Loading";
 import CenterModal from "../components/CenterModal";
 import DefaultBtn from "../components/DefaultBtn";
 import AnswerCorrectnessBtn from "../components/AnswerCorrectnessBtn";
-import CenterModalBtn from "../components/ProblemPlay/CenterModalBtn";
+import CenterModalBtn from "../components/CenterModalBtn";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faTimes,
