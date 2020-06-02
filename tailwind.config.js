@@ -37,7 +37,8 @@ module.exports = {
         },
         extend: {
             width: {
-                "50%": "50%"
+                "50%": "50%",
+                "12rem": "12rem"
             }
         }
     },
