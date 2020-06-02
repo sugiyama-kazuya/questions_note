@@ -28,13 +28,24 @@
               <DefaultBtn
                 v-if="!isLoginUser"
                 @click-btn="isFollow"
-                :text="btnTextColor"
-                :color="btnBgColor"
+                :text="followBtnTextColor"
+                :color="followbBtnBgColor"
                 :height="'h-3rem'"
                 :width="'w-2/3'"
                 class="h-100"
               >
-                <template>{{btnText}}</template>
+                <template>{{followBtnText}}</template>
+              </DefaultBtn>
+              <DefaultBtn
+                v-if="isLoginUser"
+                @click-btn="goEditScreen"
+                :text="editBtn.btnTextColor"
+                :color="editBtn.btnBgColor"
+                :height="'h-3rem'"
+                :width="'w-1/3'"
+                class="h-100"
+              >
+                <template>{{editBtn.btnText}}</template>
               </DefaultBtn>
             </div>
             <div class="h-70 flex flex-col items-center justify-end">
@@ -100,6 +111,11 @@ export default {
         isOwnExerciseBooks: true,
         isFavoriteOrder: false
       },
+      editBtn: {
+        btnText: "編集",
+        btnTextColor: "text-blue-400",
+        btnBgColor: "bg-white"
+      },
       isLoading: false,
       isFollowedBy: false,
       followingsCount: "",
@@ -164,6 +180,9 @@ export default {
           return;
         }
       }
+    },
+    goEditScreen() {
+      this.$router.push(`/profile/${this.$route.params.userId}/edit`);
     }
   },
   async mounted() {
@@ -179,22 +198,21 @@ export default {
     this.followingsCount = response.data.user.followings_count;
     this.isFollowedBy = response.data.user.is_followed_by;
     this.isLoading = false;
-    console.log(this.$store.state.auth.user);
   },
   computed: {
-    btnBgColor() {
+    followBtnBgColor() {
       return this.isFollowedBy ? "bg-blue-400" : "white";
     },
-    btnTextColor() {
+    followBtnTextColor() {
       return this.isFollowedBy ? "text-white" : "text-blue-400";
     },
-    btnText() {
+    followBtnText() {
       return this.isFollowedBy ? "フォロー中" : "フォローする";
     },
     isLoginUser() {
-      return this.$store.state.auth.user.id === this.$route.params.userId
-        ? true
-        : false;
+      const paramsUserId = parseInt(this.$route.params.userId);
+      const loginUserId = parseInt(this.$store.state.auth.user.id);
+      return loginUserId === paramsUserId ? true : false;
     }
   },
   watch: {
