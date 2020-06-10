@@ -5,10 +5,13 @@ namespace App;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
     use Notifiable;
+
+    const ID_LENGTH = 10;
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'profile_img'
     ];
 
     /**
@@ -25,7 +28,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'followers', 'followings'
+        'password', 'remember_token', 'followers', 'followings', 'email_verified_at'
     ];
 
     /**
@@ -36,6 +39,35 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // public function getUrlAttribute()
+    // {
+    //     return $this->attributes['profile_img'];
+    // }
+
+    /**
+     * ランダムなid値を作成
+     *
+     * @return integer
+     */
+    public function getRandomId(): string
+    {
+        $characters = array_merge(
+            range(0, 9),
+            range('a', 'z'),
+            range('A', 'Z'),
+            ['-', '_']
+        );
+
+        $length = count($characters);
+        $id = "";
+
+        for ($i = 0; $i < self::ID_LENGTH; $i++) {
+            $id .= $characters[random_int(0, $length - 1)];
+        };
+
+        return $id;
+    }
 
     /**
      * フォロワー
@@ -110,8 +142,22 @@ class User extends Authenticatable
     public function getProfileRequiredData(int $user_id): object
     {
         $current_user = $this->currentUser($user_id);
-        $current_user['followers_count'] = $current_user->followers_count;
-        $current_user['followings_count'] = $current_user->followings_count;
-        return $current_user;
+
+        if ($current_user->profile_img) {
+            $file_path = $current_user->awsUrlFetch($current_user->profile_img);
+            $current_user['followers_count'] = $current_user->followers_count;
+            $current_user['followings_count'] = $current_user->followings_count;
+            $current_user['profile_img'] = $file_path;
+            return $current_user;
+        } else {
+            $current_user['followers_count'] = $current_user->followers_count;
+            $current_user['followings_count'] = $current_user->followings_count;
+            return $current_user;
+        }
+    }
+
+    public function awsUrlFetch(string $file_path): string
+    {
+        return $file_path ? Storage::cloud()->url($file_path) : "";
     }
 }
