@@ -11,7 +11,9 @@ class OwnFavoriteExerciseBooksController extends Controller
     {
         $login_user_id = Auth::id();
 
-        $exercise_books = $exercise_book->getExerciseBookDataFormat()->get();
+        $exercise_books = $exercise_book->getExerciseBookData()->get();
+
+        $exercise_books = $exercise_book->addProfileUrl($exercise_books);
 
         // 自分がいいねをしている問題だけに絞り込み
         $exercise_books = $exercise_books->filter(function ($data) use ($login_user_id) {
