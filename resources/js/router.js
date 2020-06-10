@@ -7,6 +7,8 @@ import SystemError from "./pages/errors/System";
 import Index from "./pages/Index";
 import Create from "./pages/Create";
 import Problem from "./pages/Problem";
+import Profile from "./pages/Profile";
+import ProfileEdit from "./pages/ProfileEdit";
 
 Vue.use(VueRouter);
 
@@ -17,6 +19,16 @@ export default new VueRouter({
             path: "/home",
             name: "home",
             component: Index
+        },
+        {
+            path: "/profile/:userId",
+            name: "profile",
+            component: Profile
+        },
+        {
+            path: "/profile/:userId/edit",
+            name: "profileEdit",
+            component: ProfileEdit
         },
         {
             path: "/create",

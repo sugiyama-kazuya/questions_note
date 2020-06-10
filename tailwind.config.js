@@ -26,15 +26,23 @@ module.exports = {
             "92": "92%",
             "95": "95%",
             "1rem": "1rem",
+            "2rem": "2rem",
             "2.5rem": "2.5rem",
             "3rem": "3rem",
             "4rem": "4rem",
             "5rem": "5rem",
             "6rem": "6rem",
             "7rem": "7rem",
-            "8rem": "8rem"
+            "8rem": "8rem",
+            "12rem": "12rem"
         },
-        extend: {}
+        extend: {
+            width: {
+                "50%": "50%",
+                "2rem": "2rem",
+                "12rem": "12rem"
+            }
+        }
     },
     variants: {},
     plugins: []

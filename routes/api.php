@@ -30,3 +30,20 @@ Route::get('islikedby/{id}', 'isLikedByController');
 Route::get('countLikes/{id}', 'CountLikesController');
 Route::put('like', 'LikeController@like')->name('like');
 Route::delete('unlike', 'LikeController@unlike')->name('unlike');
+
+Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
+
+Route::get('orderFavorite', 'OrderFavoriteController');
+Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');
+
+Route::resource('profile', 'ProfileController');
+
+// userに関するルーティング
+Route::prefix('user')->name('user.')->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::put('{id}/follow', 'UserController@follow')->name('follow');
+        Route::delete('{id}/follow', 'UserController@unfollow')->name('unfollow');
+        Route::get('{id}/followers', 'UserController@followersCount')->name('followers');
+        Route::get('{id}/follwings', 'UserController@follwingsCount')->name('follwings');
+    });
+});

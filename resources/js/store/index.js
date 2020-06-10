@@ -6,6 +6,7 @@ import error from "./error";
 import createForm from "./createForm";
 import listProblem from "./listProblem";
 import playProblem from "./playProblem";
+import flashMessage from "./flashMessage";
 
 Vue.use(Vuex);
 
@@ -15,7 +16,8 @@ const store = new Vuex.Store({
         error,
         createForm,
         listProblem,
-        playProblem
+        playProblem,
+        flashMessage
     }
 });
 
