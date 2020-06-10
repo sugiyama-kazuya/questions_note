@@ -15,9 +15,16 @@
             </div>
             <div class="flex justify-center">
               <div class="w-50 relative img-circle">
+                <font-awesome-icon
+                  v-if="!userData.profile_img"
+                  icon="user-circle"
+                  class="m-0 h-100 w-100 absolute inset-0 img-profile mr-2"
+                />
+
                 <img
+                  v-if="userData.profile_img"
                   class="m-0 h-100 bg-cover absolute inset-0 img-profile"
-                  src="http://placeimg.com/350/250/people"
+                  :src="userData.profile_img"
                   alt="プロフィール画像"
                 />
               </div>
@@ -29,7 +36,7 @@
                 v-if="!isLoginUser"
                 @click-btn="isFollow"
                 :text="followBtnTextColor"
-                :color="followbBtnBgColor"
+                :color="followBtnBgColor"
                 :height="'h-3rem'"
                 :width="'w-2/3'"
                 class="h-100"
@@ -68,8 +75,10 @@
             <template v-slot:rightBtnText>お気に入り</template>
           </ChangeTabBtn>
         </div>
+        <transition name="center-modal">
+          <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
+        </transition>
 
-        <Loading if="isLoading" :loading="isLoading" />
         <ProblemCard
           v-for="cardData in problemCardData"
           :key="cardData.id"
@@ -80,6 +89,12 @@
         </ProblemCard>
       </main>
     </div>
+    <transition name="center-modal">
+      <CenterModal v-if="isFlashMsg">
+        <div class="p-2 bg-gray-800 text-white rounded-md">{{flashMsg.text}}</div>
+      </CenterModal>
+    </transition>
+
     <Footer />
   </div>
 </template>
@@ -91,7 +106,12 @@ import DefaultBtn from "../components/DefaultBtn";
 import ProblemCard from "../components/ProblemCard";
 import Loading from "../components/Loading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
+import CenterModal from "../components/CenterModal";
 import { INTERNAL_SERVER_ERROR } from "../util";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+library.add(faUserCircle);
 
 export default {
   name: "Profile",
@@ -101,7 +121,9 @@ export default {
     DefaultBtn,
     ProblemCard,
     Loading,
-    ChangeTabBtn
+    ChangeTabBtn,
+    CenterModal,
+    FontAwesomeIcon
   },
   data() {
     return {
@@ -116,33 +138,31 @@ export default {
         btnTextColor: "text-blue-400",
         btnBgColor: "bg-white"
       },
-      isLoading: false,
+      loading: {
+        isLoading: false,
+        opacity: 1
+      },
       isFollowedBy: false,
       followingsCount: "",
-      followersCount: ""
+      followersCount: "",
+      flashMsg: {
+        text: "登録が完了しました。",
+        speed: 2000
+      },
+      isFlashMsg: false
     };
   },
   methods: {
-    async ownExerciseBooks() {
-      this.displayTab.isOwnExerciseBooks = true;
-      this.displayTab.isFavoriteOrder = false;
-
-      this.isLoading = true;
-      await this.getOwnExercizeBooks();
-      this.isLoading = false;
-    },
-    async favoriteOrder() {
-      this.displayTab.isOwnExerciseBooks = false;
-      this.displayTab.isFavoriteOrder = true;
-
-      this.isLoading = true;
-
+    async getUser() {
+      const userUrl = `/api/profile/${this.$route.params.userId}`;
       const response = await axios
-        .get("/api/ownFavoriteExerciseBooks")
-        .catch(error => error.resoponse);
+        .get(userUrl)
+        .catch(error => error.response || error);
 
-      this.problemCardData = response.data.exercise_books;
-      this.isLoading = false;
+      this.userData = response.data.user;
+      this.followersCount = response.data.user.followers_count;
+      this.followingsCount = response.data.user.followings_count;
+      this.isFollowedBy = response.data.user.is_followed_by;
     },
     async getOwnExercizeBooks() {
       const url = `/api/ownExercizeBooks/${this.$route.params.userId}`;
@@ -153,9 +173,28 @@ export default {
         this.$router.push("/500");
       }
 
-      console.log(response.data);
+      this.problemCardData = response.data.exercise_books;
+    },
+    async ownExerciseBooks() {
+      this.displayTab.isOwnExerciseBooks = true;
+      this.displayTab.isFavoriteOrder = false;
+      this.loading.opacity = 0;
+      this.loading.isLoading = true;
+      await this.getOwnExercizeBooks();
+      this.loading.isLoading = false;
+    },
+    async favoriteOrder() {
+      this.displayTab.isOwnExerciseBooks = false;
+      this.displayTab.isFavoriteOrder = true;
+
+      this.loading.opacity = 0;
+      this.loading.isLoading = true;
+      const response = await axios
+        .get("/api/ownFavoriteExerciseBooks")
+        .catch(error => error.resoponse);
 
       this.problemCardData = response.data.exercise_books;
+      this.loading.isLoading = false;
     },
     async isFollow() {
       const url = `/api/user/${this.$route.params.userId}/follow`;
@@ -183,25 +222,28 @@ export default {
     },
     goEditScreen() {
       this.$router.push(`/profile/${this.$route.params.userId}/edit`);
+    },
+    async showFlashMsg() {
+      this.isFlashMsg = await this.isVisible;
+      const profileObject = this;
+      if (this.isFlashMsg) {
+        setTimeout(async function() {
+          await profileObject.$store.dispatch("flashMessage/hideFlashMsg");
+          profileObject.isFlashMsg = false;
+        }, this.flashMsg.speed);
+      }
     }
   },
-  async mounted() {
-    this.isLoading = true;
-    const exerciseBooks = await this.getOwnExercizeBooks();
-    const userUrl = `/api/profile/${this.$route.params.userId}`;
-    const response = await axios
-      .get(userUrl)
-      .catch(error => error.response || error);
-
-    this.userData = response.data.user;
-    this.followersCount = response.data.user.followers_count;
-    this.followingsCount = response.data.user.followings_count;
-    this.isFollowedBy = response.data.user.is_followed_by;
-    this.isLoading = false;
+  async created() {
+    this.loading.isLoading = true;
+    await this.getOwnExercizeBooks();
+    await this.getUser();
+    this.loading.isLoading = false;
+    this.showFlashMsg();
   },
   computed: {
     followBtnBgColor() {
-      return this.isFollowedBy ? "bg-blue-400" : "white";
+      return this.isFollowedBy ? "bg-blue-400" : "bg-white";
     },
     followBtnTextColor() {
       return this.isFollowedBy ? "text-white" : "text-blue-400";
@@ -213,6 +255,9 @@ export default {
       const paramsUserId = parseInt(this.$route.params.userId);
       const loginUserId = parseInt(this.$store.state.auth.user.id);
       return loginUserId === paramsUserId ? true : false;
+    },
+    isVisible() {
+      return this.$store.state.flashMessage.visible;
     }
   },
   watch: {
@@ -223,6 +268,12 @@ export default {
         .catch(error => error.response || error);
 
       this.followersCount = response.data.follower_count;
+    },
+    async $route() {
+      this.loading.isLoading = true;
+      await this.getOwnExercizeBooks();
+      await this.getUser();
+      this.loading.isLoading = false;
     }
   }
 };
@@ -237,5 +288,15 @@ export default {
 
 .img-profile {
   border-radius: 50%;
+}
+
+.center-modal-enter-active,
+.center-modal-leave-active {
+  transition: opacity 0.2s;
+}
+
+.center-modal-enter,
+.center-modal-leave-to {
+  opacity: 0;
 }
 </style>
