@@ -60,7 +60,7 @@ class ExerciseBook extends Model
      *
      * @return integer
      */
-    public function getCountLikesAttribute()
+    public function getCountLikesAttribute(): int
     {
         return $this->likes()->count();
     }
@@ -114,8 +114,28 @@ class ExerciseBook extends Model
         return $exercise_books;
     }
 
-    public function getExerciseBookDataFormat()
+    /**
+     * 使用するデータを取得
+     *
+     * @return object
+     */
+    public function getExerciseBookData(): object
     {
-        return $this->with(['user:id,name', 'exerciseBooksName:id,name', 'likes']);
+        return $this->with(['user:id,name,profile_img', 'exerciseBooksName:id,name', 'likes']);
+    }
+
+    /**
+     * S3からユーザー画像のURLを取得
+     *
+     * @param [object] $data
+     * @return object
+     */
+    public function addProfileUrl($data): object
+    {
+        return $data->map(function ($item) {
+            $data = $item;
+            $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
+            return $data;
+        });
     }
 }
