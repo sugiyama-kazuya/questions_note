@@ -21,7 +21,7 @@
         <div class="flex justify-center items-center h-100">
           <div class="w-full h-100">
             <div v-if="uploadImg" class="flex justify-center mt-4">
-              <img class="profile-img h-12rem w-12rem bg-cover" :src="uploadImg" alt />
+              <img class="profile-img h-12rem w-12rem bg-cover" :src="uploadImg" />
             </div>
             <ValidationObserver v-slot="{ handleSubmit }">
               <form
@@ -52,6 +52,15 @@
                     <transition name="validateError">
                       <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
                     </transition>
+                    <transition name="validateError">
+                      <div v-if="validationErrorMsg.name">
+                        <p
+                          v-for="msg in validationErrorMsg.name"
+                          :key="msg"
+                          class="text-red-500 text-xs italic"
+                        >{{msg}}</p>
+                      </div>
+                    </transition>
                   </ValidationProvider>
                 </div>
                 <div class="mb-6">
@@ -67,11 +76,20 @@
                     <transition name="validateError">
                       <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
                     </transition>
+                    <transition name="validateError">
+                      <div v-if="validationErrorMsg.email">
+                        <p
+                          v-for="msg in validationErrorMsg.email"
+                          :key="msg"
+                          class="text-red-500 text-xs italic"
+                        >{{msg}}</p>
+                      </div>
+                    </transition>
                   </ValidationProvider>
                 </div>
                 <div class="mb-6">
                   <label class="block text-gray-700 text-sm font-bold mb-2" for="email">プロフィール画像</label>
-                  <ValidationProvider name="image" rules="required" v-slot="{ errors }">
+                  <ValidationProvider name="image" rules v-slot="{ errors }">
                     <label class="p-2 border rounded-lg text-gray-500 text-sm shadow-sm">
                       画像を選択
                       <input
@@ -82,9 +100,6 @@
                         class="hidden"
                       />
                     </label>
-                    <transition name="validateError">
-                      <p v-if="errors[0]" class="text-red-500 text-xs italic">{{errors[0]}}</p>
-                    </transition>
                   </ValidationProvider>
                 </div>
                 <div class="flex items-center justify-between"></div>
@@ -113,6 +128,7 @@
         </div>
       </CenterModal>
     </transition>
+    <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
   </div>
 </template>
 
@@ -121,6 +137,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CenterModal from "../components/CenterModal";
 import CenterModalBtn from "../components/CenterModalBtn";
+import Loading from "../components/Loading";
+import { OK, UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -143,7 +161,8 @@ export default {
     CenterModal,
     CenterModalBtn,
     ValidationProvider,
-    ValidationObserver
+    ValidationObserver,
+    Loading
   },
   data() {
     return {
@@ -154,30 +173,98 @@ export default {
         email: "",
         file: ""
       },
-      uploadImg: ""
+      uploadImg: "",
+      validationErrorMsg: {
+        name: null,
+        email: null,
+        file: null
+      },
+      loading: {
+        isLoading: false,
+        opacity: 1
+      },
+      userId: this.$route.params.userId
     };
   },
   methods: {
-    editEnd() {},
     goOwnProfile() {
-      console.log(this.$route.params);
-      this.$router.push(`/profile/${this.$route.params.userId}`);
+      this.$router.push(`/profile/${this.userId}`);
     },
-    saveProfile() {
-      console.log("!");
+    async saveProfile() {
+      this.loading.isLoading = true;
+      const formData = await new FormData();
+      formData.append("name", this.profile.name);
+      formData.append("email", this.profile.email);
+      formData.append("file", this.profile.file);
+      for (let value of formData.entries()) {
+        console.log(value);
+      }
+
+      const url = `/api/profile/${this.urlParam}`;
+
+      const formDataResponse = await axios
+        .post(url, formData, {
+          headers: {
+            "X-HTTP-Method-Override": "PUT"
+          }
+        })
+        .catch(error => error.response || error);
+
+      if (formDataResponse.status === UNPROCESSABLE_ENTITY) {
+        this.validationErrorMsg.name = formDataResponse.data.errors.name;
+        this.validationErrorMsg.email = formDataResponse.data.errors.email;
+        this.validationErrorMsg.file = formDataResponse.data.errors.file;
+        this.loading.isLoading = false;
+        console.log(this.validationErrorMsg);
+
+        return;
+      }
+
+      if (formDataResponse.status !== OK) {
+        this.validationErrorMsg = formDataResponse.data.error;
+        this.loading.isLoading = false;
+        return false;
+      }
+
+      if (formDataResponse.status === OK) {
+        this.$store.dispatch("flashMessage/showFlashMsg");
+        this.$router.push(`/profile/${this.userId}`);
+      }
     },
     onFileChange(event) {
       const file = event.target.files[0];
+      this.profile.file = file;
       this.createImg(file);
     },
     createImg(file) {
-      console.log(file);
       const profileFileReader = new FileReader();
       profileFileReader.onload = e => {
         this.uploadImg = e.target.result;
       };
-
+      //base64形式に変換、img要素のsrcの値として機能する
       profileFileReader.readAsDataURL(file);
+    }
+  },
+  async created() {
+    this.loading.isLoading = true;
+    const firstDisplay = await axios
+      .get(`/api/profile/${this.$route.params.userId}/edit`)
+      .catch(error => error.firstDisplay || error);
+
+    if (firstDisplay.status === INTERNAL_SERVER_ERROR) {
+      this.$router.push("/500");
+    }
+
+    console.log(firstDisplay.data);
+
+    this.uploadImg = firstDisplay.data.profile_img;
+    this.profile.name = firstDisplay.data.name;
+    this.profile.email = firstDisplay.data.email;
+    this.loading.isLoading = false;
+  },
+  computed: {
+    urlParam() {
+      return this.$route.params.userId;
     }
   }
 };
