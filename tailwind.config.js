@@ -26,6 +26,7 @@ module.exports = {
             "92": "92%",
             "95": "95%",
             "1rem": "1rem",
+            "2rem": "2rem",
             "2.5rem": "2.5rem",
             "3rem": "3rem",
             "4rem": "4rem",
@@ -38,6 +39,7 @@ module.exports = {
         extend: {
             width: {
                 "50%": "50%",
+                "2rem": "2rem",
                 "12rem": "12rem"
             }
         }

@@ -17,7 +17,10 @@ class GetOwnExercizeBooksController extends Controller
      */
     public function __invoke(ExerciseBook $exercise_book, $user_id)
     {
-        $exercise_books = $exercise_book->getExerciseBookDataFormat($likes = true)->where('user_id', $user_id)->get();
+        $exercise_books = $exercise_book->getExerciseBookData()
+            ->where('user_id', $user_id)->get();
+
+        $exercise_books = $exercise_book->addProfileUrl($exercise_books);
 
         $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $likes = true);
 

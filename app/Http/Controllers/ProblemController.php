@@ -8,7 +8,6 @@ use App\Problem;
 use App\ExerciseBook;
 use App\ExerciseBookName;
 use App\Http\Requests\CreateProblem;
-use App\Http\Requests\CreateNewExerciseBooksName;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -24,8 +23,10 @@ class ProblemController extends Controller
     {
         $login_user_id = Auth::id();
         // 問題カードに必要なデータを取得
-        $exercise_books = $exercise_book->getExerciseBookDataFormat()->get();
+        $exercise_books = $exercise_book->getExerciseBookData()->get();
+        $exercise_books = $exercise_book->addProfileUrl($exercise_books);
 
+        // ユーザーがログインしている場合
         if ($login_user_id) {
             $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
         } else {
@@ -108,44 +109,5 @@ class ProblemController extends Controller
         $problem_data = Arr::add(['problem' => $problem_data], 'count', $problem_count);
 
         return response()->json(['problem_data' => $problem_data]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function createExerciseBooksName(CreateNewExerciseBooksName $req)
-    {
-        return $req;
     }
 }

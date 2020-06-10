@@ -1,35 +1,41 @@
 <template>
-    <loading
-        :active.sync="isLoading"
-        :height="40"
-        :width="40"
-        color="#007bff"
-    ></loading>
+  <loading
+    :active.sync="isLoading"
+    :height="40"
+    :width="40"
+    color="#007bff"
+    :opacity="opacity ? opacity : 0.5"
+  ></loading>
 </template>
 
 <script>
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
+import { integer } from "vee-validate/dist/rules";
 export default {
-    components: {
-        Loading
+  components: {
+    Loading
+  },
+  props: {
+    loading: {
+      type: Boolean
     },
-    props: {
-        loading: {
-            type: Boolean
-        }
-    },
-    data() {
-        return {
-            fullPage: false
-        };
-    },
-    computed: {
-        isLoading() {
-            return this.loading;
-        }
+    opacity: {
+      type: Number
     }
+  },
+  data() {
+    return {
+      fullPage: false
+    };
+  },
+  computed: {
+    isLoading() {
+      return this.loading;
+    }
+  }
 };
 </script>
 
-<style></style>
+<style scoped>
+</style>
