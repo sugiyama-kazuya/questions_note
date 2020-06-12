@@ -6,15 +6,23 @@
           <font-awesome-icon icon="arrow-left" @click="returnBack" class="text-3xl text-white"></font-awesome-icon>
         </template>
         <template v-slot:titleName>
-          <h5 class="text-2xl m-0">{{ currentNumber }}/{{ currentProblemData.count }}</h5>
+          <h5
+            v-if="!noProblem"
+            class="text-2xl m-0"
+          >{{ currentNumber }}/{{ currentProblemData.count }}</h5>
         </template>
         <template v-slot:rightSide>
-          <font-awesome-icon @click="inMiddleEnd" icon="times" class="text-4xl text-white"></font-awesome-icon>
+          <font-awesome-icon
+            v-if="!noProblem"
+            @click="inMiddleEnd"
+            icon="times"
+            class="text-4xl text-white"
+          ></font-awesome-icon>
         </template>
       </Header>
       <main class="h-92">
         <Loading v-if="isLoading" :loading="isLoading" />
-        <div class="flex flex-col h-100 py-5">
+        <div v-if="!noProblem" class="flex flex-col h-100 py-5">
           <div class="h-90 px-3 py-4">
             <div class="bg-white h-100 shadow-sm rounded-sm">
               <div class="bg-blue-300 h-8 flex items-center">
@@ -32,18 +40,18 @@
                 </div>
                 <div class="w-1/3"></div>
               </div>
-              <div class="h-82">
+              <div class="h-82 relative">
                 <div class="flex justify-center items-center overflow-y-scroll h-100">
                   <transition name="card-text">
                     <p
                       v-if="
-                                                currentProblemData.problem &&
-                                                    problemDisplay
-                                            "
+                            currentProblemData.problemData[orderNumber] &&
+                                problemDisplay
+                            "
                       class="m-0 p-4"
                     >
                       {{
-                      currentProblemData.problem[
+                      currentProblemData.problemData[
                       orderNumber
                       ].content
                       }}
@@ -52,23 +60,73 @@
                   <transition name="card-text">
                     <p
                       v-if="
-                                                currentProblemData.problem &&
-                                                    answerDisplay
-                                            "
+                            currentProblemData.problemData[orderNumber] &&
+                                answerDisplay
+                            "
                       class="m-0 p-4"
                     >
                       {{
-                      currentProblemData.problem[
+                      currentProblemData.problemData[
                       orderNumber
                       ].answer
                       }}
                     </p>
                   </transition>
                 </div>
+
+                <!-- 問題のセレクトモーダル -->
+                <transition name="center-modal">
+                  <CenterModal v-if="editModal" :width="'w-1/3'">
+                    <div class="flex flex-col items-center py-4 px-2">
+                      <CenterModalBtn
+                        :text="'編集'"
+                        :width="'w-2/3'"
+                        :color="'bg-blue-400'"
+                        class="mb-3"
+                      ></CenterModalBtn>
+                      <CenterModalBtn
+                        @click.native="openDeleteConfimationModal"
+                        :text="'削除'"
+                        :width="'w-2/3'"
+                        class="mb-3"
+                      ></CenterModalBtn>
+                      <CenterModalBtn
+                        @click.native="closeEditModal"
+                        :text="'戻る'"
+                        :width="'w-2/3'"
+                        :color="'bg-blue-400'"
+                      ></CenterModalBtn>
+                    </div>
+                  </CenterModal>
+                </transition>
+
+                <!-- 問題削除時の確認モーダル -->
+                <transition name="center-modal">
+                  <CenterModal v-if="deleteConfimationModal" :backColor="false">
+                    <div class="py-5 px-3">
+                      <div class="p-4 text-center text-lg mb-2">
+                        <span>現在表示されている問題と答えを削除しますが、本当によろしいですか？</span>
+                      </div>
+                      <div class="flex justify-center p-2">
+                        <CenterModalBtn @click.native="deleteProblem" :text="'削除'" class="mr-2" />
+                        <CenterModalBtn
+                          @click.native="deleteConfimationModal = false"
+                          :text="'問題へ戻る'"
+                          :color="'bg-blue-400'"
+                        />
+                      </div>
+                    </div>
+                  </CenterModal>
+                </transition>
               </div>
 
               <div class="h-10 flex justify-end items-center px-3 py-1">
-                <font-awesome-icon icon="ellipsis-v" class="text-2xl text-gray-600"></font-awesome-icon>
+                <font-awesome-icon
+                  v-if="isProblemsLoginUser"
+                  @click="openEditModal"
+                  icon="ellipsis-v"
+                  class="text-2xl text-gray-600"
+                ></font-awesome-icon>
               </div>
             </div>
           </div>
@@ -81,7 +139,7 @@
             <AnswerCorrectnessBtn
               @click.native="
                                 incorrect(
-                                    currentProblemData.problem[orderNumber].id
+                                    currentProblemData.problemData[orderNumber].id
                                 )
                             "
               :color="'bg-red-300'"
@@ -93,10 +151,37 @@
               <template>○</template>
             </AnswerCorrectnessBtn>
           </div>
+
+          <!-- 問題削除後のフラッシュメッセージ -->
+          <transition name="center-modal">
+            <CenterModal v-if="isFlashMsg">
+              <div class="p-2 bg-gray-800 text-white rounded-md">{{flashMsg.text}}</div>
+            </CenterModal>
+          </transition>
         </div>
+        <!-- 表示する問題がない場合のモーダル -->
+        <transition name="center-modal">
+          <CenterModal v-if="noProblem" :backColor="false">
+            <div class="py-5 px-3">
+              <div class="p-4 text-center text-lg mb-2">
+                <span>表示する問題がありません。問題を追加してください。</span>
+              </div>
+              <div class="flex justify-center p-2">
+                <CenterModalBtn @click.native="deleteProblem" :text="'作成画面へ'" class="mr-2" />
+                <CenterModalBtn
+                  @click.native="deleteConfimationModal = false"
+                  :text="'一覧へ戻る'"
+                  :color="'bg-blue-400'"
+                />
+              </div>
+            </div>
+          </CenterModal>
+        </transition>
       </main>
     </div>
     <Footer />
+
+    <!-- 全問終了後のモーダル -->
     <transition name="center-modal">
       <CenterModal v-if="isProblemEndModal">
         <template>
@@ -106,8 +191,8 @@
             </div>
             <div v-if="!isCurrectAnswerAll" class="text-center p-3">
               <p>{{ `トータル：${currentProblemData.count}` }}</p>
-              <p>{{ `正解数：${currectCount}` }}</p>
-              <p>{{ `不正解数：${incurrectCount}` }}</p>
+              <p>{{ `正解数：${currectAnswerCount}` }}</p>
+              <p>{{ `不正解数：${inCurrectAnswerCount}` }}</p>
             </div>
             <div class="flex justify-end">
               <CenterModalBtn
@@ -123,6 +208,8 @@
         </template>
       </CenterModal>
     </transition>
+
+    <!-- 途中終了時の確認モーダル -->
     <transition name="center-modal">
       <CenterModal v-if="endConfimationModal" :backColor="false">
         <div class="py-5 px-3">
@@ -152,6 +239,9 @@ import CenterModal from "../components/CenterModal";
 import DefaultBtn from "../components/DefaultBtn";
 import AnswerCorrectnessBtn from "../components/AnswerCorrectnessBtn";
 import CenterModalBtn from "../components/CenterModalBtn";
+
+import { INTERNAL_SERVER_ERROR, OK } from "../util";
+
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faTimes,
@@ -177,12 +267,16 @@ export default {
   data() {
     return {
       normal: {
-        problemData: {}
-      },
-      wrong: {
         problemData: {},
-        incorrectId: []
+        count: null
       },
+      //間違えた問題だけもう一度
+      again: {
+        problemData: {},
+        count: null,
+        incorrectAnswerId: []
+      },
+      userId: null,
       isCorrectAnswerFlg: false,
       orderNumber: 0,
       currentNumber: 1,
@@ -197,20 +291,29 @@ export default {
         restartText: "もう一度",
         endText: "一覧へ"
       },
-      endConfimationModal: false
+      endConfimationModal: false,
+      editModal: false,
+      deleteConfimationModal: false,
+      flashMsg: {
+        text: "問題を削除しました",
+        speed: 2000
+      }
     };
   },
-  async mounted() {
+  async created() {
     this.isLoading = true;
     await this.$store.dispatch(
       "playProblem/getProblemAndAnswer",
       this.$route.params.id
     );
 
-    this.isLoading = false;
+    const exerciseBooks = this.$store.state.playProblem.exerciseBooks
+      .exercise_books;
+    this.normal.problemData = exerciseBooks.problems;
+    this.normal.count = exerciseBooks.count;
+    this.userId = exerciseBooks.user_id;
 
-    this.normal.problemData = this.$store.state.playProblem.problemData.problem_data;
-    console.log(this.normal.problemData);
+    this.isLoading = false;
   },
   methods: {
     showAnswer() {
@@ -224,7 +327,7 @@ export default {
       // 問題が最終問題の場合
       if (currentProblemData.count === this.currentNumber) {
         // 間違えた問題がない場合
-        if (!this.wrong.incorrectId.length) {
+        if (!this.again.incorrectAnswerId.length) {
           this.isCurrectAnswerAll = true;
         }
         this.problemEnd();
@@ -242,7 +345,7 @@ export default {
     },
     incorrect(problemId) {
       if (problemId) {
-        this.wrong.incorrectId.push(problemId);
+        this.again.incorrectAnswerId.push(problemId);
       }
       this.nextProblem();
     },
@@ -256,33 +359,31 @@ export default {
         this.isLastProblem = false;
       }
 
-      this.wrong.incorrectId.pop();
-      this.orderNumber--;
-      this.currentNumber--;
+      this.putOffProblem();
     },
     problemEnd() {
       this.isProblemEndModal = true;
     },
     incorrectProblemAgain() {
       // 間違えた問題がなかった場合
-      if (this.wrong.incorrectId.length === 0) {
+      if (this.again.incorrectAnswerId.length === 0) {
         return (this.isCurrectAnswerAll = true);
       }
 
       // 間違えた問題のID
-      const incorrectId = this.wrong.incorrectId;
+      const incorrectAnswerId = this.again.incorrectAnswerId;
       // 間違えた問題を取得
-      const incorrectProblemData = this.normal.problemData.problem.filter(
-        function(problem) {
-          return incorrectId.includes(problem.id);
-        }
-      );
+      const incorrectProblemData = this.normal.problemData.filter(function(
+        problem
+      ) {
+        return incorrectAnswerId.includes(problem.id);
+      });
       // 取得した問題の数
       const problemCount = incorrectProblemData.length;
 
       // 間違えた問題の一覧を作成
-      this.wrong.problemData = {
-        problem: incorrectProblemData,
+      this.again = {
+        problemData: incorrectProblemData,
         count: problemCount
       };
 
@@ -293,13 +394,72 @@ export default {
       this.orderNumber = 0;
       this.currentNumber = 1;
       this.isProblemEndModal = false;
-      this.wrong.incorrectId = [];
+      this.again.incorrectAnswerId = [];
     },
     goHome() {
       this.$router.push("/home");
     },
     inMiddleEnd() {
       this.endConfimationModal = true;
+    },
+    openEditModal() {
+      this.editModal = true;
+    },
+    closeEditModal() {
+      this.editModal = false;
+    },
+    openDeleteConfimationModal() {
+      this.closeEditModal();
+      this.deleteConfimationModal = true;
+    },
+    closeDeleteConfimationModal() {
+      this.deleteConfimationModal = false;
+    },
+    async deleteProblem() {
+      const problemId = this.currentProblemData.problemData[this.orderNumber]
+        .id;
+
+      const url = `/api/problems/${problemId}`;
+      const response = await axios
+        .delete(url)
+        .catch(error => response.error || error);
+
+      console.log(response);
+
+      if (response.status === INTERNAL_SERVER_ERROR) {
+        this.$route.push("/500");
+        return;
+      }
+
+      if (response.status === OK) {
+        //現在表示されている問題から対象の問題を削除
+        const deletedProblems = this.currentProblemData.problemData.filter(
+          function(question) {
+            return problemId !== question.id;
+          }
+        );
+
+        this.currentProblemData.problemData = deletedProblems;
+        this.currentProblemData.count = deletedProblems.length;
+
+        // 二問目以降であった場合は問題を繰り下げる
+        if (this.currentNumber >= 2) {
+          this.putOffProblem();
+        }
+
+        this.closeDeleteConfimationModal();
+        await this.$store.dispatch("flashMessage/showFlashMsg");
+        await this.$store.dispatch(
+          "flashMessage/hideFlashMsg",
+          this.flashMsg.speed
+        );
+      }
+    },
+    // 問題を繰り下げる
+    putOffProblem() {
+      this.orderNumber--;
+      this.currentNumber--;
+      this.again.incorrectAnswerId.pop();
     }
   },
   computed: {
@@ -307,16 +467,31 @@ export default {
       // 最初の問題の場合は戻るボタンは非表示
       return this.currentNumber >= 2 ? true : false;
     },
-    currectCount() {
-      return this.currentProblemData.count - this.incurrectCount;
+    // 正解数
+    currectAnswerCount() {
+      return this.currentProblemData.count - this.inCurrectAnswerCount;
     },
-    incurrectCount() {
-      return this.wrong.incorrectId.length;
+    //  不正解数
+    inCurrectAnswerCount() {
+      return this.again.incorrectAnswerId.length;
     },
+    // 現在の問題データ
     currentProblemData() {
-      return this.isCorrectAnswerFlg
-        ? this.wrong.problemData
-        : this.normal.problemData;
+      return this.isCorrectAnswerFlg ? this.again : this.normal;
+    },
+    // 問題集の作成者がログインユーザーかどうか
+    isProblemsLoginUser() {
+      return Number(this.$store.state.auth.user.id) === Number(this.userId)
+        ? true
+        : false;
+    },
+    // 問題の有無
+    noProblem() {
+      return this.currentProblemData.count === 0 ? true : false;
+    },
+    // フラッシュメッセージの有無
+    isFlashMsg() {
+      return this.$store.state.flashMessage.visible;
     }
   }
 };

@@ -104,10 +104,32 @@ class ProblemController extends Controller
 
         $problem_data = Problem::where('exercise_book_id', $exercise_books_id)->get();
 
+        $user_id = $problem_data->map(function ($data) {
+            return $data->user_id;
+        });
+
+        $problem_data = $problem_data->map(function ($data) {
+            $problem_data = $data;
+            Arr::except($problem_data, ['user_id']);
+            return $problem_data;
+        });
+
         $problem_count = $problem_data->count('id');
 
-        $problem_data = Arr::add(['problem' => $problem_data], 'count', $problem_count);
+        $problem_data = Arr::add(['problems' => $problem_data], 'count', $problem_count);
+        $problem_data['user_id'] = $user_id[0];
 
-        return response()->json(['problem_data' => $problem_data]);
+        return response()->json(['exercise_books' => $problem_data]);
+    }
+
+    /**
+     * 問題の削除
+     *
+     * @param [string] $problem_id
+     * @return void
+     */
+    public function destroy($problem_id)
+    {
+        Problem::find($problem_id)->delete();
     }
 }
