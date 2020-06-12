@@ -75,9 +75,6 @@
             <template v-slot:rightBtnText>お気に入り</template>
           </ChangeTabBtn>
         </div>
-        <transition name="center-modal">
-          <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
-        </transition>
 
         <ProblemCard
           v-for="cardData in problemCardData"
@@ -88,14 +85,19 @@
           <template v-if="problemCardData" />
         </ProblemCard>
       </main>
+      <!-- フラッシュメッセージ -->
+      <transition name="center-modal">
+        <CenterModal v-if="isFlashMsg">
+          <div class="p-2 bg-gray-800 text-white rounded-md">{{flashMsg.text}}</div>
+        </CenterModal>
+      </transition>
     </div>
-    <transition name="center-modal">
-      <CenterModal v-if="isFlashMsg">
-        <div class="p-2 bg-gray-800 text-white rounded-md">{{flashMsg.text}}</div>
-      </CenterModal>
-    </transition>
-
     <Footer />
+
+    <!-- ローディング -->
+    <transition name="center-modal">
+      <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
+    </transition>
   </div>
 </template>
 
@@ -148,8 +150,7 @@ export default {
       flashMsg: {
         text: "登録が完了しました。",
         speed: 2000
-      },
-      isFlashMsg: false
+      }
     };
   },
   methods: {
@@ -222,16 +223,6 @@ export default {
     },
     goEditScreen() {
       this.$router.push(`/profile/${this.$route.params.userId}/edit`);
-    },
-    async showFlashMsg() {
-      this.isFlashMsg = await this.isVisible;
-      const profileObject = this;
-      if (this.isFlashMsg) {
-        setTimeout(async function() {
-          await profileObject.$store.dispatch("flashMessage/hideFlashMsg");
-          profileObject.isFlashMsg = false;
-        }, this.flashMsg.speed);
-      }
     }
   },
   async created() {
@@ -239,7 +230,11 @@ export default {
     await this.getOwnExercizeBooks();
     await this.getUser();
     this.loading.isLoading = false;
-    this.showFlashMsg();
+
+    // フラッシュメッセージがある場合
+    if (this.isFlashMsg) {
+      this.$store.dispatch("flashMessage/hideFlashMsg", this.flashMsg.speed);
+    }
   },
   computed: {
     followBtnBgColor() {
@@ -256,7 +251,7 @@ export default {
       const loginUserId = parseInt(this.$store.state.auth.user.id);
       return loginUserId === paramsUserId ? true : false;
     },
-    isVisible() {
+    isFlashMsg() {
       return this.$store.state.flashMessage.visible;
     }
   },
