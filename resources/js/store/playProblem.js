@@ -1,10 +1,10 @@
 const state = {
-    problemData: null
+    exerciseBooks: null
 };
 
 const mutations = {
-    setProblemData(state, problemData) {
-        state.problemData = problemData;
+    setProblemData(state, exerciseBooks) {
+        state.exerciseBooks = exerciseBooks;
     }
 };
 

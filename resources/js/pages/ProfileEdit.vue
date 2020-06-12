@@ -215,8 +215,6 @@ export default {
         this.validationErrorMsg.email = formDataResponse.data.errors.email;
         this.validationErrorMsg.file = formDataResponse.data.errors.file;
         this.loading.isLoading = false;
-        console.log(this.validationErrorMsg);
-
         return;
       }
 
