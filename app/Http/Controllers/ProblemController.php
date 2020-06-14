@@ -11,6 +11,7 @@ use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\CreateNewExerciseBooksName;
 
 class ProblemController extends Controller
 {
@@ -38,14 +39,13 @@ class ProblemController extends Controller
 
     /**
      *問題作成画面の表示
+     *ログインユーザーが作成している問題集名を全て取得
      *
      * @return \Illuminate\Http\Response
      */
     public function create(ExerciseBookName $exercise_book)
     {
         $exercise_books_name_list = $exercise_book->where('user_id', Auth::id())->get(['id', 'name']);
-
-        Log::debug($exercise_books_name_list);
 
         return $exercise_books_name_list;
     }
@@ -82,8 +82,6 @@ class ProblemController extends Controller
         // 先ほど登録した問題集のIDを取得
         $insert_exercise_book_id = $exercise_book->where('user_id', $login_user_id)->where('exercise_books_name_id', $exercise_book_name_id)->first('id')->id;
 
-        Log::debug($insert_exercise_book_id);
-
         // 問題と答えを登録
         $problem->fill([
             'content' => $req->problem,
@@ -104,22 +102,27 @@ class ProblemController extends Controller
 
         $problem_data = Problem::where('exercise_book_id', $exercise_books_id)->get();
 
-        $user_id = $problem_data->map(function ($data) {
-            return $data->user_id;
-        });
+        // 取得する問題がない場合
+        if ($problem_data->isEmpty()) {
+            return response()->json(['exercise_books' => null]);
+        } else {
+            $user_id = $problem_data->map(function ($data) {
+                return $data->user_id;
+            });
 
-        $problem_data = $problem_data->map(function ($data) {
-            $problem_data = $data;
-            Arr::except($problem_data, ['user_id']);
-            return $problem_data;
-        });
+            $problem_data = $problem_data->map(function ($data) {
+                $problem_data = $data;
+                Arr::except($problem_data, ['user_id']);
+                return $problem_data;
+            });
 
-        $problem_count = $problem_data->count('id');
+            $problem_count = $problem_data->count('id');
 
-        $problem_data = Arr::add(['problems' => $problem_data], 'count', $problem_count);
-        $problem_data['user_id'] = $user_id[0];
+            $problem_data = Arr::add(['problems' => $problem_data], 'count', $problem_count);
+            $problem_data['user_id'] = $user_id[0];
 
-        return response()->json(['exercise_books' => $problem_data]);
+            return response()->json(['exercise_books' => $problem_data]);
+        }
     }
 
     /**
@@ -131,5 +134,16 @@ class ProblemController extends Controller
     public function destroy($problem_id)
     {
         Problem::find($problem_id)->delete();
+    }
+
+    /**
+     * 問題集の名前を作成
+     *
+     * @param CreateNewExerciseBooksName $requst
+     * @return void
+     */
+    public function createExerciseBooksName(CreateNewExerciseBooksName $requst)
+    {
+        return $requst;
     }
 }
