@@ -3,9 +3,8 @@ import Vuex from "vuex";
 
 import auth from "./auth";
 import error from "./error";
-import createForm from "./createForm";
+import problem from "./problem";
 import listProblem from "./listProblem";
-import playProblem from "./playProblem";
 import flashMessage from "./flashMessage";
 
 Vue.use(Vuex);
@@ -14,9 +13,8 @@ const store = new Vuex.Store({
     modules: {
         auth,
         error,
-        createForm,
+        problem,
         listProblem,
-        playProblem,
         flashMessage
     }
 });
