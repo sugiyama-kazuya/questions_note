@@ -1,11 +1,11 @@
 <template>
   <div class="relative h-100">
     <div class="h-90 bg-gray-200">
-      <Header class="h-8">
+      <TheHeader class="h-8">
         <template v-slot:titleName>
           <h5>Mypage</h5>
         </template>
-      </Header>
+      </TheHeader>
 
       <main class="overflow-y-scroll h-92">
         <div class="flex bg-white shadow-xl py-3 px-4">
@@ -32,7 +32,7 @@
           </div>
           <div class="w-1/2 flex flex-col text-right">
             <div class="w-full h-30 flex justify-end">
-              <DefaultBtn
+              <BaseButton
                 v-if="!isLoginUser"
                 @click-btn="isFollow"
                 :text="followBtnTextColor"
@@ -42,8 +42,8 @@
                 class="h-100"
               >
                 <template>{{followBtnText}}</template>
-              </DefaultBtn>
-              <DefaultBtn
+              </BaseButton>
+              <BaseButton
                 v-if="isLoginUser"
                 @click-btn="goEditScreen"
                 :text="editBtn.btnTextColor"
@@ -53,7 +53,7 @@
                 class="h-100"
               >
                 <template>{{editBtn.btnText}}</template>
-              </DefaultBtn>
+              </BaseButton>
             </div>
             <div class="h-70 flex flex-col items-center justify-end">
               <div class="flex flex-col">
@@ -76,14 +76,14 @@
           </ChangeTabBtn>
         </div>
 
-        <ProblemCard
-          v-for="cardData in problemCardData"
+        <ExerciseBookCard
+          v-for="cardData in ExerciseBookCardData"
           :key="cardData.id"
           :cardData="cardData"
           class="mb-4"
         >
-          <template v-if="problemCardData" />
-        </ProblemCard>
+          <template v-if="ExerciseBookCardData" />
+        </ExerciseBookCard>
       </main>
       <!-- フラッシュメッセージ -->
       <transition name="center-modal">
@@ -92,21 +92,21 @@
         </CenterModal>
       </transition>
     </div>
-    <Footer />
+    <TheFooter />
 
     <!-- ローディング -->
     <transition name="center-modal">
-      <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
+      <TheLoading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
     </transition>
   </div>
 </template>
 
 <script>
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import DefaultBtn from "../components/DefaultBtn";
-import ProblemCard from "../components/ProblemCard";
-import Loading from "../components/Loading";
+import TheHeader from "../components/TheHeader";
+import TheFooter from "../components/TheFooter";
+import BaseButton from "../components/BaseButton";
+import ExerciseBookCard from "../components/ExerciseBookCard";
+import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import CenterModal from "../components/CenterModal";
 import { INTERNAL_SERVER_ERROR } from "../util";
@@ -118,18 +118,18 @@ library.add(faUserCircle);
 export default {
   name: "Profile",
   components: {
-    Header,
-    Footer,
-    DefaultBtn,
-    ProblemCard,
-    Loading,
+    TheHeader,
+    TheFooter,
+    BaseButton,
+    ExerciseBookCard,
+    TheLoading,
     ChangeTabBtn,
     CenterModal,
     FontAwesomeIcon
   },
   data() {
     return {
-      problemCardData: {},
+      ExerciseBookCardData: {},
       userData: {},
       displayTab: {
         isOwnExerciseBooks: true,
@@ -174,7 +174,7 @@ export default {
         this.$router.push("/500");
       }
 
-      this.problemCardData = response.data.exercise_books;
+      this.ExerciseBookCardData = response.data.exercise_books;
     },
     async ownExerciseBooks() {
       this.displayTab.isOwnExerciseBooks = true;
@@ -194,7 +194,7 @@ export default {
         .get("/api/ownFavoriteExerciseBooks")
         .catch(error => error.resoponse);
 
-      this.problemCardData = response.data.exercise_books;
+      this.ExerciseBookCardData = response.data.exercise_books;
       this.loading.isLoading = false;
     },
     async isFollow() {

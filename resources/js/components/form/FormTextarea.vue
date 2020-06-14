@@ -1,0 +1,34 @@
+<template>
+  <textarea
+    class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    :rows="rows ? rows : 6"
+    :cols="cols ? cols : 40"
+    :placeholder="placeholder"
+    :value="value"
+    @input="$emit('input', $event.target.value)"
+  ></textarea>
+</template>
+
+<script>
+import { integer } from "vee-validate/dist/rules";
+export default {
+  name: "FormTextarea",
+  props: {
+    value: {
+      type: String
+    },
+    placeholder: {
+      type: String
+    },
+    rows: {
+      type: Number
+    },
+    cols: {
+      type: Number
+    }
+  }
+};
+</script>
+
+<style>
+</style>

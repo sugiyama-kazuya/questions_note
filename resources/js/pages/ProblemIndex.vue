@@ -1,11 +1,11 @@
 <template>
   <div class="relative h-100">
     <div class="h-90 bg-gray-200">
-      <Header class="h-8">
+      <TheHeader class="h-8">
         <template v-slot:titleName>
           <h5>HOME</h5>
         </template>
-      </Header>
+      </TheHeader>
 
       <div class="flex justify-center items-center h-10 px-3 round-sm">
         <ChangeTabBtn
@@ -20,38 +20,38 @@
       </div>
 
       <main class="overflow-y-scroll h-82 py-2">
-        <Loading if="isLoading" :loading="isLoading" />
-        <ProblemCard
-          v-for="cardData in problemCardData"
+        <ExerciseBookCard
+          v-for="cardData in ExerciseBookCardData"
           :key="cardData.id"
           :cardData="cardData"
           class="mb-4"
-        ></ProblemCard>
+        ></ExerciseBookCard>
       </main>
     </div>
-    <Footer />
+    <TheFooter />
+    <TheLoading if="isLoading" :loading="isLoading" />
   </div>
 </template>
 
 <script>
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import ProblemCard from "../components/ProblemCard";
-import Loading from "../components/Loading";
+import TheHeader from "../components/TheHeader";
+import TheFooter from "../components/TheFooter";
+import ExerciseBookCard from "../components/ExerciseBookCard";
+import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 
 export default {
   name: "Index",
   components: {
-    Header,
-    Footer,
-    ProblemCard,
-    Loading,
+    TheHeader,
+    TheFooter,
+    ExerciseBookCard,
+    TheLoading,
     ChangeTabBtn
   },
   data() {
     return {
-      problemCardData: {},
+      ExerciseBookCardData: {},
       isLoading: false,
       displayTab: {
         isNewActive: false,
@@ -62,7 +62,7 @@ export default {
   async mounted() {
     this.isLoading = true;
     await this.$store.dispatch("listProblem/getProblmeCard");
-    this.problemCardData = this.$store.state.listProblem.problemCardData.exercise_books;
+    this.ExerciseBookCardData = this.$store.state.listProblem.problemCardData.exercise_books;
 
     this.displayTab.isNewActive = true;
 
@@ -78,8 +78,8 @@ export default {
       this.isLoading = true;
       await this.$store.dispatch("listProblem/getProblmeCard");
 
-      this.problemCardData = await this.$store.state.listProblem.problemCardData
-        .exercise_books;
+      this.ExerciseBookCardData = await this.$store.state.listProblem
+        .problemCardData.exercise_books;
       this.isLoading = false;
     },
     async popularOrder() {
@@ -93,7 +93,7 @@ export default {
 
       console.log(response.data);
 
-      this.problemCardData = response.data.exercise_books;
+      this.ExerciseBookCardData = response.data.exercise_books;
       this.isLoading = false;
     }
   }

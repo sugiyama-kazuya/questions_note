@@ -2,7 +2,7 @@
   <footer class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 h-10 text-white">
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/home"
+        to="/problem"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
@@ -13,7 +13,7 @@
     </div>
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/create"
+        to="/problem/create"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
@@ -59,7 +59,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faHome, faPlus, faBookOpen, faSearch);
 
 export default {
-  name: "Footer",
+  name: "TheFooter",
   components: {
     FontAwesomeIcon
   },

@@ -51,7 +51,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faUserCircle, faStar);
 
 export default {
-  name: "ProblemCard",
+  name: "ExerciseBookCard",
   props: {
     cardData: {
       type: Object,

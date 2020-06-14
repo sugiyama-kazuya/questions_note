@@ -1,7 +1,7 @@
 <template>
   <div class="relative h-100">
     <div class="h-90 bg-gray-200">
-      <Header class="h-8">
+      <TheHeader class="h-8">
         <template v-if="isBackBtnDisplay" v-slot:leftSide>
           <font-awesome-icon icon="arrow-left" @click="returnBack" class="text-3xl text-white"></font-awesome-icon>
         </template>
@@ -19,9 +19,8 @@
             class="text-4xl text-white"
           ></font-awesome-icon>
         </template>
-      </Header>
+      </TheHeader>
       <main class="h-92">
-        <Loading v-if="isLoading" :loading="isLoading" />
         <div v-if="!noProblem" class="flex flex-col h-100 py-5">
           <div class="h-90 px-3 py-4">
             <div class="bg-white h-100 shadow-sm rounded-sm">
@@ -131,25 +130,25 @@
             </div>
           </div>
           <div v-if="problemDisplay" class="h-10 px-3 flex items-center">
-            <DefaultBtn @click.native="showAnswer">
+            <BaseButton @click.native="showAnswer">
               <template>答え</template>
-            </DefaultBtn>
+            </BaseButton>
           </div>
           <div v-if="answerDisplay" class="h-10 px-3 flex items-center">
-            <AnswerCorrectnessBtn
+            <BaseButton
+              :color="'bg-red-300'"
+              class="mr-3"
               @click.native="
                                 incorrect(
                                     currentProblemData.problemData[orderNumber].id
                                 )
                             "
-              :color="'bg-red-300'"
-              class="mr-3"
             >
               <template>×</template>
-            </AnswerCorrectnessBtn>
-            <AnswerCorrectnessBtn @click.native="correct">
+            </BaseButton>
+            <BaseButton :color="'bg-blue-300'" @click.native="correct">
               <template>○</template>
-            </AnswerCorrectnessBtn>
+            </BaseButton>
           </div>
 
           <!-- 問題削除後のフラッシュメッセージ -->
@@ -179,7 +178,8 @@
         </transition>
       </main>
     </div>
-    <Footer />
+    <TheFooter />
+    <TheLoading v-if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
 
     <!-- 全問終了後のモーダル -->
     <transition name="center-modal">
@@ -232,12 +232,11 @@
 </template>
 
 <script>
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Loading from "../components/Loading";
+import TheHeader from "../components/TheHeader";
+import TheFooter from "../components/TheFooter";
+import TheLoading from "../components/TheLoading";
 import CenterModal from "../components/CenterModal";
-import DefaultBtn from "../components/DefaultBtn";
-import AnswerCorrectnessBtn from "../components/AnswerCorrectnessBtn";
+import BaseButton from "../components/BaseButton";
 import CenterModalBtn from "../components/CenterModalBtn";
 
 import { INTERNAL_SERVER_ERROR, OK } from "../util";
@@ -255,15 +254,15 @@ library.add(faTimes, faEllipsisV, faArrowLeft, faExchangeAlt);
 export default {
   name: "Problem",
   components: {
-    Header,
-    Footer,
+    TheHeader,
+    TheFooter,
     FontAwesomeIcon,
-    Loading,
+    TheLoading,
     CenterModal,
     CenterModalBtn,
-    AnswerCorrectnessBtn,
-    DefaultBtn
+    BaseButton
   },
+
   data() {
     return {
       normal: {
@@ -283,7 +282,10 @@ export default {
       problemDisplay: true,
       answerDisplay: false,
       displaySecond: false,
-      isLoading: false,
+      loading: {
+        isLoading: false,
+        opacity: 0.5
+      },
       isProblemEndModal: false,
       isLastProblem: false,
       isCurrectAnswerAll: false,
@@ -300,21 +302,62 @@ export default {
       }
     };
   },
-  async created() {
-    this.isLoading = true;
-    await this.$store.dispatch(
-      "playProblem/getProblemAndAnswer",
-      this.$route.params.id
-    );
 
-    const exerciseBooks = this.$store.state.playProblem.exerciseBooks
-      .exercise_books;
-    this.normal.problemData = exerciseBooks.problems;
-    this.normal.count = exerciseBooks.count;
-    this.userId = exerciseBooks.user_id;
-
-    this.isLoading = false;
+  computed: {
+    isBackBtnDisplay() {
+      // 最初の問題の場合は戻るボタンは非表示
+      return this.currentNumber >= 2 ? true : false;
+    },
+    // 正解数
+    currectAnswerCount() {
+      return this.currentProblemData.count - this.inCurrectAnswerCount;
+    },
+    //  不正解数
+    inCurrectAnswerCount() {
+      return this.again.incorrectAnswerId.length;
+    },
+    // 現在の問題データ
+    currentProblemData() {
+      return this.isCorrectAnswerFlg ? this.again : this.normal;
+    },
+    // 問題集の作成者がログインユーザーかどうか
+    isProblemsLoginUser() {
+      return Number(this.$store.state.auth.user.id) === Number(this.userId)
+        ? true
+        : false;
+    },
+    // 問題の有無
+    noProblem() {
+      return this.currentProblemData.count === null ? true : false;
+    },
+    // フラッシュメッセージの有無
+    isFlashMsg() {
+      return this.$store.state.flashMessage.visible;
+    }
   },
+
+  async mounted() {
+    this.loading.isLoading = true;
+    const response = await axios
+      .get(`/api/problems/${this.$route.params.id}`)
+      .catch(error => response.error || error);
+
+    if (response.status === INTERNAL_SERVER_ERROR) {
+      this.$route.push("/500");
+      return;
+    }
+
+    if (response.status === OK) {
+      const exerciseBooks = response.data.exercise_books;
+      if (exerciseBooks) {
+        this.normal.problemData = exerciseBooks.problems;
+        this.normal.count = exerciseBooks.count;
+        this.userId = exerciseBooks.user_id;
+      }
+      this.loading.isLoading = false;
+    }
+  },
+
   methods: {
     showAnswer() {
       this.problemDisplay = false;
@@ -397,7 +440,7 @@ export default {
       this.again.incorrectAnswerId = [];
     },
     goHome() {
-      this.$router.push("/home");
+      this.$router.push("/problem");
     },
     inMiddleEnd() {
       this.endConfimationModal = true;
@@ -423,8 +466,6 @@ export default {
       const response = await axios
         .delete(url)
         .catch(error => response.error || error);
-
-      console.log(response);
 
       if (response.status === INTERNAL_SERVER_ERROR) {
         this.$route.push("/500");
@@ -460,38 +501,6 @@ export default {
       this.orderNumber--;
       this.currentNumber--;
       this.again.incorrectAnswerId.pop();
-    }
-  },
-  computed: {
-    isBackBtnDisplay() {
-      // 最初の問題の場合は戻るボタンは非表示
-      return this.currentNumber >= 2 ? true : false;
-    },
-    // 正解数
-    currectAnswerCount() {
-      return this.currentProblemData.count - this.inCurrectAnswerCount;
-    },
-    //  不正解数
-    inCurrectAnswerCount() {
-      return this.again.incorrectAnswerId.length;
-    },
-    // 現在の問題データ
-    currentProblemData() {
-      return this.isCorrectAnswerFlg ? this.again : this.normal;
-    },
-    // 問題集の作成者がログインユーザーかどうか
-    isProblemsLoginUser() {
-      return Number(this.$store.state.auth.user.id) === Number(this.userId)
-        ? true
-        : false;
-    },
-    // 問題の有無
-    noProblem() {
-      return this.currentProblemData.count === 0 ? true : false;
-    },
-    // フラッシュメッセージの有無
-    isFlashMsg() {
-      return this.$store.state.flashMessage.visible;
     }
   }
 };
