@@ -4,9 +4,10 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import store from "./store";
 import SystemError from "./pages/errors/System";
-import Index from "./pages/Index";
-import Create from "./pages/Create";
+import ProblemIndex from "./pages/ProblemIndex";
+import ProblemCreate from "./pages/ProblemCreate";
 import Problem from "./pages/Problem";
+import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 
@@ -16,9 +17,24 @@ export default new VueRouter({
     mode: "history",
     routes: [
         {
-            path: "/home",
-            name: "home",
-            component: Index
+            path: "/problem",
+            name: "ProblemIndex",
+            component: ProblemIndex
+        },
+        {
+            path: "/problem/:id(\\d+)",
+            name: "problem",
+            component: Problem
+        },
+        {
+            path: "/problem/create",
+            name: "ProblemCreate",
+            component: ProblemCreate
+        },
+        {
+            path: "/problem/:problemId/edit",
+            name: "ProblemEdit",
+            component: ProblemEdit
         },
         {
             path: "/profile/:userId",
@@ -29,16 +45,6 @@ export default new VueRouter({
             path: "/profile/:userId/edit",
             name: "profileEdit",
             component: ProfileEdit
-        },
-        {
-            path: "/create",
-            name: "create",
-            component: Create
-        },
-        {
-            path: "/problem/:id(\\d+)",
-            name: "problem",
-            component: Problem
         },
         {
             path: "/register",
