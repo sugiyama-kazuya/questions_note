@@ -44,7 +44,7 @@ export default {
       this.closeSelectModal();
     },
     closeSelectModal() {
-      this.$store.commit("createForm/setCloseModal", false);
+      this.$emit("close", false);
     }
   }
 };
