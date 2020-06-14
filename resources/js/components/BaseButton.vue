@@ -1,6 +1,6 @@
 <template>
   <button
-    class="rounded-sm shadow-sm font-bold focus:outline-none btn-border"
+    class="p-2 m-2 rounded-sm shadow-sm font-bold focus:outline-none outline-none"
     :class="[
             height ? height : 'h-70',
             width ? width : 'w-full',
@@ -8,6 +8,7 @@
             text ? text : 'text-white'
         ]"
     @click="$emit('click-btn')"
+    :type="type ? type : 'button'"
   >
     <slot></slot>
   </button>
@@ -15,7 +16,7 @@
 
 <script>
 export default {
-  name: "DefaultBtn",
+  name: "BaseButton",
   props: {
     height: {
       type: String
@@ -27,6 +28,9 @@ export default {
       type: String
     },
     text: {
+      type: String
+    },
+    type: {
       type: String
     }
   }
