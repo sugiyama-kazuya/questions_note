@@ -23,6 +23,8 @@ Route::get('/user', function () {
 })->name('user');
 
 Route::resource('problems', 'ProblemController');
+Route::resource('profile', 'ProfileController');
+
 Route::post('problems/newExerciseName', 'ProblemController@createExerciseBooksName')->name('problems.newExerciseName');
 
 Route::get('likes/count', 'LikeController@index')->name('likes.count');
@@ -35,8 +37,6 @@ Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
 
 Route::get('orderFavorite', 'OrderFavoriteController');
 Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');
-
-Route::resource('profile', 'ProfileController');
 
 // userに関するルーティング
 Route::prefix('user')->name('user.')->group(function () {
