@@ -1,7 +1,7 @@
 <template>
   <div class="relative h-100">
     <div class="h-90">
-      <Header class="h-8 bg-gray-200">
+      <TheHeader class="h-8 bg-gray-200">
         <template v-slot:titleName>
           <h5 class="text-2xl m-0">編集</h5>
         </template>
@@ -15,7 +15,7 @@
         <template v-slot:rightSide>
           <button class="text-white focus:outline-none" type="submit" form="profile-edit-form">変更</button>
         </template>
-      </Header>
+      </TheHeader>
 
       <main class="h-92 overflow-y-scroll bg-gray-100">
         <div class="flex justify-center items-center h-100">
@@ -109,7 +109,7 @@
         </div>
       </main>
     </div>
-    <Footer />
+    <TheFooter />
     <transition name="center-modal">
       <CenterModal v-if="endConfimationModal" :backColor="false">
         <div class="py-5 px-3">
@@ -128,16 +128,16 @@
         </div>
       </CenterModal>
     </transition>
-    <Loading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
+    <TheLoading if="loading.isLoading" :loading="loading.isLoading" :opacity="loading.opacity" />
   </div>
 </template>
 
 <script>
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import TheHeader from "../components/TheHeader";
+import TheFooter from "../components/TheFooter";
 import CenterModal from "../components/CenterModal";
 import CenterModalBtn from "../components/CenterModalBtn";
-import Loading from "../components/Loading";
+import TheLoading from "../components/TheLoading";
 import { OK, UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -155,14 +155,14 @@ extend("required", {
 export default {
   name: "profileEdit",
   components: {
-    Header,
-    Footer,
+    TheHeader,
+    TheFooter,
     FontAwesomeIcon,
     CenterModal,
     CenterModalBtn,
     ValidationProvider,
     ValidationObserver,
-    Loading
+    TheLoading
   },
   data() {
     return {
