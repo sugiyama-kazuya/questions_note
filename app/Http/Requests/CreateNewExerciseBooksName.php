@@ -26,9 +26,9 @@ class CreateNewExerciseBooksName extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('exercise_books_names', 'name')->where(function($query){
+            'name' => ['required', Rule::unique('exercise_books', 'name')->where(function ($query) {
                 return $query->where('user_id', Auth::id());
-            }) ]
+            })]
         ];
     }
 }
