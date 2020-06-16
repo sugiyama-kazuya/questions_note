@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -21,7 +22,7 @@ class ExerciseBook extends Model
     protected $dateFormat = "Y/m/d";
 
     protected $fillable = [
-        'exercise_books_name_id', 'user_id', 'created_at', 'updated_at'
+        'name', 'user_id', 'category_id', 'created_at', 'updated_at'
     ];
 
     public function user(): BelongsTo
@@ -53,6 +54,16 @@ class ExerciseBook extends Model
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
+
+    /**
+     * ログインユーザーの問題集を取得
+     *
+     * @return Object
+     */
+    public function getLoginUserExerciseBookAttribute()
+    {
+        return $this->where('user_id', Auth::id())->get(['id', 'name']);
     }
 
     /**
@@ -117,9 +128,9 @@ class ExerciseBook extends Model
     /**
      * 使用するデータを取得
      *
-     * @return object
+     * @return Object
      */
-    public function getExerciseBookData(): object
+    public function getExerciseBookData(): Object
     {
         return $this->with(['user:id,name,profile_img', 'exerciseBooksName:id,name', 'likes']);
     }
@@ -127,15 +138,35 @@ class ExerciseBook extends Model
     /**
      * S3からユーザー画像のURLを取得
      *
-     * @param [object] $data
-     * @return object
+     * @param [Object] $data
+     * @return Object
      */
-    public function addProfileUrl($data): object
+    public function addProfileUrl($data): Object
     {
         return $data->map(function ($item) {
             $data = $item;
             $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
             return $data;
         });
+    }
+
+    /**
+     * ログインユーザーの問題集を取得し、
+     * リクエストから送られてきた問題集があれば取得、なければ登録
+     *
+     * @param Object $request
+     * @param Int $category_id
+     * @return Object
+     */
+    public function fetchOrRegister(Object $request, Int $category_id)
+    {
+        return $this->where('user_id', Auth::id())->firstOrCreate(
+            ['name' => $request->exerciseBook],
+            [
+                'name' => $request->exerciseBook,
+                'user_id' => Auth::id(),
+                'category_id' => $category_id
+            ]
+        );
     }
 }
