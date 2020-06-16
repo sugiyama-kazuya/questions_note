@@ -28,9 +28,9 @@ class CreateProblem extends FormRequest
         return [
             'problem' => 'required|max:255',
             'answer' => 'required|max:255',
+            'url' => 'url',
             'category' => 'required',
             'exerciseBook' => 'required'
         ];
     }
-
 }
