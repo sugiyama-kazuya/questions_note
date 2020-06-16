@@ -3,10 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
-class CreateNewExerciseBooksName extends FormRequest
+class CreateExerciseBook extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +24,8 @@ class CreateNewExerciseBooksName extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('exercise_books', 'name')->where(function ($query) {
-                return $query->where('user_id', Auth::id());
-            })]
+            'exerciseBook' => ['required'],
+            'category' => ['required']
         ];
     }
 }

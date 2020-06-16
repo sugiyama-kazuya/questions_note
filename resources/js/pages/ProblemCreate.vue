@@ -17,6 +17,7 @@
 
       <main class="w-full overflow-y-scroll h-82">
         <div class="h-90">
+          <!-- 問題の追加 -->
           <form id="createForm" class="pb-8" @submit.prevent="newProblemCreate">
             <div class="bg-gray-200 p-3 mb-3">
               <FormLabel>
@@ -62,29 +63,24 @@
               </div>
             </div>
 
-            <!-- カテゴリの追加 -->
+            <!-- URLの追加 -->
             <transition name="validateError">
-              <div v-if="validationErrorMsg.category" class="px-3">
-                <FormValidationErrorMessage :errorMessages="validationErrorMsg.category" />
+              <div v-if="validationErrorMsg.url" class="px-3">
+                <FormValidationErrorMessage :errorMessages="validationErrorMsg.url" />
               </div>
             </transition>
             <div class="flex flex-col bg-gray-200 mb-3">
-              <div class="flex">
+              <div class="flex p-1">
                 <div class="py-2 px-4">
-                  <font-awesome-icon
-                    icon="clipboard-list"
-                    class="text-3xl text-gray-400 text-primary"
-                  />
+                  <span>URL</span>
                 </div>
-                <div @click="openSelectedCategory" class="flex justify-between w-full items-center">
-                  <FormLabel>
-                    <template>カテゴリ</template>
-                  </FormLabel>
-                  <div class="mr-8 flex items-center">
-                    <p class="m-0 mr-3">{{ selectedCategory.recordText }}</p>
-                    <input type="text" class="hidden" v-model="form.category" />
-                    <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
-                  </div>
+                <div class="flex justify-between w-full items-center">
+                  <input
+                    v-model="form.url"
+                    type="text"
+                    class="py-2 px-2 w-full bg-gray-200 focus:outline-none"
+                    placeholder="https://"
+                  />
                 </div>
               </div>
             </div>
@@ -109,7 +105,7 @@
                     <template>問題集への追加</template>
                   </FormLabel>
                   <div class="mr-8 flex items-center">
-                    <p class="m-0 mr-3">{{ selectedExerciseBook.recordText }}</p>
+                    <p class="m-0 mr-3">{{ exerciseBookSelected.recordText }}</p>
                     <input v-model="form.exerciseBook" type="text" class="hidden" />
                     <font-awesome-icon icon="angle-right" class="text-3xl text-gray-400" />
                   </div>
@@ -127,23 +123,10 @@
       </transition>
     </div>
 
-    <!-- セレクトモーダル-->
-    <!-- カテゴリ-->
+    <!-- 問題集への追加（セレクトボックス）-->
     <transition name="select">
       <SelectModal
-        v-if="selectedCategory.isModal"
-        :items="categoryItems"
-        @selected="categoryRecordChanged"
-        @close="closeSelectedCategory"
-      >
-        <template v-slot:title>カテゴリ</template>
-      </SelectModal>
-    </transition>
-
-    <!-- 問題集へ追加-->
-    <transition name="select">
-      <SelectModal
-        v-if="selectedExerciseBook.isModal"
+        v-if="exerciseBookSelected.isModal"
         :items="exerciseBooks"
         @selected="exerciseBookRecordChanged"
         @close="closeSelectedExerciseBook"
@@ -158,7 +141,7 @@
       </SelectModal>
     </transition>
 
-    <!-- 問題集の新規作成モーダル-->
+    <!-- 問題集の新規作成（モーダル）-->
     <transition name="new-problem">
       <CenterModal v-if="exerciseBookNewAdd.isModal">
         <template>
@@ -166,30 +149,54 @@
           <form>
             <div class="flex flex-col justify-center items-center p-3 box-border h-100">
               <div class="w-full pm-2 h-100 flex flex-col justify-center">
-                <div class="h-2.5rem">
+                <div class>
                   <transition name="validateError">
                     <div v-if="exerciseBookNewAdd.errorMsg">
                       <p
-                        v-for="errorMsg in exerciseBookNewAdd.errorMsg.name"
-                        :key="errorMsg"
+                        v-for="errorMsg in exerciseBookNewAdd.errorMsg"
+                        :key="errorMsg.index"
                         class="text-red-500 text-xs italic m-0 p-1"
-                      >{{ errorMsg }}</p>
+                      >{{ errorMsg[0] }}</p>
                     </div>
                   </transition>
                 </div>
                 <FormLabel>
                   <template>問題集の名前</template>
                 </FormLabel>
-                <input
-                  v-model="exerciseBookNameForm.name"
-                  type="text"
-                  class="shadow-sm appearance-none border rounded w-full h-2.5rem p-2 focus:outline-none focus:shadow-outline"
-                />
+                <FormText v-model="exerciseBookNewAdd.form.exerciseBook" />
+
+                <!-- カテゴリーの選択（セレクトボックス） -->
+                <FormLabel>
+                  <template>カテゴリー</template>
+                </FormLabel>
+                <div class>
+                  <div
+                    @click="toggleCategorySelected"
+                    :class="categorySelected.isSelect ? 'category-select-close' : 'category-select-open'"
+                    class="flex items-center w-full p-2 border h-3rem relative"
+                  >{{categorySelected.recordText}}</div>
+                  <div
+                    v-if="this.categorySelected.isSelect"
+                    class="h-12rem border overflow-y-scroll absolute bg-white category-selected-size"
+                  >
+                    <div class="text-center">
+                      <div
+                        @click="openCategoryNewAdd"
+                        class="h-2rem leading-8 mt-2 hover:bg-blue-400"
+                      >新規追加</div>
+                      <div
+                        @click="categoryDecision()"
+                        class="h-2rem leading-8 hover:bg-blue-400"
+                      >PHP</div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="flex justify-end w-full pm-2 mt-3">
                   <BaseButton
                     :color="'bg-pink-400'"
                     :text="'text-white'"
-                    @click.native="exerciseBookNewAddCancel"
+                    @click.native="cancelExerciseBookNewAdd"
                   >
                     <template>キャンセル</template>
                   </BaseButton>
@@ -207,6 +214,57 @@
         </template>
       </CenterModal>
     </transition>
+
+    <!-- カテゴリーの新規作成（モーダル） -->
+    <transition name="new-problem">
+      <CenterModal v-if="categoryNewAdd.isModal">
+        <template>
+          <h1 class="bg-primary text-center py-3 text-white text-base m-0 font-bold">新規追加</h1>
+          <form>
+            <div class="flex flex-col justify-center items-center p-3 box-border h-100">
+              <div class="w-full pm-2 h-100 flex flex-col justify-center">
+                <div class="h-2.5rem">
+                  <transition name="validateError">
+                    <div v-if="categoryNewAdd.errorMsg">
+                      <p
+                        v-for="errorMsg in categoryNewAdd.errorMsg.name"
+                        :key="errorMsg"
+                        class="text-red-500 text-xs italic m-0 p-1"
+                      >{{ errorMsg }}</p>
+                    </div>
+                  </transition>
+                </div>
+                <FormLabel>
+                  <template>カテゴリー名</template>
+                </FormLabel>
+                <input
+                  v-model="categoryNewAdd.form.category"
+                  type="text"
+                  class="shadow-sm appearance-none border rounded w-full h-2.5rem p-2 focus:outline-none focus:shadow-outline"
+                />
+                <div class="flex justify-end w-full pm-2 mt-3">
+                  <BaseButton
+                    :color="'bg-pink-400'"
+                    :text="'text-white'"
+                    @click.native="categoryNewAddCancel"
+                  >
+                    <template>キャンセル</template>
+                  </BaseButton>
+                  <BaseButton
+                    :color="'bg-blue-500'"
+                    :text="'text-white'"
+                    @click.native="createCategory"
+                  >
+                    <template>追加</template>
+                  </BaseButton>
+                </div>
+              </div>
+            </div>
+          </form>
+        </template>
+      </CenterModal>
+    </transition>
+
     <TheFooter />
     <TheLoading v-if="isLoading" :loading="isLoading" />
   </div>
@@ -219,6 +277,7 @@ import TheLoading from "../components/TheLoading";
 import SelectModal from "../components/SelectModal";
 import CenterModal from "../components/CenterModal";
 import FormLabel from "../components/form/FormLabel";
+import FormText from "../components/form/FormText";
 import FormTextarea from "../components/form/FormTextarea";
 import FormValidationErrorMessage from "../components/form/FormValidationErrorMessage";
 import BaseButton from "../components/BaseButton";
@@ -229,7 +288,8 @@ import {
   faAngleRight,
   faClipboardList,
   faTimes,
-  faBook
+  faBook,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faAngleRight, faClipboardList, faTimes, faBook);
@@ -244,6 +304,7 @@ export default {
     SelectModal,
     CenterModal,
     FormLabel,
+    FormText,
     FormTextarea,
     FormValidationErrorMessage,
     BaseButton
@@ -251,35 +312,40 @@ export default {
 
   data: () => ({
     exerciseBooks: [],
+    categories: [],
     form: {
       problem: "",
       answer: "",
-      category: "",
-      exerciseBook: ""
+      url: "",
+      exerciseBook: "",
+      category: ""
     },
     validationErrorMsg: "",
-    selectedCategory: {
-      isModal: false,
-      recordText: "選択してください"
-    },
-    categoryItems: [
-      { name: "ゲーム" },
-      { name: "スポーツ" },
-      { name: "数学" },
-      { name: "恋愛" },
-      { name: "漫画" },
-      { name: "心理学" },
-      { name: "経済" },
-      { name: "プログラミング" }
-    ],
+    // 問題集の新規追加
     exerciseBookNewAdd: {
       isModal: false,
-      errorMsg: null
+      errorMsg: null,
+      form: {
+        exerciseBook: "",
+        category: ""
+      }
     },
-    exerciseBookNameForm: {
-      name: ""
+    // カテゴリー新規追加
+    categoryNewAdd: {
+      isModal: false,
+      errorMsg: null,
+      form: {
+        category: ""
+      }
     },
-    selectedExerciseBook: {
+    // カテゴリーのセレクトボックス
+    categorySelected: {
+      isSelect: false,
+      recordText: "選択してください"
+    },
+
+    // 問題集のセレクトボックス
+    exerciseBookSelected: {
       isModal: false,
       recordText: "選択してください"
     },
@@ -308,56 +374,104 @@ export default {
     }
 
     if (response.status === OK) {
-      this.exerciseBooks = response.data;
+      this.exerciseBooks = response.data.exercise_book_list;
+      this.categories = response.data.category_list;
       this.isLoading = false;
       return;
     }
   },
 
   methods: {
-    openSelectedCategory() {
-      this.selectedCategory.isModal = true;
+    // カテゴリーセレクトボックスの開閉
+    toggleCategorySelected() {
+      this.categorySelected.isSelect = !this.categorySelected.isSelect;
     },
 
-    closeSelectedCategory(status) {
-      this.selectedCategory.isModal = status;
-    },
-
-    // カテゴリーレコードの文字を変更
-    categoryRecordChanged(category) {
-      this.form.category = category;
-      this.selectedCategory.recordText = category;
-    },
-
-    openSelectedExerciseBook() {
-      this.selectedExerciseBook.isModal = true;
-    },
-
-    closeSelectedExerciseBook(status) {
-      this.selectedExerciseBook.isModal = status;
-    },
-
-    openExerciseBookNewAdd() {
-      this.exerciseBookNewAdd.isModal = true;
-      this.selectedExerciseBook.isModal = false;
-    },
-
-    exerciseBookNewAddCancel() {
+    // カテゴリー新規作成モーダルを開く
+    openCategoryNewAdd() {
       this.exerciseBookNewAdd.isModal = false;
-      this.exerciseBookNewAdd.errorMsg = null;
-      this.exerciseBookNameForm.name = null;
+      this.categoryNewAdd.isModal = true;
+      this.toggleCategorySelected();
+    },
+
+    // カテゴリーの新規作成モーダルのキャンセル
+    categoryNewAddCancel() {
+      this.categoryNewAdd.isModal = false;
+      this.exerciseBookNewAdd.isModal = true;
+      this.exerciseBookNewAdd.errorMsg = "";
+      this.categoryNewAddClearForm();
+    },
+
+    // カテゴリーを決定
+    categoryDecision(category) {
+      this.assignmentToEach("category", category);
+      this.categorySelected.isSelect = false;
+    },
+
+    // カテゴリーの新規作成
+    async createCategory() {
+      const response = await axios
+        .post("/api/problems/categoryCheck", {
+          name: this.categoryNewAdd.form.category
+        })
+        .catch(error => error.response || error);
+
+      if (response.status === INTERNAL_SERVER_ERROR) {
+        this.$router.push("/500");
+        return;
+      }
+
+      if (response.status === UNPROCESSABLE_ENTITY) {
+        this.categoryNewAdd.errorMsg = response.data.errors;
+        return;
+      }
+
+      if (response.status === OK) {
+        const category = response.data.name;
+        this.assignmentToEach("category", category);
+        this.categoryNewAddClearForm();
+        this.exerciseBookNewAdd.errorMsg = "";
+        this.categoryNewAdd.isModal = false;
+        this.exerciseBookNewAdd.isModal = true;
+        return;
+      }
+    },
+
+    // 問題集への追加のセレクトボックスを開く
+    openSelectedExerciseBook() {
+      this.exerciseBookSelected.isModal = true;
+      this.categorySelected.isModal = false;
+    },
+
+    // 問題集への追加のセレクトボックスを閉じる
+    closeSelectedExerciseBook(status) {
+      this.exerciseBookSelected.isModal = status;
     },
 
     //　問題集への追加レコードの文字を変更
     exerciseBookRecordChanged(name) {
       this.form.exerciseBook = name;
-      this.selectedExerciseBook.recordText = this.LengthaAdjustment(name);
+      this.exerciseBookSelected.recordText = this.LengthaAdjustment(name);
+    },
+
+    // 問題集の新規作成モーダルを開く
+    openExerciseBookNewAdd() {
+      this.exerciseBookNewAdd.isModal = true;
+      this.exerciseBookSelected.isModal = false;
+    },
+
+    // 問題集の新規作成モーダルのキャンセル
+    cancelExerciseBookNewAdd() {
+      this.exerciseBookNewAdd.isModal = false;
+      this.exerciseBookNewAddClearForm();
+      this.categoryNewAddClearForm();
+      this.categorySelected.recordText = "選択してください";
     },
 
     // 問題集の新規作成
     async createExerciseBook() {
       const response = await axios
-        .post("/api/problems/newExerciseName", this.exerciseBookNameForm)
+        .post("/api/problems/create/exerciseBook", this.exerciseBookNewAdd.form)
         .catch(error => error.response || error);
 
       if (response.status === UNPROCESSABLE_ENTITY) {
@@ -366,15 +480,52 @@ export default {
       }
 
       if (response.status === OK) {
-        const exerciseBookName = response.data.name;
-        this.form.exerciseBook = exerciseBookName;
-        this.selectedExerciseBook.recordText = this.LengthaAdjustment(
-          exerciseBookName
-        );
+        const exerciseBook = response.data.exerciseBook;
+        this.assignmentToEach("exerciseBook", exerciseBook);
+        this.exerciseBookNewAddClearForm();
+        this.categoryNewAddClearForm();
+        this.categorySelected.recordText = "選択してください";
         this.exerciseBookNewAdd.isModal = false;
-        this.exerciseBookNameForm.name = "";
         return;
       }
+    },
+
+    // 問題の作成
+    async newProblemCreate() {
+      this.exerciseBookNewAdd.errorMsg = "";
+      const response = await axios
+        .post("/api/problems", this.form)
+        .catch(error => error.response || error);
+
+      if (response.status === INTERNAL_SERVER_ERROR) {
+        this.$route.push("/500");
+        return;
+      }
+
+      if (response.status === UNPROCESSABLE_ENTITY) {
+        this.validationErrorMsg = response.data.errors;
+        return;
+      }
+
+      if (response.status === OK) {
+        await this.$store.commit("flashMessage/setVisible", true);
+        if (this.isFlashMsg) {
+          this.$store.dispatch(
+            "flashMessage/hideFlashMsg",
+            this.flashMsg.speed
+          );
+          this.allClearForm();
+        }
+      }
+    },
+
+    /** Iterator */
+    assignmentToEach(genre, item) {
+      const target = String(genre);
+      const targetSelected = String(`${target}Selected`);
+      this.form[target] = item;
+      this.exerciseBookNewAdd.form[target] = item;
+      this[targetSelected].recordText = this.LengthaAdjustment(item);
     },
 
     //文字の長さの調整
@@ -387,48 +538,85 @@ export default {
       return name;
     },
 
-    async newProblemCreate() {
-      const response = await axios
-        .post("/api/problems", this.form)
-        .catch(error => error.response || error);
-
-      if (response.status === INTERNAL_SERVER_ERROR) {
-        this.$route.push("/500");
-        return;
-      }
-
-      if (response.status === UNPROCESSABLE_ENTITY) {
-        this.validationErrorMsg = response.data.errors;
-        console.log(this.validationErrorMsg);
-        return;
-      }
-
-      if (response.status === OK) {
-        await this.$store.commit("flashMessage/setVisible", true);
-        if (this.isFlashMsg) {
-          this.$store.dispatch(
-            "flashMessage/hideFlashMsg",
-            this.flashMsg.speed
-          );
-          this.clearForm();
-        }
-      }
-    },
-    clearForm() {
+    allClearForm() {
       this.form = {
         problem: "",
         answer: "",
         category: "",
         exerciseBook: ""
       };
-      this.selectedCategory.recordText = "選択してください";
-      this.selectedExerciseBook.recordText = "選択してください";
+
+      this.exerciseBookNewAddClearForm();
+      this.categoryNewAddClearForm();
+      this.categorySelected.recordText = "選択してください";
+      this.exerciseBookSelected.recordText = "選択してください";
+    },
+
+    // 問題集の作成モーダルのフォームをクリア
+    exerciseBookNewAddClearForm() {
+      this.exerciseBookNewAdd = {
+        errorMsg: "",
+        form: {
+          exerciseBook: "",
+          category: ""
+        }
+      };
+    },
+
+    // カテゴリーの新規作成モーダルのフォームをクリア
+    categoryNewAddClearForm() {
+      this.categoryNewAdd = {
+        errorMsg: "",
+        form: {
+          category: ""
+        }
+      };
     }
   }
 };
 </script>
 
 <style scoped>
+.category-select-open {
+  position: relative;
+}
+
+.category-select-open:after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 50%;
+  bottom: 40%;
+  right: 5%;
+  margin: auto;
+  box-sizing: border-box;
+  border: 5px solid transparent;
+  border-top: 8px solid rgb(119, 117, 117);
+}
+
+.category-select-close {
+  position: relative;
+}
+
+.category-select-close:after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 50%;
+  bottom: 50%;
+  right: 5%;
+  margin: auto;
+  box-sizing: border-box;
+  border: 5px solid transparent;
+  border-bottom: 8px solid rgb(119, 117, 117);
+}
+
+.category-selected-size {
+  width: calc(100% - 2rem);
+}
+
 .st-absolute {
   position: absolute;
   top: 18%;

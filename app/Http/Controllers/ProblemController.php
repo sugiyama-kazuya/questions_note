@@ -6,11 +6,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Problem;
 use App\ExerciseBook;
-use App\ExerciseBookName;
+use App\Category;
 use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CreateNewExerciseBooksName;
 
 class ProblemController extends Controller
@@ -43,51 +42,42 @@ class ProblemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(ExerciseBookName $exercise_book)
+    public function create(ExerciseBook $exercise_book, Category $category)
     {
-        $exercise_books_name_list = $exercise_book->where('user_id', Auth::id())->get(['id', 'name']);
+        // ログインユーザーの問題集を取得
+        $exercise_book_list = $exercise_book->loginUserExerciseBook;
 
-        return $exercise_books_name_list;
+        // ログインユーザーのカテゴリーを取得
+        $category_list = $category->loginUserCategory;
+
+        return response()->json([
+            'exercise_book_list' => $exercise_book_list,
+            'category_list' => $category_list
+        ]);
     }
 
     /**
-     * 問題と解答の作成
+     * 問題と解答の作成、問題集に追加または新規作成
      *
-     * @param  \Illuminate\Http\Request  $req
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateProblem $req, Problem $problem, ExerciseBook $exercise_book, ExerciseBookName $exercise_book_name)
+    public function store(CreateProblem $request, Problem $problem, ExerciseBook $exercise_book, Category $category)
     {
-        $login_user_id = Auth::id();
+        //ログインユーザーのカテゴリーを取得し、
+        //リクエストから送られてきたカテゴリーがあれば取得、なければ登録
+        $category = $category->fetchOrRegister($request);
 
-        //        DB::enableQueryLog();
-        //        問題集の名前を登録
-        $exercise_book_name->where('user_id', $login_user_id)->firstOrCreate(
-            ['name' => $req->exerciseBook],
-            ['name' => $req->exerciseBook, 'user_id' => $login_user_id]
-        );
+        //ログインユーザーの問題集を取得し、
+        //リクエストから送られてきた問題集があれば取得、なければ登録
+        $exercise_book = $exercise_book->fetchOrRegister($request, $category->id);
 
-        $exercise_book_name_id = $exercise_book_name->where('user_id', $login_user_id)->where('name', $req->exerciseBook)->first('id')->id;
-
-        $exercise_book->where('user_id', $login_user_id)->firstOrCreate(
-            ['exercise_books_name_id' => $exercise_book_name_id],
-            [
-                'exercise_books_name_id' => $exercise_book_name_id,
-                'user_id' => $login_user_id,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ]
-        );
-
-        // 先ほど登録した問題集のIDを取得
-        $insert_exercise_book_id = $exercise_book->where('user_id', $login_user_id)->where('exercise_books_name_id', $exercise_book_name_id)->first('id')->id;
-
-        // 問題と答えを登録
+        // 問題と答えの登録
         $problem->fill([
-            'content' => $req->problem,
-            'answer' => $req->answer,
-            'user_id' => $login_user_id,
-            'exercise_book_id' => $insert_exercise_book_id
+            'content' => $request->problem,
+            'answer' => $request->answer,
+            'user_id' => Auth::id(),
+            'exercise_book_id' => $exercise_book->id,
         ])->save();
     }
 
@@ -134,16 +124,5 @@ class ProblemController extends Controller
     public function destroy($problem_id)
     {
         Problem::find($problem_id)->delete();
-    }
-
-    /**
-     * 問題集の名前を作成
-     *
-     * @param CreateNewExerciseBooksName $requst
-     * @return void
-     */
-    public function createExerciseBooksName(CreateNewExerciseBooksName $requst)
-    {
-        return $requst;
     }
 }

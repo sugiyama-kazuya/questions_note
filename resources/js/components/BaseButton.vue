@@ -1,14 +1,14 @@
 <template>
   <button
-    class="p-2 m-2 rounded-sm shadow-sm font-bold focus:outline-none outline-none"
+    @click="$emit('click-btn')"
     :class="[
             height ? height : 'h-70',
             width ? width : 'w-full',
             color ? color : 'bg-blue-400',
             text ? text : 'text-white'
         ]"
-    @click="$emit('click-btn')"
     :type="type ? type : 'button'"
+    class="p-2 m-2 rounded-sm shadow-sm font-bold focus:outline-none outline-none"
   >
     <slot></slot>
   </button>

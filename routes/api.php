@@ -25,7 +25,9 @@ Route::get('/user', function () {
 Route::resource('problems', 'ProblemController');
 Route::resource('profile', 'ProfileController');
 
-Route::post('problems/newExerciseName', 'ProblemController@createExerciseBooksName')->name('problems.newExerciseName');
+Route::post('problems/categoryCheck', 'CategoryDuplicateCheck');
+
+Route::post('problems/create/exerciseBook', 'CreateExerciseBookCheck');
 
 Route::get('likes/count', 'LikeController@index')->name('likes.count');
 Route::get('islikedby/{id}', 'isLikedByController');
