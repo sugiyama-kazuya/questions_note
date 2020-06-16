@@ -76,6 +76,7 @@ class ProblemController extends Controller
         $problem->fill([
             'content' => $request->problem,
             'answer' => $request->answer,
+            'url' => $request->url,
             'user_id' => Auth::id(),
             'exercise_book_id' => $exercise_book->id,
         ])->save();
