@@ -2,7 +2,7 @@
   <div class="bg-white mx-3 rounded-sm shadow-sm px-2 flex flex-column">
     <div @click="goProblem(cardData.id)" class="flex flex-column">
       <div class="text-right p-2">カテゴリ</div>
-      <div class="px-2 pb-4 pt-2">{{ cardData.exerciseBooksName.name }}</div>
+      <div class="px-2 pb-4 pt-2">{{ cardData.name }}</div>
     </div>
     <div class="border-t p-3 flex items-center justify-between text-gray-600">
       <div class="flex items-center w-1/3">
@@ -31,7 +31,7 @@
       </div>
       <div class="flex w-1/3">
         <font-awesome-icon
-          @click="isLike(cardData.id)"
+          @click="isLiked(cardData.id)"
           icon="star"
           class="text-2xl mr-2"
           :class="{ 'is-like': isLikedBy }"
@@ -58,15 +58,30 @@ export default {
       required: true
     }
   },
+
   components: {
     FontAwesomeIcon
   },
+
   data() {
     return {
       isLikedBy: false,
       count: ""
     };
   },
+
+  watch: {
+    async isLikedBy(newIsLikedBy, oldIsLikedBy) {
+      const countLikes = await this.countLikes(this.cardData.id);
+      countLikes ? (this.count = countLikes) : (this.count = 0);
+    }
+  },
+
+  async created() {
+    this.count = this.cardData.favolite_count;
+    this.isLikedBy = this.cardData.is_liked_by;
+  },
+
   methods: {
     goProblem(exerciseBooksId) {
       this.$router.push({
@@ -74,10 +89,10 @@ export default {
         params: { id: exerciseBooksId }
       });
     },
-    async isLike(problemId) {
-      // 既にいいねしていた場合、していなかった場合
+
+    async isLiked(problemId) {
+      // 既にいいねしていた場合
       if (this.isLikedBy) {
-        console.log("true");
         const response = await axios
           .delete("/api/unlike", { data: { id: problemId } })
           .catch(error => error.response);
@@ -89,6 +104,7 @@ export default {
 
         this.isLikedBy = false;
       } else {
+        // まだしていない場合
         const response = await axios
           .put("/api/like", { id: problemId })
           .catch(error => error.response || error);
@@ -101,24 +117,10 @@ export default {
         this.isLikedBy = true;
       }
     },
-    async isLikedByApi(id) {
-      const url = `/api/islikedby/${id}`;
-      const response = await axios
-        .get(url)
-        .catch(error => error.response || error);
 
-      if (response.status === INTERNAL_SERVER_ERROR) {
-        this.$router.push("/500");
-        return;
-      }
-
-      return response.data.isLike;
-    },
     async countLikes(id) {
-      const countLikesUrl = `/api/countLikes/${id}`;
-      const response = await axios
-        .get(countLikesUrl)
-        .catch(error => error.response);
+      const url = `/api/likes/${id}/count`;
+      const response = await axios.get(url).catch(error => error.response);
 
       if (response.status === INTERNAL_SERVER_ERROR) {
         this.$router.push("/500");
@@ -126,20 +128,6 @@ export default {
       }
 
       return response.data.count;
-    }
-  },
-  async mounted() {
-    console.log(this.cardData);
-    this.count = this.cardData.favolite_count;
-    this.isLikedBy = this.cardData.is_liked_by;
-    const isLike = await this.isLikedByApi(this.cardData.id);
-
-    isLike ? (this.isLikedBy = isLike) : (this.isLikedBy = false);
-  },
-  watch: {
-    async isLikedBy(newIsLikedBy, oldIsLikedBy) {
-      const countLikes = await this.countLikes(this.cardData.id);
-      countLikes ? (this.count = countLikes) : (this.count = 0);
     }
   }
 };
