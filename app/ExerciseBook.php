@@ -101,6 +101,43 @@ class ExerciseBook extends Model
     }
 
     /**
+     * 問題カードの表示に必要な基本データ
+     *
+     * @return Object
+     */
+    public function exerciseBookCardRequiredData(): Object
+    {
+        return $this->with(['user:id,name,profile_img', 'likes']);
+    }
+
+    /**
+     * お気に入り情報の追加
+     *
+     * @param $exercise_books
+     * @param integer $user_id
+     * @return object
+     */
+    public function addFavoriteInfo($exercise_books, int $user_id = null)
+    {
+        if ($user_id) {
+            // ログインしている場合
+            return $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
+                $exercise_books_data = $data;
+                $exercise_books_data['favolite_count'] = $data['likes']->count();
+                $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
+                return $exercise_books_data;
+            });
+        } else {
+            // ログインしていない場合
+            return $exercise_books = $exercise_books->map(function ($data) {
+                $exercise_books_data = $data;
+                $exercise_books_data['favolite_count'] = $data['likes']->count();
+                return $exercise_books_data;
+            });
+        }
+    }
+
+    /**
      * 問題カードを表示する為に必要なデータの絞り込み
      *
      * @param $exercise_books object
@@ -109,45 +146,19 @@ class ExerciseBook extends Model
      */
     public function filteringRequiredData($exercise_books, int $user_id = null): object
     {
-        // いいねの数といいねがされているか否かの変数を代入
-        $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
-            $exercise_books_data = $data;
-            $exercise_books_data['favolite_count'] = $data['likes']->count();
-            $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
-            return $exercise_books_data;
-        });
+        if ($user_id) {
+            return $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'is_liked_by']);
+            });
 
-        //        必要なデータの絞り込み
-        $exercise_books = $exercise_books->map(function ($data) {
-            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName', 'favolite_count', 'is_liked_by']);
-        });
+            return $exercise_books;
+        } else {
+            return $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count']);
+            });
 
-        return $exercise_books;
-    }
-
-    /**
-     * 使用するデータを取得
-     *
-     * @return Object
-     */
-    public function getExerciseBookData(): Object
-    {
-        return $this->with(['user:id,name,profile_img', 'exerciseBooksName:id,name', 'likes']);
-    }
-
-    /**
-     * S3からユーザー画像のURLを取得
-     *
-     * @param [Object] $data
-     * @return Object
-     */
-    public function addProfileUrl($data): Object
-    {
-        return $data->map(function ($item) {
-            $data = $item;
-            $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
-            return $data;
-        });
+            return $exercise_books;
+        }
     }
 
     /**
@@ -168,5 +179,20 @@ class ExerciseBook extends Model
                 'category_id' => $category_id
             ]
         );
+    }
+
+    /**
+     * S3からユーザー画像のURLを取得
+     *
+     * @param [Object] $data
+     * @return Object
+     */
+    public function addProfileUrl(Object $data): Object
+    {
+        return $data->map(function ($item) {
+            $data = $item;
+            $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
+            return $data;
+        });
     }
 }
