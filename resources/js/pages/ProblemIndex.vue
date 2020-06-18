@@ -40,6 +40,8 @@ import ExerciseBookCard from "../components/ExerciseBookCard";
 import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 
+import { OK, INTERNAL_SERVER_ERROR } from "../util";
+
 export default {
   name: "Index",
   components: {
@@ -61,12 +63,24 @@ export default {
   },
   async mounted() {
     this.isLoading = true;
-    await this.$store.dispatch("listProblem/getProblmeCard");
-    this.ExerciseBookCardData = this.$store.state.listProblem.problemCardData.exercise_books;
+    const response = await axios
+      .get("api/problems")
+      .catch(error => error.response || error);
 
-    this.displayTab.isNewActive = true;
+    console.log(this.axios);
+
+    if (response.status === INTERNAL_SERVER_ERROR) {
+      this.$router.push("/500");
+      return;
+    }
+
+    if (response.status === OK) {
+      this.ExerciseBookCardData = response.data.exercise_books;
+      this.displayTab.isNewActive = true;
+    }
 
     this.$nextTick(function() {
+      console.log(this.isLoading);
       this.isLoading = false;
     });
   },
@@ -88,7 +102,7 @@ export default {
 
       this.isLoading = true;
       const response = await axios
-        .get("/api/orderFavorite")
+        .get("/api/order-favorite-exercise-books")
         .catch(error => error.response || error);
 
       console.log(response.data);
