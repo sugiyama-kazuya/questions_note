@@ -99,9 +99,10 @@ export default {
     async login() {
       await this.$store.dispatch("auth/login", this.loginForm);
 
+      console.log(this.apiStatus);
       // apistatusが成功の場合のみ遷移する
       if (this.apiStatus) {
-        console.log("true");
+        this.$router.push("/problems");
       }
     },
     clearLoginErrorMasseage() {
