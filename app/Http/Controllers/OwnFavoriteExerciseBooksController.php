@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OwnFavoriteExerciseBooksController extends Controller
 {
@@ -11,16 +12,23 @@ class OwnFavoriteExerciseBooksController extends Controller
     {
         $login_user_id = Auth::id();
 
-        $exercise_books = $exercise_book->getExerciseBookData()->get();
+        $exercise_books = $exercise_book->exerciseBookCardRequiredData()->get();
 
         $exercise_books = $exercise_book->addProfileUrl($exercise_books);
+        $exercise_books = $exercise_book->addFavoriteInfo($exercise_books, $login_user_id);
 
-        // 自分がいいねをしている問題だけに絞り込み
+        // 自分がいいねをしている問題があれば取得、なければ問題集を削除
         $exercise_books = $exercise_books->filter(function ($data) use ($login_user_id) {
-            return $data->likes()->first()->pivot->user_id === $login_user_id;
+            if ($data->likes()->first()) {
+                return $data->likes()->first()->pivot->user_id === $login_user_id;
+            } else {
+                return $data = [];
+            }
         })->values();
 
-        $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
+        if (!$exercise_books->isEmpty()) {
+            $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
+        }
 
         return response()->json(['exercise_books' => $exercise_books]);
     }

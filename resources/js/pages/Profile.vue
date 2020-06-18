@@ -66,6 +66,7 @@
 
         <div class="flex justify-center items-center h-10 px-3 my-3 round-sm">
           <ChangeTabBtn
+            v-if="isLoginUser"
             @left-click="ownExerciseBooks"
             @right-click="favoriteOrder"
             :isLeftActive="displayTab.isOwnExerciseBooks"
@@ -74,6 +75,9 @@
             <template v-slot:leftBtnText>問題</template>
             <template v-slot:rightBtnText>お気に入り</template>
           </ChangeTabBtn>
+          <div v-else class="w-1/3">
+            <div class="bg-indigo-500 py-2 px-4 text-white text-center">問題</div>
+          </div>
         </div>
 
         <ExerciseBookCard
@@ -109,7 +113,7 @@ import ExerciseBookCard from "../components/ExerciseBookCard";
 import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import CenterModal from "../components/CenterModal";
-import { INTERNAL_SERVER_ERROR } from "../util";
+import { INTERNAL_SERVER_ERROR, OK } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -117,6 +121,7 @@ library.add(faUserCircle);
 
 export default {
   name: "Profile",
+
   components: {
     TheHeader,
     TheFooter,
@@ -127,6 +132,7 @@ export default {
     CenterModal,
     FontAwesomeIcon
   },
+
   data() {
     return {
       ExerciseBookCardData: {},
@@ -153,20 +159,73 @@ export default {
       }
     };
   },
+
+  computed: {
+    followBtnBgColor() {
+      return this.isFollowedBy ? "bg-blue-400" : "bg-white";
+    },
+    followBtnTextColor() {
+      return this.isFollowedBy ? "text-white" : "text-blue-400";
+    },
+    followBtnText() {
+      return this.isFollowedBy ? "フォロー中" : "フォローする";
+    },
+    isLoginUser() {
+      const paramsUserId = parseInt(this.$route.params.userId);
+      const loginUserId = parseInt(this.$store.state.auth.user.id);
+      return loginUserId === paramsUserId ? true : false;
+    },
+    isFlashMsg() {
+      return this.$store.state.flashMessage.visible;
+    }
+  },
+
+  watch: {
+    async isFollowedBy() {
+      const url = `/api/user/${this.$route.params.userId}/followers`;
+      const response = await axios
+        .get(url)
+        .catch(error => error.response || error);
+
+      this.followersCount = response.data.follower_count;
+    },
+    async $route() {
+      this.loading.isLoading = true;
+      await this.getOwnExercizeBooks();
+      await this.getUser();
+      this.loading.isLoading = false;
+    }
+  },
+
+  async created() {
+    this.loading.isLoading = true;
+    await this.getOwnExercizeBooks();
+    await this.getUser();
+    this.loading.isLoading = false;
+
+    // フラッシュメッセージがある場合
+    if (this.isFlashMsg) {
+      this.$store.dispatch("flashMessage/hideFlashMsg", this.flashMsg.speed);
+    }
+  },
+
   methods: {
     async getUser() {
-      const userUrl = `/api/profile/${this.$route.params.userId}`;
+      const url = `/api/profile/${this.$route.params.userId}`;
       const response = await axios
-        .get(userUrl)
+        .get(url)
         .catch(error => error.response || error);
+
+      console.log(response.data);
 
       this.userData = response.data.user;
       this.followersCount = response.data.user.followers_count;
       this.followingsCount = response.data.user.followings_count;
       this.isFollowedBy = response.data.user.is_followed_by;
     },
+
     async getOwnExercizeBooks() {
-      const url = `/api/ownExercizeBooks/${this.$route.params.userId}`;
+      const url = `/api/exercise-books/${this.$route.params.userId}`;
 
       const response = await axios.get(url).catch(error => error.response);
 
@@ -191,10 +250,13 @@ export default {
       this.loading.opacity = 0;
       this.loading.isLoading = true;
       const response = await axios
-        .get("/api/ownFavoriteExerciseBooks")
+        .get("/api/own-favorite-exercise-books")
         .catch(error => error.resoponse);
 
-      this.ExerciseBookCardData = response.data.exercise_books;
+      if (response.status === OK) {
+        console.log(response.data);
+        this.ExerciseBookCardData = response.data.exercise_books;
+      }
       this.loading.isLoading = false;
     },
     async isFollow() {
@@ -223,52 +285,6 @@ export default {
     },
     goEditScreen() {
       this.$router.push(`/profile/${this.$route.params.userId}/edit`);
-    }
-  },
-  async created() {
-    this.loading.isLoading = true;
-    await this.getOwnExercizeBooks();
-    await this.getUser();
-    this.loading.isLoading = false;
-
-    // フラッシュメッセージがある場合
-    if (this.isFlashMsg) {
-      this.$store.dispatch("flashMessage/hideFlashMsg", this.flashMsg.speed);
-    }
-  },
-  computed: {
-    followBtnBgColor() {
-      return this.isFollowedBy ? "bg-blue-400" : "bg-white";
-    },
-    followBtnTextColor() {
-      return this.isFollowedBy ? "text-white" : "text-blue-400";
-    },
-    followBtnText() {
-      return this.isFollowedBy ? "フォロー中" : "フォローする";
-    },
-    isLoginUser() {
-      const paramsUserId = parseInt(this.$route.params.userId);
-      const loginUserId = parseInt(this.$store.state.auth.user.id);
-      return loginUserId === paramsUserId ? true : false;
-    },
-    isFlashMsg() {
-      return this.$store.state.flashMessage.visible;
-    }
-  },
-  watch: {
-    async isFollowedBy() {
-      const url = `/api/user/${this.$route.params.userId}/followers`;
-      const response = await axios
-        .get(url)
-        .catch(error => error.response || error);
-
-      this.followersCount = response.data.follower_count;
-    },
-    async $route() {
-      this.loading.isLoading = true;
-      await this.getOwnExercizeBooks();
-      await this.getUser();
-      this.loading.isLoading = false;
     }
   }
 };

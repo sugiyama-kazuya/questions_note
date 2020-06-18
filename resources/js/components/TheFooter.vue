@@ -2,7 +2,7 @@
   <footer class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 h-10 text-white">
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/problem"
+        to="/problems"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
@@ -13,7 +13,7 @@
     </div>
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/problem/create"
+        to="/problems/create"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"

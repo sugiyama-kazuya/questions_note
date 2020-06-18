@@ -17,22 +17,22 @@ export default new VueRouter({
     mode: "history",
     routes: [
         {
-            path: "/problem",
+            path: "/problems",
             name: "ProblemIndex",
             component: ProblemIndex
         },
         {
-            path: "/problem/:id(\\d+)",
+            path: "/problems/:id(\\d+)",
             name: "problem",
             component: Problem
         },
         {
-            path: "/problem/create",
+            path: "/problems/create",
             name: "ProblemCreate",
             component: ProblemCreate
         },
         {
-            path: "/problem/:problemId/edit",
+            path: "/problems/:problemId/edit",
             name: "ProblemEdit",
             component: ProblemEdit
         },

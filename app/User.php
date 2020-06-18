@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
@@ -93,9 +94,9 @@ class User extends Authenticatable
      * 対象のユーザーを取得
      *
      * @param integer $user_id
-     * @return object
+     * @return
      */
-    public function currentUser(int $user_id): object
+    public function currentUser(int $user_id)
     {
         return $this->find($user_id);
     }
@@ -156,7 +157,7 @@ class User extends Authenticatable
         }
     }
 
-    public function awsUrlFetch(string $file_path): string
+    public function awsUrlFetch(string $file_path = null): string
     {
         return $file_path ? Storage::cloud()->url($file_path) : "";
     }

@@ -23,24 +23,30 @@ Route::get('/user', function () {
 })->name('user');
 
 Route::resource('problems', 'ProblemController');
-Route::resource('profile', 'ProfileController');
 
-Route::post('problems/categoryCheck', 'CategoryDuplicateCheck');
+Route::resource('exercise-books', 'ExerciseBookController')->only(['store', 'show']);
+// Route::post('exercise-books', 'CreateExerciseBookCheck');
+// Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
 
-Route::post('problems/create/exerciseBook', 'CreateExerciseBookCheck');
+Route::resource('categories', 'CategoryController')->only(['store']);
 
-Route::get('likes/count', 'LikeController@index')->name('likes.count');
-Route::get('islikedby/{id}', 'isLikedByController');
-Route::get('countLikes/{id}', 'CountLikesController');
+// Route::post('problems/categoryCheck', 'CategoryDuplicateCheck');
+Route::resource('profile', 'ProfileController')->only(['show', 'edit', 'update']);
+
+// 問題集の取得（項目別）
+Route::get('order-favorite-exercise-books', 'OrderFavoriteController');
+Route::get('own-favorite-exercise-books', 'OwnFavoriteExerciseBooksController');
+
+
+// お気に入り関連
 Route::put('like', 'LikeController@like')->name('like');
 Route::delete('unlike', 'LikeController@unlike')->name('unlike');
 
-Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
+Route::get('isLikedby/{id}', 'isLikedByController');
+Route::get('likes/{id}/count', 'CountLikesController');
 
-Route::get('orderFavorite', 'OrderFavoriteController');
-Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');
 
-// userに関するルーティング
+// user関連
 Route::prefix('user')->name('user.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::put('{id}/follow', 'UserController@follow')->name('follow');
