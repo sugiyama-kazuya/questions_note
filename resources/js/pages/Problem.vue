@@ -440,7 +440,7 @@ export default {
       this.again.incorrectAnswerId = [];
     },
     goHome() {
-      this.$router.push("/problem");
+      this.$router.push("/problems");
     },
     inMiddleEnd() {
       this.endConfimationModal = true;
