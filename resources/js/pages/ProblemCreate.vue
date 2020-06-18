@@ -411,7 +411,7 @@ export default {
     // カテゴリーの新規作成
     async createCategory() {
       const response = await axios
-        .post("/api/problems/categoryCheck", {
+        .post("/api/categories", {
           name: this.categoryNewAdd.form.category
         })
         .catch(error => error.response || error);
@@ -471,7 +471,7 @@ export default {
     // 問題集の新規作成
     async createExerciseBook() {
       const response = await axios
-        .post("/api/problems/create/exerciseBook", this.exerciseBookNewAdd.form)
+        .post("/api/exercise-books", this.exerciseBookNewAdd.form)
         .catch(error => error.response || error);
 
       if (response.status === UNPROCESSABLE_ENTITY) {
