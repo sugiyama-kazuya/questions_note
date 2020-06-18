@@ -18,6 +18,7 @@ class ProfileController extends Controller
     {
         $this->user = $user;
     }
+
     /**
      * プロフィール画面の情報の取得
      *

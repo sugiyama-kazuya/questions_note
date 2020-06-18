@@ -10,7 +10,7 @@ use App\Category;
 use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\CreateNewExerciseBooksName;
+use Illuminate\Support\Facades\Log;
 
 class ProblemController extends Controller
 {
@@ -22,14 +22,15 @@ class ProblemController extends Controller
     public function index(ExerciseBook $exercise_book)
     {
         $login_user_id = Auth::id();
-        // 問題カードに必要なデータを取得
-        $exercise_books = $exercise_book->getExerciseBookData()->get();
+
+        $exercise_books = $exercise_book->exerciseBookCardRequiredData()->get();
         $exercise_books = $exercise_book->addProfileUrl($exercise_books);
 
-        // ユーザーがログインしている場合
         if ($login_user_id) {
+            $exercise_books = $exercise_book->addFavoriteInfo($exercise_books, $login_user_id);
             $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
         } else {
+            $exercise_books = $exercise_book->addFavoriteInfo($exercise_books);
             $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
         }
 
