@@ -39,38 +39,50 @@
                 </div>
                 <div class="w-1/3"></div>
               </div>
-              <div class="h-82 relative">
-                <div class="flex justify-center items-center overflow-y-scroll h-100">
-                  <transition name="card-text">
-                    <p
-                      v-if="
+              <div class="h-82">
+                <div class="flex flex-col justify-center items-center h-100">
+                  <div class="h-100 w-full overflow-y-scroll">
+                    <transition name="card-text">
+                      <p
+                        v-if="
                             currentProblemData.problemData[orderNumber] &&
                                 problemDisplay
                             "
-                      class="m-0 p-4"
-                    >
-                      {{
-                      currentProblemData.problemData[
-                      orderNumber
-                      ].content
-                      }}
-                    </p>
-                  </transition>
-                  <transition name="card-text">
-                    <p
-                      v-if="
+                        class="m-0 p-4 h-100 w-full flex items-center justify-center"
+                      >
+                        {{
+                        currentProblemData.problemData[
+                        orderNumber
+                        ].content
+                        }}
+                      </p>
+                    </transition>
+                    <transition name="card-text">
+                      <p
+                        v-if="
                             currentProblemData.problemData[orderNumber] &&
                                 answerDisplay
                             "
-                      class="m-0 p-4"
-                    >
-                      {{
-                      currentProblemData.problemData[
-                      orderNumber
-                      ].answer
-                      }}
-                    </p>
-                  </transition>
+                        class="m-0 p-4 h-100 w-full flex items-center justify-center"
+                      >
+                        {{
+                        currentProblemData.problemData[
+                        orderNumber
+                        ].answer
+                        }}
+                      </p>
+                    </transition>
+                  </div>
+                  <div
+                    v-if="currentProblemData.problemData[orderNumber].url"
+                    class="mt-auto w-full p-2 overflow-x-scroll whitespace-no-wrap"
+                  >
+                    参考
+                    :
+                    <a
+                      :href="currentProblemData.problemData[orderNumber].url"
+                    >{{currentProblemData.problemData[orderNumber].url}}</a>
+                  </div>
                 </div>
 
                 <!-- 問題のセレクトモーダル -->
@@ -348,6 +360,7 @@ export default {
     }
 
     if (response.status === OK) {
+      console.log(response.data);
       const exerciseBooks = response.data.exercise_books;
       if (exerciseBooks) {
         this.normal.problemData = exerciseBooks.problems;
