@@ -1,7 +1,9 @@
 <template>
   <div class="bg-white mx-3 rounded-sm shadow-sm px-2 flex flex-column">
     <div @click="goProblem(cardData.id)" class="flex flex-column">
-      <div class="text-right p-2">カテゴリ</div>
+      <div class="flex justify-end p-2">
+        <CategoryTag :name="cardData.category.name" />
+      </div>
       <div class="px-2 pb-4 pt-2">{{ cardData.name }}</div>
     </div>
     <div class="border-t p-3 flex items-center justify-between text-gray-600">
@@ -41,6 +43,7 @@
 
 <script>
 import { INTERNAL_SERVER_ERROR } from "../util";
+import CategoryTag from "../components/CategoryTag";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -56,7 +59,8 @@ export default {
   },
 
   components: {
-    FontAwesomeIcon
+    FontAwesomeIcon,
+    CategoryTag
   },
 
   data() {
@@ -74,7 +78,6 @@ export default {
   },
 
   async mounted() {
-    console.log(this.cardData);
     this.count = this.cardData.favolite_count;
     this.isLikedBy = this.cardData.is_liked_by;
   },
