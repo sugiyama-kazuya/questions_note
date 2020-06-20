@@ -105,8 +105,6 @@ export default {
         .get("/api/order-favorite-exercise-books")
         .catch(error => error.response || error);
 
-      console.log(response.data);
-
       this.ExerciseBookCardData = response.data.exercise_books;
       this.isLoading = false;
     }

@@ -216,8 +216,6 @@ export default {
         .get(url)
         .catch(error => error.response || error);
 
-      console.log(response.data);
-
       this.userData = response.data.user;
       this.followersCount = response.data.user.followers_count;
       this.followingsCount = response.data.user.followings_count;
@@ -254,7 +252,6 @@ export default {
         .catch(error => error.resoponse);
 
       if (response.status === OK) {
-        console.log(response.data);
         this.ExerciseBookCardData = response.data.exercise_books;
       }
       this.loading.isLoading = false;

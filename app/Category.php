@@ -11,6 +11,10 @@ class Category extends Model
         'name', 'user_id'
     ];
 
+    protected $visible = [
+        'id', 'name'
+    ];
+
     /**
      * ログインユーザーのカテゴリーを取得
      *
