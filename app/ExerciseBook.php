@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class ExerciseBook extends Model
 {
@@ -35,10 +36,16 @@ class ExerciseBook extends Model
         return $this->hasMany('App\Problem');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo('App\Category');
+    }
+
     public function exerciseBooksName(): BelongsTo
     {
         return $this->belongsTo('App\ExerciseBookName');
     }
+
 
     /**
      * 日付のフォーマットを変更
@@ -107,7 +114,7 @@ class ExerciseBook extends Model
      */
     public function exerciseBookCardRequiredData(): Object
     {
-        return $this->with(['user:id,name,profile_img', 'likes']);
+        return $this->with(['user:id,name,profile_img', 'likes', 'category']);
     }
 
     /**
@@ -148,13 +155,13 @@ class ExerciseBook extends Model
     {
         if ($user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'is_liked_by']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'is_liked_by', 'profile_img', 'category']);
             });
 
             return $exercise_books;
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'profile_img', 'category']);
             });
 
             return $exercise_books;
@@ -184,14 +191,14 @@ class ExerciseBook extends Model
     /**
      * S3からユーザー画像のURLを取得
      *
-     * @param [Object] $data
-     * @return Object
+     * @param [Object] $exercise_books
+     * @return object
      */
-    public function addProfileUrl(Object $data): Object
+    public function addProfileUrl(object $exercise_books): object
     {
-        return $data->map(function ($item) {
-            $data = $item;
-            $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
+        return $exercise_books->map(function ($exercise_book) {
+            $data = $exercise_book;
+            $data['profile_img'] = $exercise_book->user->awsUrlFetch($exercise_book->user->profile_img);
             return $data;
         });
     }
