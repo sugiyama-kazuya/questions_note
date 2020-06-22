@@ -26,6 +26,10 @@ class ExerciseBook extends Model
         'name', 'user_id', 'category_id', 'created_at', 'updated_at'
     ];
 
+    protected $hidden = [
+        'created_at', 'updated_at', 'user_id', 'category_id'
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo('App\User');
@@ -45,7 +49,6 @@ class ExerciseBook extends Model
     {
         return $this->belongsTo('App\ExerciseBookName');
     }
-
 
     /**
      * 日付のフォーマットを変更
