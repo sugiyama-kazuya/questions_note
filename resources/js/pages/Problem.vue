@@ -90,6 +90,7 @@
                   <CenterModal v-if="editModal" :width="'w-1/3'">
                     <div class="flex flex-col items-center py-4 px-2">
                       <CenterModalBtn
+                        @click.native="goEdit()"
                         :text="'編集'"
                         :width="'w-2/3'"
                         :color="'bg-blue-400'"
@@ -514,6 +515,13 @@ export default {
       this.orderNumber--;
       this.currentNumber--;
       this.again.incorrectAnswerId.pop();
+    },
+
+    goEdit() {
+      const problemId = this.currentProblemData.problemData[this.orderNumber]
+        .id;
+      console.log(problemId);
+      this.$router.push(`/problems/${problemId}/edit`);
     }
   }
 };

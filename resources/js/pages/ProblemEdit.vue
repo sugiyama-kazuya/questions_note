@@ -3,7 +3,7 @@
     <div class="h-90">
       <TheHeader class="h-8">
         <template v-slot:titleName>
-          <h5 class="m-0">Create</h5>
+          <h5 class="m-0">edit</h5>
         </template>
       </TheHeader>
 
@@ -12,13 +12,13 @@
           type="submit"
           form="createForm"
           class="bg-primary text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none"
-        >作成</button>
+        >変更</button>
       </div>
 
       <main class="w-full overflow-y-scroll h-82">
         <div class="h-90">
           <!-- 問題の追加 -->
-          <form id="createForm" class="pb-8" @submit.prevent="newProblemCreate">
+          <form id="createForm" class="pb-8" @submit.prevent="problemEdit">
             <div class="bg-gray-200 p-3 mb-3">
               <FormLabel>
                 <template>問題</template>
@@ -311,6 +311,7 @@ export default {
   },
 
   data: () => ({
+    problemData: [],
     exerciseBooks: [],
     categories: [],
     form: {
@@ -364,8 +365,9 @@ export default {
 
   async created() {
     this.isLoading = true;
+    const url = `/api/problems/${this.$route.params.problemId}/edit`;
     const response = await axios
-      .get("/api/problems/create")
+      .get(url)
       .catch(error => error.response || error);
 
     if (response.status === INTERNAL_SERVER_ERROR) {
@@ -374,8 +376,19 @@ export default {
     }
 
     if (response.status === OK) {
+      this.problemData = response.data.problem;
+
+      this.form = {
+        problem: this.problemData.content,
+        answer: this.problemData.answer,
+        url: this.problemData.url,
+        exerciseBook: this.problemData.exercise_book.name,
+        category: this.problemData.exercise_book.category.name
+      };
+
       this.exerciseBooks = response.data.exercise_book_list;
       this.categories = response.data.category_list;
+      this.exerciseBookSelected.recordText = this.form.exerciseBook;
       this.isLoading = false;
       return;
     }
@@ -490,33 +503,40 @@ export default {
       }
     },
 
-    // 問題の作成
-    async newProblemCreate() {
+    // 問題の編集
+    async problemEdit() {
+      const url = `/api/problems/${this.$route.params.problemId}`;
       this.exerciseBookNewAdd.errorMsg = "";
       const response = await axios
-        .post("/api/problems", this.form)
+        .post(url, this.form, {
+          headers: {
+            "X-HTTP-Method-Override": "PUT"
+          }
+        })
         .catch(error => error.response || error);
 
-      if (response.status === INTERNAL_SERVER_ERROR) {
-        this.$route.push("/500");
-        return;
-      }
+      console.log(response);
 
-      if (response.status === UNPROCESSABLE_ENTITY) {
-        this.validationErrorMsg = response.data.errors;
-        return;
-      }
+      //   if (response.status === INTERNAL_SERVER_ERROR) {
+      //     this.$route.push("/500");
+      //     return;
+      //   }
 
-      if (response.status === OK) {
-        await this.$store.commit("flashMessage/setVisible", true);
-        if (this.isFlashMsg) {
-          this.$store.dispatch(
-            "flashMessage/hideFlashMsg",
-            this.flashMsg.speed
-          );
-          this.allClearForm();
-        }
-      }
+      //   if (response.status === UNPROCESSABLE_ENTITY) {
+      //     this.validationErrorMsg = response.data.errors;
+      //     return;
+      //   }
+
+      //   if (response.status === OK) {
+      //     await this.$store.commit("flashMessage/setVisible", true);
+      //     if (this.isFlashMsg) {
+      //       this.$store.dispatch(
+      //         "flashMessage/hideFlashMsg",
+      //         this.flashMsg.speed
+      //       );
+      //       this.allClearForm();
+      //     }
+      //   }
     },
 
     /** Iterator */

@@ -11,9 +11,21 @@ use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\UpdateProblem;
 
 class ProblemController extends Controller
 {
+    private $problem;
+    private $exercise_book;
+    private $category;
+
+    public function __construct(Problem $problem, ExerciseBook $exercise_book, Category $category)
+    {
+        $this->problem = $problem;
+        $this->exercise_book = $exercise_book;
+        $this->category = $category;
+    }
+
     /**
      * 問題一覧画面のデータを取得
      *
@@ -115,6 +127,36 @@ class ProblemController extends Controller
 
             return response()->json(['exercise_books' => $problem_data]);
         }
+    }
+
+    public function update($id, UpdateProblem $request)
+    {
+        return $id;
+    }
+
+
+    /**
+     * 問題編集画面の情報
+     *
+     * @param [type] $id
+     * @return void
+     */
+    public function edit($id)
+    {
+        $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->first();
+
+        // ログインユーザーの問題集を取得
+        $exercise_book_list = $this->exercise_book->loginUserExerciseBook;
+
+        // ログインユーザーのカテゴリーを取得
+        $category_list = $this->category->loginUserCategory;
+
+        $problem->exercise_book = $problem->exerciseBook->category;
+        return response()->json([
+            'problem' => $problem,
+            'exercise_book_list' => $exercise_book_list,
+            'category_list' => $category_list
+        ]);
     }
 
     /**
