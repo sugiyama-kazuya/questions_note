@@ -35,13 +35,13 @@
     </div>
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/"
+        :to="{ name: 'ProblemsList', params: {userId: loginUserId} }"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
         exact
       >
-        <font-awesome-icon icon="search" class="text-3xl" />Search
+        <font-awesome-icon icon="search" class="text-3xl" />List
       </router-link>
     </div>
   </footer>
