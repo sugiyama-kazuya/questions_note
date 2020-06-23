@@ -10,6 +10,7 @@ import Problem from "./pages/Problem";
 import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
+import ProblemsList from "./pages/ProblemsList";
 
 Vue.use(VueRouter);
 
@@ -35,6 +36,11 @@ export default new VueRouter({
             path: "/problems/:problemId/edit",
             name: "ProblemEdit",
             component: ProblemEdit
+        },
+        {
+            path: "/problems/:userId/list",
+            name: "ProblemsList",
+            component: ProblemsList
         },
         {
             path: "/profile/:userId",
