@@ -171,7 +171,7 @@ export default {
       return this.isFollowedBy ? "フォロー中" : "フォローする";
     },
     isLoginUser() {
-      const paramsUserId = parseInt(this.$route.params.userId);
+      const paramsUserId = parseInt(this.$route.params.id);
       const loginUserId = parseInt(this.$store.state.auth.user.id);
       return loginUserId === paramsUserId ? true : false;
     },
@@ -182,7 +182,7 @@ export default {
 
   watch: {
     async isFollowedBy() {
-      const url = `/api/user/${this.$route.params.userId}/followers`;
+      const url = `/api/user/${this.$route.params.id}/followers`;
       const response = await axios
         .get(url)
         .catch(error => error.response || error);
@@ -211,7 +211,7 @@ export default {
 
   methods: {
     async getUser() {
-      const url = `/api/profile/${this.$route.params.userId}`;
+      const url = `/api/profile/${this.$route.params.id}`;
       const response = await axios
         .get(url)
         .catch(error => error.response || error);
@@ -223,7 +223,7 @@ export default {
     },
 
     async getOwnExercizeBooks() {
-      const url = `/api/exercise-books/${this.$route.params.userId}`;
+      const url = `/api/exercise-books/${this.$route.params.id}`;
 
       const response = await axios.get(url).catch(error => error.response);
 
@@ -257,7 +257,7 @@ export default {
       this.loading.isLoading = false;
     },
     async isFollow() {
-      const url = `/api/user/${this.$route.params.userId}/follow`;
+      const url = `/api/user/${this.$route.params.id}/follow`;
       if (this.isFollowedBy) {
         this.isFollowedBy = false;
         const response = await axios
@@ -281,7 +281,7 @@ export default {
       }
     },
     goEditScreen() {
-      this.$router.push(`/profile/${this.$route.params.userId}/edit`);
+      this.$router.push(`/profile/${this.$route.params.id}/edit`);
     }
   }
 };

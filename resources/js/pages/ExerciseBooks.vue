@@ -43,7 +43,7 @@ import ChangeTabBtn from "../components/ChangeTabBtn";
 import { OK, INTERNAL_SERVER_ERROR } from "../util";
 
 export default {
-  name: "Index",
+  name: "ExerciseBooks",
   components: {
     TheHeader,
     TheFooter,
@@ -80,7 +80,6 @@ export default {
     }
 
     this.$nextTick(function() {
-      console.log(this.isLoading);
       this.isLoading = false;
     });
   },

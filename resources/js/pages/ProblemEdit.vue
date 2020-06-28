@@ -365,7 +365,7 @@ export default {
 
   async created() {
     this.isLoading = true;
-    const url = `/api/problems/${this.$route.params.problemId}/edit`;
+    const url = `/api/problems/${this.$route.params.id}/edit`;
     const response = await axios
       .get(url)
       .catch(error => error.response || error);
@@ -505,7 +505,7 @@ export default {
 
     // 問題の編集
     async problemEdit() {
-      const url = `/api/problems/${this.$route.params.problemId}`;
+      const url = `/api/problems/${this.$route.params.id}`;
       this.exerciseBookNewAdd.errorMsg = "";
       const response = await axios
         .post(url, this.form, {
