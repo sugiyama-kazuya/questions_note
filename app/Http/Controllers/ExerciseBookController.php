@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBook;
+use Illuminate\Support\Facades\Auth;
 
 class ExerciseBookController extends Controller
 {
@@ -16,13 +17,15 @@ class ExerciseBookController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * 自身の問題集一覧
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        //
+        $exercise_books = $this->exercise_book->with(['user', 'problem'])->where('user_id', Auth::id())->get();
+
+        return response()->json(['exercise_books' => $exercise_books]);
     }
 
     /**
@@ -47,7 +50,7 @@ class ExerciseBookController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * 自身の問題集を取得
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response

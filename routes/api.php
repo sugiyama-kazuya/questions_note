@@ -24,7 +24,7 @@ Route::get('/user', function () {
 
 Route::resource('problems', 'ProblemController');
 
-Route::resource('exercise-books', 'ExerciseBookController')->only(['store', 'show']);
+Route::resource('exercise-books', 'ExerciseBookController')->only(['store', 'show', 'index']);
 // Route::post('exercise-books', 'CreateExerciseBookCheck');
 // Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
 
