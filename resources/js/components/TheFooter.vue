@@ -2,7 +2,7 @@
   <footer class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 h-10 text-white">
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        to="/problems"
+        to="/exercise-books"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
@@ -24,7 +24,7 @@
     </div>
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        :to="{ name: 'profile', params: { userId: loginUserId } }"
+        :to="{ name: 'profile', params: { id: loginUserId } }"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
@@ -35,13 +35,13 @@
     </div>
     <div class="w-1/4 flex flex-col items-center justify-center">
       <router-link
-        :to="{ name: 'ProblemsList', params: {userId: loginUserId} }"
+        to="/search"
         tag="div"
         class="flex flex-col items-center justify-center"
         active-class="text-yellow-300"
         exact
       >
-        <font-awesome-icon icon="search" class="text-3xl" />List
+        <font-awesome-icon icon="search" class="text-3xl" />Search
       </router-link>
     </div>
   </footer>

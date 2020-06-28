@@ -95,7 +95,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faEdit);
 
 export default {
-  name: "ProblemsList",
+  name: "Search",
   components: {
     FontAwesomeIcon,
     TheHeader,

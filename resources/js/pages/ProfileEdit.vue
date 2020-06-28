@@ -183,7 +183,7 @@ export default {
         isLoading: false,
         opacity: 1
       },
-      userId: this.$route.params.userId
+      userId: this.$route.params.id
     };
   },
   methods: {
@@ -246,7 +246,7 @@ export default {
   async created() {
     this.loading.isLoading = true;
     const firstDisplay = await axios
-      .get(`/api/profile/${this.$route.params.userId}/edit`)
+      .get(`/api/profile/${this.$route.params.id}/edit`)
       .catch(error => error.firstDisplay || error);
 
     if (firstDisplay.status === INTERNAL_SERVER_ERROR) {
@@ -262,7 +262,7 @@ export default {
   },
   computed: {
     urlParam() {
-      return this.$route.params.userId;
+      return this.$route.params.id;
     }
   }
 };

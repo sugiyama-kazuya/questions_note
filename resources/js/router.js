@@ -4,13 +4,13 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import store from "./store";
 import SystemError from "./pages/errors/System";
-import ProblemIndex from "./pages/ProblemIndex";
+import ExerciseBooks from "./pages/ExerciseBooks";
 import ProblemCreate from "./pages/ProblemCreate";
-import Problem from "./pages/Problem";
+import ExerciseBookPlay from "./pages/ExerciseBookPlay";
 import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
-import ProblemsList from "./pages/ProblemsList";
+import Search from "./pages/Search";
 
 Vue.use(VueRouter);
 
@@ -18,53 +18,7 @@ export default new VueRouter({
     mode: "history",
     routes: [
         {
-            path: "/problems",
-            name: "ProblemIndex",
-            component: ProblemIndex
-        },
-        {
-            path: "/problems/:id(\\d+)",
-            name: "problem",
-            component: Problem
-        },
-        {
-            path: "/problems/create",
-            name: "ProblemCreate",
-            component: ProblemCreate
-        },
-        {
-            path: "/problems/:problemId/edit",
-            name: "ProblemEdit",
-            component: ProblemEdit
-        },
-        {
-            path: "/problems/:userId/list",
-            name: "ProblemsList",
-            component: ProblemsList
-        },
-        {
-            path: "/profile/:userId",
-            name: "profile",
-            component: Profile
-        },
-        {
-            path: "/profile/:userId/edit",
-            name: "profileEdit",
-            component: ProfileEdit
-        },
-        {
-            path: "/register",
-            name: "register",
-            component: Register,
-            beforeEnter(to, from, next) {
-                if (store.getters["auth/check"]) {
-                    next("/");
-                } else {
-                    next();
-                }
-            }
-        },
-        {
+            /* ログインページ */
             path: "/login",
             name: "login",
             component: Login,
@@ -78,6 +32,62 @@ export default new VueRouter({
             }
         },
         {
+            /* ユーザー登録ページ */
+            path: "/register",
+            name: "register",
+            component: Register,
+            beforeEnter(to, from, next) {
+                if (store.getters["auth/check"]) {
+                    next("/");
+                } else {
+                    next();
+                }
+            }
+        },
+        {
+            /* 問題集一覧ページ */
+            path: "/exercise-books",
+            name: "ExerciseBooks",
+            component: ExerciseBooks
+        },
+        {
+            /* 問題をプレイするページ */
+            path: "/exercise-books/:id(\\d+)",
+            name: "ExerciseBookPlay",
+            component: ExerciseBookPlay
+        },
+        {
+            /* 問題を作成ページ */
+            path: "/problems/create",
+            name: "ProblemCreate",
+            component: ProblemCreate
+        },
+        {
+            /* 問題を編集ページ */
+            path: "/problems/:id/edit",
+            name: "ProblemEdit",
+            component: ProblemEdit
+        },
+        {
+            /* プロフィールページ */
+            path: "/users/:id",
+            name: "profile",
+            component: Profile
+        },
+        {
+            /* プロフィール編集ページ */
+            path: "/users/:id/edit",
+            name: "profileEdit",
+            component: ProfileEdit
+        },
+        {
+            /* 検索ページ */
+            path: "/search",
+            name: "Search",
+            component: Search
+        },
+        {
+            /* エラーページ */
             path: "/500",
             component: SystemError
         }

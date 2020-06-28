@@ -265,7 +265,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faTimes, faEllipsisV, faArrowLeft, faExchangeAlt);
 
 export default {
-  name: "Problem",
+  name: "exerciseBookPlay",
   components: {
     TheHeader,
     TheFooter,

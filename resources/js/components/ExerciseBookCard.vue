@@ -13,7 +13,7 @@
           :to="{
                         name: 'profile',
                         params: {
-                            userId: cardData.user.id
+                            id: cardData.user.id
                         }
                     }"
           class="flex w-100"
@@ -85,7 +85,7 @@ export default {
   methods: {
     goProblem(exerciseBooksId) {
       this.$router.push({
-        name: "problem",
+        name: "ExerciseBookPlay",
         params: { id: exerciseBooksId }
       });
     },
