@@ -188,7 +188,7 @@ export default {
   },
   methods: {
     goOwnProfile() {
-      this.$router.push(`/profile/${this.userId}`);
+      this.$router.push(`/users/${this.userId}`);
     },
     async saveProfile() {
       this.loading.isLoading = true;
@@ -200,7 +200,7 @@ export default {
         console.log(value);
       }
 
-      const url = `/api/profile/${this.urlParam}`;
+      const url = `/api/users/${this.urlParam}`;
 
       const formDataResponse = await axios
         .post(url, formData, {
@@ -226,7 +226,7 @@ export default {
 
       if (formDataResponse.status === OK) {
         this.$store.dispatch("flashMessage/showFlashMsg");
-        this.$router.push(`/profile/${this.userId}`);
+        this.$router.push(`/users/${this.userId}`);
       }
     },
     onFileChange(event) {
@@ -246,7 +246,7 @@ export default {
   async created() {
     this.loading.isLoading = true;
     const firstDisplay = await axios
-      .get(`/api/profile/${this.$route.params.id}/edit`)
+      .get(`/api/users/${this.$route.params.id}/edit`)
       .catch(error => error.firstDisplay || error);
 
     if (firstDisplay.status === INTERNAL_SERVER_ERROR) {
