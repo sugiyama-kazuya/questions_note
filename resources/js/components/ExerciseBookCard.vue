@@ -72,8 +72,8 @@ export default {
 
   watch: {
     async isLikedBy(newIsLikedBy, oldIsLikedBy) {
-      const countLikes = await this.countLikes(this.cardData.id);
-      countLikes ? (this.count = countLikes) : (this.count = 0);
+      const countFavorites = await this.countFavorites(this.cardData.id);
+      countFavorites ? (this.count = countFavorites) : (this.count = 0);
     }
   },
 
@@ -118,8 +118,8 @@ export default {
       }
     },
 
-    async countLikes(id) {
-      const url = `/api/likes/${id}/count`;
+    async countFavorites(id) {
+      const url = `/api/exercise-books/${id}/favorites/counts`;
       const response = await axios.get(url).catch(error => error.response);
 
       if (response.status === INTERNAL_SERVER_ERROR) {
