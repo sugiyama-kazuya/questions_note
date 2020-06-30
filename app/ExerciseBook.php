@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Log;
 
 class ExerciseBook extends Model
 {
@@ -133,7 +132,7 @@ class ExerciseBook extends Model
             // ログインしている場合
             return $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
                 $exercise_books_data = $data;
-                $exercise_books_data['favolite_count'] = $data['likes']->count();
+                $exercise_books_data['favorite_count'] = $data['likes']->count();
                 $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
                 return $exercise_books_data;
             });
@@ -141,7 +140,7 @@ class ExerciseBook extends Model
             // ログインしていない場合
             return $exercise_books = $exercise_books->map(function ($data) {
                 $exercise_books_data = $data;
-                $exercise_books_data['favolite_count'] = $data['likes']->count();
+                $exercise_books_data['favorite_count'] = $data['likes']->count();
                 return $exercise_books_data;
             });
         }
@@ -158,13 +157,13 @@ class ExerciseBook extends Model
     {
         if ($user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'is_liked_by', 'profile_img', 'category']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img', 'category']);
             });
 
             return $exercise_books;
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favolite_count', 'profile_img', 'category']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img', 'category']);
             });
 
             return $exercise_books;
