@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\ExerciseBook;
 use Illuminate\Http\Request;
+use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
-class LikeController extends Controller
+class Favorites extends Controller
 {
+
     private $exercise_book;
 
     public function __construct(ExerciseBook $exercise_book)
@@ -19,29 +19,15 @@ class LikeController extends Controller
     /**
      * いいねを追加する
      *
-     * @param Request $request
-     * @return void
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function like(Request $request)
+    public function __invoke(Request $request)
     {
         $exercise_book_id = $request->id;
         $login_user_id = Auth::id();
 
         $this->exercise_book->currentExerciseBook($exercise_book_id)->likes()->detach($login_user_id);
         $this->exercise_book->currentExerciseBook($exercise_book_id)->likes()->attach($login_user_id);
-    }
-
-    /**
-     * いいねを削除する
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function unlike(Request $request)
-    {
-        $exercise_book_id = $request->id;
-        $login_user_id = Auth::id();
-
-        $this->exercise_book->currentExerciseBook($exercise_book_id)->likes()->detach($login_user_id);
     }
 }

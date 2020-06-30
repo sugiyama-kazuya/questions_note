@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
@@ -17,25 +16,26 @@ class ExerciseBookController extends Controller
     }
 
     /**
-     * 自身の問題集一覧
+     * 問題一覧のデータを取得
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $exercise_books = $this->exercise_book->with(['user', 'problem'])->where('user_id', Auth::id())->get();
+        $login_user_id = Auth::id();
+
+        $exercise_books = $this->exercise_book->exerciseBookCardRequiredData()->get();
+        $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
+
+        if ($login_user_id) {
+            $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books, $login_user_id);
+            $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books, $login_user_id);
+        } else {
+            $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
+            $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books);
+        }
 
         return response()->json(['exercise_books' => $exercise_books]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -64,29 +64,6 @@ class ExerciseBookController extends Controller
         $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books, $user_id);
 
         return response()->json(['exercise_books' => $exercise_books]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
     }
 
     /**

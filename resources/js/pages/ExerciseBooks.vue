@@ -64,10 +64,8 @@ export default {
   async mounted() {
     this.isLoading = true;
     const response = await axios
-      .get("api/problems")
+      .get("api/exercise-books")
       .catch(error => error.response || error);
-
-    console.log(this.axios);
 
     if (response.status === INTERNAL_SERVER_ERROR) {
       this.$router.push("/500");
@@ -89,11 +87,20 @@ export default {
       this.displayTab.isNewActive = true;
 
       this.isLoading = true;
-      await this.$store.dispatch("listProblem/getProblmeCard");
+      const response = await axios
+        .get("api/exercise-books")
+        .catch(error => error.response || error);
 
-      this.ExerciseBookCardData = await this.$store.state.listProblem
-        .problemCardData.exercise_books;
-      this.isLoading = false;
+      if (response.status === INTERNAL_SERVER_ERROR) {
+        this.$router.push("/500");
+        return;
+      }
+
+      if (response.status === OK) {
+        this.ExerciseBookCardData = response.data.exercise_books;
+        this.displayTab.isNewActive = true;
+        this.isLoading = false;
+      }
     },
     async popularOrder() {
       this.displayTab.isNewActive = false;
@@ -101,7 +108,7 @@ export default {
 
       this.isLoading = true;
       const response = await axios
-        .get("/api/order-favorite-exercise-books")
+        .get("/api/exercise-books/favorites/asc")
         .catch(error => error.response || error);
 
       this.ExerciseBookCardData = response.data.exercise_books;

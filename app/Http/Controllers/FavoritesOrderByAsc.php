@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\ExerciseBook;
 
-class OrderFavoriteController extends Controller
+class FavoritesOrderByAsc extends Controller
 {
+    /**
+     * Handle the incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function __invoke(ExerciseBook $exercise_book)
     {
         $exercise_books = $exercise_book->exerciseBookCardRequiredData()->get();
@@ -14,7 +21,7 @@ class OrderFavoriteController extends Controller
 
         $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
         $exercise_books = $exercise_books->sortByDesc(function ($data) {
-            return $data['favolite_count'];
+            return $data['favorite_count'];
         })->values();
 
 

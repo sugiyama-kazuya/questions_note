@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Problem;
 use App\ExerciseBook;
 use App\Category;
 use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\UpdateProblem;
 
 class ProblemController extends Controller
@@ -24,29 +21,6 @@ class ProblemController extends Controller
         $this->problem = $problem;
         $this->exercise_book = $exercise_book;
         $this->category = $category;
-    }
-
-    /**
-     * 問題一覧画面のデータを取得
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(ExerciseBook $exercise_book)
-    {
-        $login_user_id = Auth::id();
-
-        $exercise_books = $exercise_book->exerciseBookCardRequiredData()->get();
-        $exercise_books = $exercise_book->addProfileUrl($exercise_books);
-
-        if ($login_user_id) {
-            $exercise_books = $exercise_book->addFavoriteInfo($exercise_books, $login_user_id);
-            $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
-        } else {
-            $exercise_books = $exercise_book->addFavoriteInfo($exercise_books);
-            $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
-        }
-
-        return response()->json(['exercise_books' => $exercise_books]);
     }
 
     /**

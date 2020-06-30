@@ -151,8 +151,8 @@ export default {
         opacity: 1
       },
       isFollowedBy: false,
-      followingsCount: "",
-      followersCount: "",
+      followingsCount: 0,
+      followersCount: 0,
       flashMsg: {
         text: "登録が完了しました。",
         speed: 2000
@@ -182,7 +182,7 @@ export default {
 
   watch: {
     async isFollowedBy() {
-      const url = `/api/user/${this.$route.params.id}/followers`;
+      const url = `/api/users/${this.$route.params.id}/followers`;
       const response = await axios
         .get(url)
         .catch(error => error.response || error);
@@ -211,7 +211,7 @@ export default {
 
   methods: {
     async getUser() {
-      const url = `/api/profile/${this.$route.params.id}`;
+      const url = `/api/users/${this.$route.params.id}`;
       const response = await axios
         .get(url)
         .catch(error => error.response || error);
@@ -248,8 +248,10 @@ export default {
       this.loading.opacity = 0;
       this.loading.isLoading = true;
       const response = await axios
-        .get("/api/own-favorite-exercise-books")
+        .get(`/api/exercise-books/favorites/asc/${this.$route.params.id}`)
         .catch(error => error.resoponse);
+
+      console.log(response.data);
 
       if (response.status === OK) {
         this.ExerciseBookCardData = response.data.exercise_books;
@@ -281,7 +283,7 @@ export default {
       }
     },
     goEditScreen() {
-      this.$router.push(`/profile/${this.$route.params.id}/edit`);
+      this.$router.push(`/users/${this.$route.params.id}/edit`);
     }
   }
 };
