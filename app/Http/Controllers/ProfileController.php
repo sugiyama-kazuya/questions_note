@@ -12,13 +12,6 @@ use App\Http\Requests\ProfileRequest;
 
 class ProfileController extends Controller
 {
-    private $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
     /**
      * プロフィール画面の情報の取得
      *

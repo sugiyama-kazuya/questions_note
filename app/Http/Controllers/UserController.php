@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ProfileRequest;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -15,54 +18,82 @@ class UserController extends Controller
         $this->user = $user;
     }
 
-    public function follow(Request $request, $user_id)
+    /**
+     * プロフィール画面の情報の取得
+     *
+     * @param User $user
+     * @param [string] $user_id
+     * @return object
+     */
+    public function show($user_id): object
     {
-        $login_user = Auth::user();
+        $login_user_id = Auth::id();
+        $user_id = (int) $user_id;
 
-        if ($login_user === null) {
-            return;
+        // ユーザーがログインしていない場合
+        if ($login_user_id === null) {
+            $current_user = $this->user->getProfileRequiredData($user_id);
+            return response()->json(['user' => $current_user]);
         }
 
-        // 自分自身にをフォローを使用とした時（自分自身はフォローできない）
-        if ($login_user->id === (int) $user_id) {
-            return abort('404', 'Cannot follow yourself');
+        // ログインユーザー自身のページの場合、それ以外のページの場合
+        if ($login_user_id === (int) $user_id) {
+            $current_user = $this->user->getProfileRequiredData($user_id);
+        } else {
+            $current_user = $this->user->getProfileRequiredData($user_id);
+            $current_user['is_followed_by'] = $current_user->isFollowedBy($login_user_id);
         }
-
-        $current_user = $this->user->currentUser($login_user->id);
-        $current_user->followings()->detach($user_id);
-        $current_user->followings()->attach($user_id);
-
-        return response()->json(['is_follwed_by' => $current_user->isFollowedBy($user_id)]);
+        return response()->json(['user' => $current_user]);
     }
 
-    public function unfollow(Request $request, $user_id)
+    public function edit($user_id)
     {
-        $login_user = Auth::user();
+        $user = $this->user->find($user_id);
 
-        if ($login_user === null) {
-            return;
+        if ($user->profile_img) {
+            $file_path = $user->awsUrlFetch($user->profile_img);
+            $user->profile_img = $file_path;
         }
 
-        // 自分自身のフォロー外そうとした場合（自分自身はフォローできない）
-        if ($login_user->id === (int) $user_id) {
-            return abort('404', 'Cannot follow yourself');
+        return $user;
+    }
+
+    /**
+     * プロフィール編集
+     *
+     * @param ProfileRequest $request
+     * @param User $user
+     * @return User $user
+     */
+    public function update(ProfileRequest $request, User $user)
+    {
+        if ($request->file) {
+            $extension = $request->file->extension();
+            $file_path = $user->getRandomId() . '.' . $extension;
+
+            // S3にファイルを保存する。第３引数の名前で第2引数を保存する
+            Storage::cloud()->putFileAs('', $request->file, $file_path, 'public');
+
+            DB::beginTransaction();
+
+            try {
+                $user->findOrFail(Auth::id())->fill([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'profile_img' => $file_path
+                ])->save();
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollback();
+                Storage::cloud()->delete($user->profile_img);
+                throw $exception;
+            }
+        } else {
+            $user->findOrFail(Auth::id())->fill([
+                'name' => $request->name,
+                'email' => $request->email,
+            ])->save();
         }
-
-        $current_user = $this->user->currentUser($login_user->id);
-        $current_user->followings()->detach($user_id);
-
-        return response()->json(['is_follwed_by' => $current_user->isFollowedBy($user_id)]);
-    }
-
-    public function followersCount($user_id)
-    {
-        return response()
-            ->json(['follower_count' => $this->user->currentUser($user_id)->followers_count]);
-    }
-
-    public function follwingsCount($user_id)
-    {
-        return response()
-            ->json(['followings_count' => $this->user->currentUser($user_id)->followings_count]);
+        return http_response_code(200);
     }
 }
