@@ -5,6 +5,7 @@
     :width="40"
     color="#007bff"
     :opacity="opacity ? opacity : 0.5"
+    :is-full-page="fullPage"
   ></loading>
 </template>
 
@@ -23,12 +24,10 @@ export default {
     },
     opacity: {
       type: Number
+    },
+    fullPage: {
+      type: Boolean
     }
-  },
-  data() {
-    return {
-      fullPage: false
-    };
   },
   computed: {
     isLoading() {
