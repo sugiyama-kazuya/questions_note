@@ -2,8 +2,8 @@
   <button
     @click="$emit('click-btn')"
     :class="[
-            height ? height : 'h-70',
-            width ? width : 'w-full',
+            height ? height : '',
+            width ? width : '',
             color ? color : 'bg-blue-400',
             text ? text : 'text-white'
         ]"
@@ -38,7 +38,4 @@ export default {
 </script>
 
 <style scoped>
-.btn-border {
-  border: 1px solid #63b3ed;
-}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-flex w-4/5 st-border h-60">
+  <div class="inline-flex st-border" :class="width ? width : 'w-4/5'">
     <button
       @click="$emit('left-click')"
       class="w-1/2 bg-white text-indigo-500 py-2 px-4 focus:outline-none"
@@ -25,6 +25,9 @@ export default {
     },
     isRightActive: {
       type: Boolean
+    },
+    width: {
+      type: String
     }
   }
 };
@@ -34,5 +37,8 @@ export default {
 .is-tab-active {
   background-color: #667eea !important;
   color: #fff !important;
+}
+.st-border {
+  border: 1px solid #667eea;
 }
 </style>

@@ -1,6 +1,12 @@
 <template>
   <div :class="backColor ? 'bg-color' : ''" class="modal-mask relative">
-    <div :class="width ? width : 'w-2/3'" class="bg-white rounded m-0 m-auto shadow modal-view">
+    <div
+      :class="[
+        width ? width : 'w-2/3',
+        height ? height : ''
+    ]"
+      class="bg-white rounded m-0 m-auto shadow modal-view"
+    >
       <slot></slot>
     </div>
   </div>
@@ -14,6 +20,9 @@ export default {
       type: Boolean
     },
     width: {
+      type: String
+    },
+    height: {
       type: String
     }
   }

@@ -363,7 +363,6 @@ export default {
   },
 
   async created() {
-    this.isLoading = true;
     const response = await axios
       .get("/api/problems/create")
       .catch(error => error.response || error);
@@ -376,7 +375,6 @@ export default {
     if (response.status === OK) {
       this.exerciseBooks = response.data.exercise_book_list;
       this.categories = response.data.category_list;
-      this.isLoading = false;
       return;
     }
   },
@@ -448,7 +446,7 @@ export default {
       this.exerciseBookSelected.isModal = status;
     },
 
-    //　問題集への追加レコードの文字を変更
+    //問題集への追加レコードの文字を変更
     exerciseBookRecordChanged(name) {
       this.form.exerciseBook = name;
       this.exerciseBookSelected.recordText = this.LengthaAdjustment(name);

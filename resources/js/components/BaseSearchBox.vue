@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center w-screen mb-4 px-4">
+  <div class="flex justify-center w-screen mb-4">
     <form class="flex w-4/5 rounded-full">
       <input
         type="text"

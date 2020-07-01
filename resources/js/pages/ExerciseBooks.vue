@@ -119,7 +119,4 @@ export default {
 </script>
 
 <style scoped>
-.st-border {
-  border: 1px solid #667eea;
-}
 </style>
