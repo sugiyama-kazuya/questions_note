@@ -32,6 +32,12 @@ Route::prefix('users')->name('users.')->group(function () {
 
 Route::resource('categories', 'CategoryController')->only(['store']);
 
+Route::get('own/exercise-books/problems', 'OwnExerciseBooksController');
+Route::get('own/follows', 'ownFollowsController');
+Route::get('own/followers', 'ownFollowersController');
+
+
+
 
 
 
