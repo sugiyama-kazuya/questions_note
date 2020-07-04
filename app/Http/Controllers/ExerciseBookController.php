@@ -67,13 +67,13 @@ class ExerciseBookController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 問題集の削除
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
+        $this->exercise_book->find($id)->delete();
     }
 }
