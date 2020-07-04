@@ -11,7 +11,7 @@ Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::resource('problems', 'ProblemController')->except(['index']);
 
-Route::resource('exercise-books', 'ExerciseBookController')->only(['index', 'store', 'show']);
+Route::resource('exercise-books', 'ExerciseBookController')->only(['index', 'store', 'show', 'destroy']);
 Route::prefix('exercise-books')->name('exercise-books.')->group(function () {
     Route::put('favorites', 'Favorites')->name('like');
     Route::delete('unfavorites', 'unFavorites')->name('unlike');
@@ -36,18 +36,11 @@ Route::get('own/exercise-books/problems', 'OwnExerciseBooksController');
 Route::get('own/follows', 'ownFollowsController');
 Route::get('own/followers', 'ownFollowersController');
 
-
-
-
-
-
-
-
 // お気に入り関連
-Route::put('like', 'LikeController@like')->name('like');
-Route::delete('unlike', 'LikeController@unlike')->name('unlike');
+// Route::put('like', 'LikeController@like')->name('like');
+// Route::delete('unlike', 'LikeController@unlike')->name('unlike');
 
-Route::get('isLikedby/{id}', 'isLikedByController');
+// Route::get('isLikedby/{id}', 'isLikedByController');
 Route::get('{id}/favorites/counts', 'FavoritesCount');
 
 
