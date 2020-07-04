@@ -8,7 +8,7 @@
             text ? text : 'text-white'
         ]"
     :type="type ? type : 'button'"
-    class="p-2 m-2 rounded-sm shadow-sm font-bold focus:outline-none outline-none"
+    class="p-2 rounded-sm shadow-sm font-bold focus:outline-none outline-none"
   >
     <slot></slot>
   </button>
