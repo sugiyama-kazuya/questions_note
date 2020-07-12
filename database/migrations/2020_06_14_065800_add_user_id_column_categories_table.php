@@ -27,7 +27,7 @@ class AddUserIdColumnCategoriesTable extends Migration
     public function down()
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->dropForeign('categories_user_id_foreign');
+            $table->dropForeign(['user_id']);
             $table->dropColumn('user_id');
         });
     }
