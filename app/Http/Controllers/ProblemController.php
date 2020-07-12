@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Problem;
 use App\ExerciseBook;
-use App\Category;
 use App\Http\Requests\CreateProblem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +13,11 @@ class ProblemController extends Controller
 {
     private $problem;
     private $exercise_book;
-    private $category;
 
-    public function __construct(Problem $problem, ExerciseBook $exercise_book, Category $category)
+    public function __construct(Problem $problem, ExerciseBook $exercise_book)
     {
         $this->problem = $problem;
         $this->exercise_book = $exercise_book;
-        $this->category = $category;
     }
 
     /**
@@ -29,17 +26,13 @@ class ProblemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(ExerciseBook $exercise_book, Category $category)
+    public function create(ExerciseBook $exercise_book)
     {
         // ログインユーザーの問題集を取得
         $exercise_book_list = $exercise_book->loginUserExerciseBook;
 
-        // ログインユーザーのカテゴリーを取得
-        $category_list = $category->loginUserCategory;
-
         return response()->json([
             'exercise_book_list' => $exercise_book_list,
-            'category_list' => $category_list
         ]);
     }
 
@@ -49,15 +42,11 @@ class ProblemController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateProblem $request, Problem $problem, ExerciseBook $exercise_book, Category $category)
+    public function store(CreateProblem $request, Problem $problem, ExerciseBook $exercise_book)
     {
-        //ログインユーザーのカテゴリーを取得し、
-        //リクエストから送られてきたカテゴリーがあれば取得、なければ登録
-        $category = $category->fetchOrRegister($request);
-
         //ログインユーザーの問題集を取得し、
         //リクエストから送られてきた問題集があれば取得、なければ登録
-        $exercise_book = $exercise_book->fetchOrRegister($request, $category->id);
+        $exercise_book = $exercise_book->fetchOrRegister($request);
 
         // 問題と答えの登録
         $problem->fill([
@@ -122,14 +111,9 @@ class ProblemController extends Controller
         // ログインユーザーの問題集を取得
         $exercise_book_list = $this->exercise_book->loginUserExerciseBook;
 
-        // ログインユーザーのカテゴリーを取得
-        $category_list = $this->category->loginUserCategory;
-
-        $problem->exercise_book = $problem->exerciseBook->category;
         return response()->json([
             'problem' => $problem,
             'exercise_book_list' => $exercise_book_list,
-            'category_list' => $category_list
         ]);
     }
 
