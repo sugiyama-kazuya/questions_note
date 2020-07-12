@@ -22,11 +22,11 @@ class ExerciseBook extends Model
     protected $dateFormat = "Y/m/d";
 
     protected $fillable = [
-        'name', 'user_id', 'category_id', 'created_at', 'updated_at'
+        'name', 'user_id', 'created_at', 'updated_at'
     ];
 
     protected $hidden = [
-        'created_at', 'updated_at', 'user_id', 'category_id'
+        'created_at', 'updated_at', 'user_id'
     ];
 
     public function user(): BelongsTo
@@ -37,16 +37,6 @@ class ExerciseBook extends Model
     public function problem(): HasMany
     {
         return $this->hasMany('App\Problem');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo('App\Category');
-    }
-
-    public function exerciseBooksName(): BelongsTo
-    {
-        return $this->belongsTo('App\ExerciseBookName');
     }
 
     /**
@@ -116,7 +106,7 @@ class ExerciseBook extends Model
      */
     public function exerciseBookCardRequiredData(): Object
     {
-        return $this->with(['user:id,name,profile_img', 'likes', 'category']);
+        return $this->with(['user:id,name,profile_img', 'likes']);
     }
 
     /**
@@ -157,13 +147,13 @@ class ExerciseBook extends Model
     {
         if ($user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img', 'category']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
             });
 
             return $exercise_books;
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img', 'category']);
+                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
             });
 
             return $exercise_books;
@@ -175,17 +165,15 @@ class ExerciseBook extends Model
      * リクエストから送られてきた問題集があれば取得、なければ登録
      *
      * @param Object $request
-     * @param Int $category_id
      * @return Object
      */
-    public function fetchOrRegister(Object $request, Int $category_id)
+    public function fetchOrRegister(Object $request)
     {
         return $this->where('user_id', Auth::id())->firstOrCreate(
             ['name' => $request->exerciseBook],
             [
                 'name' => $request->exerciseBook,
                 'user_id' => Auth::id(),
-                'category_id' => $category_id
             ]
         );
     }

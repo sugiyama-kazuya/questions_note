@@ -25,7 +25,6 @@ class CreateExerciseBook extends FormRequest
     {
         return [
             'exerciseBook' => ['required'],
-            'category' => ['required']
         ];
     }
 }
