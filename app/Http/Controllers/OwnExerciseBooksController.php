@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\ExerciseBook;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class OwnExerciseBooksController extends Controller

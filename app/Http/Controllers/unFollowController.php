@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\User;
 
-class unFollow extends Controller
+class unFollowController extends Controller
 {
     /**
      * フォローを外す
@@ -13,7 +14,7 @@ class unFollow extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request, $user_id)
+    public function __invoke($user_id, User $user)
     {
         $login_user = Auth::user();
 
@@ -26,7 +27,7 @@ class unFollow extends Controller
             return abort('404', 'Cannot follow yourself');
         }
 
-        $current_user = $this->user->currentUser($login_user->id);
+        $current_user = $user->currentUser($login_user->id);
         $current_user->followings()->detach($user_id);
 
         return response()->json(['is_follwed_by' => $current_user->isFollowedBy($user_id)]);

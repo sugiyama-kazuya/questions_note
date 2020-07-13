@@ -81,7 +81,7 @@ export default {
     },
 
     async mounted() {
-        this.count = this.cardData.favolite_count;
+        this.count = this.cardData.favorite_count;
         this.isLikedBy = this.cardData.is_liked_by;
     },
 
@@ -97,11 +97,14 @@ export default {
             // 既にいいねしていた場合
             if (this.isLikedBy) {
                 const response = await axios
-                    .delete("/api/unlike", { data: { id: problemId } })
-                    .catch(error => error.response);
+                    .delete("/api/unfavorites", {
+                        data: { id: problemId }
+                    })
+                    .catch(error => error.response || error);
 
                 if (response.status === INTERNAL_SERVER_ERROR) {
                     this.$router.push("/500");
+                    console.log(response);
                     return;
                 }
 
@@ -109,7 +112,7 @@ export default {
             } else {
                 // まだしていない場合
                 const response = await axios
-                    .put("/api/like", { id: problemId })
+                    .put("/api/favorites", { id: problemId })
                     .catch(error => error.response || error);
 
                 if (response.status === INTERNAL_SERVER_ERROR) {
@@ -122,7 +125,7 @@ export default {
         },
 
         async countFavorites(id) {
-            const url = `/api/exercise-books/${id}/favorites/counts`;
+            const url = `/api/${id}/favorites/counts`;
             const response = await axios
                 .get(url)
                 .catch(error => error.response);

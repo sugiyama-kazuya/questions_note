@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\User;
 
-class Follow extends Controller
+class FollowController extends Controller
 {
     /**
      * Handle the incoming request.
@@ -13,7 +14,7 @@ class Follow extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request, $user_id)
+    public function __invoke($user_id, User $user)
     {
         $login_user = Auth::user();
 
@@ -26,7 +27,7 @@ class Follow extends Controller
             return abort('404', 'Cannot follow yourself');
         }
 
-        $current_user = $this->user->currentUser($login_user->id);
+        $current_user = $user->currentUser($login_user->id);
         $current_user->followings()->detach($user_id);
         $current_user->followings()->attach($user_id);
 
