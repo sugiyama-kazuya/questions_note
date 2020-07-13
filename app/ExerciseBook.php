@@ -8,10 +8,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class ExerciseBook extends Model
 {
-
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
@@ -100,11 +100,11 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題カードの表示に必要な基本データ
+     * 問題カードの表示の為の基本データ取得
      *
      * @return Object
      */
-    public function exerciseBookCardRequiredData(): Object
+    public function fetchExerciseBookCardBaseData(): Object
     {
         return $this->with(['user:id,name,profile_img', 'likes']);
     }
@@ -113,39 +113,40 @@ class ExerciseBook extends Model
      * お気に入り情報の追加
      *
      * @param $exercise_books
-     * @param integer $user_id
      * @return object
      */
-    public function addFavoriteInfo($exercise_books, int $user_id = null)
+    public function addFavoriteInfo($exercise_books)
     {
-        if ($user_id) {
-            // ログインしている場合
-            return $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
-                $exercise_books_data = $data;
-                $exercise_books_data['favorite_count'] = $data['likes']->count();
-                $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
-                return $exercise_books_data;
+        $login_user_id = Auth::id();
+
+        if ($login_user_id) {
+            return $exercise_books = $exercise_books->map(function ($data) use ($login_user_id) {
+                $exercise_book = $data;
+                $exercise_book['favorite_count'] = $data['likes']->count();
+                $exercise_book['is_liked_by'] = $data->isLikedBy($login_user_id);
+                return $exercise_book;
             });
         } else {
-            // ログインしていない場合
             return $exercise_books = $exercise_books->map(function ($data) {
-                $exercise_books_data = $data;
-                $exercise_books_data['favorite_count'] = $data['likes']->count();
-                return $exercise_books_data;
+                $exercise_book = $data;
+                $exercise_books['favorite_count'] = $data['likes']->count();
+                return $exercise_book;
             });
         }
     }
 
     /**
-     * 問題カードを表示する為に必要なデータの絞り込み
+     * 問題カードを表示する為の必要なデータの絞り込み
      *
      * @param $exercise_books object
      * @param $likes Boolean DBから取得時にlikesテーブルも取得しているか否か
      * @return object
      */
-    public function filteringRequiredData($exercise_books, int $user_id = null): object
+    public function filteringExerciseBookCard($exercise_books): object
     {
-        if ($user_id) {
+        $login_user_id = Auth::id();
+
+        if ($login_user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
                 return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
             });
@@ -155,8 +156,6 @@ class ExerciseBook extends Model
             return $exercise_books = $exercise_books->map(function ($data) {
                 return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
             });
-
-            return $exercise_books;
         }
     }
 
@@ -191,5 +190,32 @@ class ExerciseBook extends Model
             $data['profile_img'] = $exercise_book->user->awsUrlFetch($exercise_book->user->profile_img);
             return $data;
         });
+    }
+
+    /**
+     * 自身がお気に入り登録している問題集を取得
+     *
+     * @param [Object] $exercise_books
+     * @param [int] $user_id
+     * @return void
+     */
+    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books, $user_id): object
+    {
+        return $exercise_books->filter(function ($exercise_book) use ($user_id) {
+            if ($exercise_book->likes()->first()) {
+                return $exercise_book->likes->map(function ($like) use ($user_id) {
+                    return (int) $like->pivot->user_id === (int) $user_id;
+                });
+            } else {
+                return $exercise_book = [];
+            }
+        })->values();
+    }
+
+    public function favoriteCountDesc($exercise_books): object
+    {
+        return $exercise_books->sortByDesc(function ($exercise_book) {
+            return $exercise_book['favorite_count'];
+        })->values();
     }
 }
