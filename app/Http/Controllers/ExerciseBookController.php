@@ -22,18 +22,11 @@ class ExerciseBookController extends Controller
      */
     public function index()
     {
-        $login_user_id = Auth::id();
-
-        $exercise_books = $this->exercise_book->exerciseBookCardRequiredData()->get();
+        $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()->get();
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
 
-        if ($login_user_id) {
-            $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books, $login_user_id);
-            $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books, $login_user_id);
-        } else {
-            $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
-            $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books);
-        }
+        $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
+        $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
 
         return response()->json(['exercise_books' => $exercise_books]);
     }
@@ -57,11 +50,11 @@ class ExerciseBookController extends Controller
      */
     public function show($user_id)
     {
-        $exercise_books = $this->exercise_book->exerciseBookCardRequiredData()
+        $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()
             ->where('user_id', $user_id)->get();
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
-        $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books, $user_id);
-        $exercise_books = $this->exercise_book->filteringRequiredData($exercise_books, $user_id);
+        $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
+        $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
 
         return response()->json(['exercise_books' => $exercise_books]);
     }

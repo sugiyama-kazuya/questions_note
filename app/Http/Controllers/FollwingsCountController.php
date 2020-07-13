@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
-use Illuminate\Support\Facades\Log;
 
-class FollowersCount extends Controller
+class FollwingsCountController extends Controller
 {
     /**
      * Handle the incoming request.
@@ -16,8 +14,7 @@ class FollowersCount extends Controller
      */
     public function __invoke(User $user, $user_id)
     {
-        Log::debug($user_id);
         return response()
-            ->json(['follower_count' => $user->currentUser($user_id)->followers_count]);
+            ->json(['followings_count' => $user->currentUser($user_id)->followings_count]);
     }
 }
