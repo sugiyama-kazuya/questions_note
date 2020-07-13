@@ -31,11 +31,11 @@ const actions = {
             .post("/api/register", data)
             .catch(error => error.response || error);
 
-        console.log(response.data);
-
         if (response.status === CREATED) {
-            context.commit("apiStatus", true);
-            context.commit("setUser");
+            console.log(response.data);
+            context.commit("setApiStatus", true);
+            context.commit("setUser", response.data);
+            return;
         }
 
         context.commit("setApiStatus", false);
@@ -45,6 +45,7 @@ const actions = {
             context.commit("error/setCode", response.status, { root: true });
         }
     },
+
     async login(context, data) {
         context.commit("setApiStatus", null);
         const response = await axios
