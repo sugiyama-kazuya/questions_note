@@ -19,7 +19,7 @@
                 </ChangeTabBtn>
             </div>
 
-            <main class="overflow-y-scroll h-82 py-2">
+            <main class="scroll-y h-82 py-2">
                 <ExerciseBookCard
                     v-for="cardData in ExerciseBookCardData"
                     :key="cardData.id"
@@ -101,4 +101,10 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.scroll-y {
+    overflow-y: scroll;
+    transform: translateZ(0);
+    box-sizing: border-box;
+}
+</style>
