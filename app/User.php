@@ -160,4 +160,20 @@ class User extends Authenticatable
     {
         return $file_path ? Storage::cloud()->url($file_path) : "";
     }
+
+    /**
+     * フォロー有無のプロパティを追加
+     *
+     * @param [object]] $users
+     * @param [int] $user_id
+     * @return void
+     */
+    public function fetchIsFollowedBy($users, $user_id)
+    {
+        return $users->map(function ($user) use ($user_id) {
+            $user = $user;
+            $user['is_followed_by'] = $user->isFollowedBy($user_id);
+            return $user;
+        });
+    }
 }
