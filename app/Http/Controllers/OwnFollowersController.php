@@ -14,10 +14,9 @@ class OwnFollowersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(User $user)
+    public function __invoke($user_id, User $user)
     {
-        $login_user_id = Auth::id();
-        $users = $user->find($login_user_id)->followers;
+        $users = $user->find($user_id)->followers;
         return $users;
     }
 }
