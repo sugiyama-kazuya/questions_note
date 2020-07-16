@@ -199,16 +199,10 @@ class ExerciseBook extends Model
      * @param [int] $user_id
      * @return void
      */
-    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books, $user_id): object
+    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books): object
     {
-        return $exercise_books->filter(function ($exercise_book) use ($user_id) {
-            if ($exercise_book->likes()->first()) {
-                return $exercise_book->likes->map(function ($like) use ($user_id) {
-                    return (int) $like->pivot->user_id === (int) $user_id;
-                });
-            } else {
-                return $exercise_book = [];
-            }
+        return $exercise_books->filter(function ($exercise_book) {
+            return $exercise_book->is_liked_by === true;
         })->values();
     }
 

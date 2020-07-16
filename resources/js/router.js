@@ -10,7 +10,7 @@ import ExerciseBookPlay from "./pages/ExerciseBookPlay";
 import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
-import Search from "./pages/Search";
+import List from "./pages/List";
 
 Vue.use(VueRouter);
 
@@ -82,9 +82,9 @@ export default new VueRouter({
         },
         {
             /* 検索ページ */
-            path: "/search",
-            name: "Search",
-            component: Search
+            path: "/list",
+            name: "List",
+            component: List
         },
         {
             /* エラーページ */

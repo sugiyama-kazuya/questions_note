@@ -34,7 +34,8 @@ module.exports = {
             "6rem": "6rem",
             "7rem": "7rem",
             "8rem": "8rem",
-            "12rem": "12rem"
+            "12rem": "12rem",
+            screen: "100vh"
         },
         extend: {
             width: {

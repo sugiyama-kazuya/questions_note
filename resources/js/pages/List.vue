@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <main class="w-100 h-95">
-                    <div class="relative h-100 w-100 overflow-y-scroll">
+                    <div class="relative h-100 w-100">
                         <!-- 問題集一覧 -->
                         <transition name="main">
                             <div
@@ -33,7 +33,7 @@
                             >
                                 <BaseSearchBox
                                     :placeholder="exerciseBooks.placeholder"
-                                    class="mt-4"
+                                    class="mt-4 h-8"
                                 ></BaseSearchBox>
 
                                 <div
@@ -46,26 +46,28 @@
                                     作成された問題集はございません。<br />下記のcreateボタンより問題を作成してください。
                                 </div>
 
-                                <BaseRecord
-                                    v-for="exerciseBook in exerciseBooks.data"
-                                    :key="exerciseBook.id"
-                                    :padding="'p-3'"
-                                >
-                                    <template slot="left-contents">
-                                        <span>{{ exerciseBook.name }}</span>
-                                    </template>
-                                    <template slot="right-contents">
-                                        <FontAwesomeIcon
-                                            @click="
-                                                openProblemsListModal(
-                                                    exerciseBook.id
-                                                )
-                                            "
-                                            icon="edit"
-                                            class="text-2xl text-gray-600"
-                                        ></FontAwesomeIcon>
-                                    </template>
-                                </BaseRecord>
+                                <div class="scroll-y h-92 w-screen">
+                                    <BaseRecord
+                                        v-for="exerciseBook in exerciseBooks.data"
+                                        :key="exerciseBook.id"
+                                        :padding="'p-3'"
+                                    >
+                                        <template slot="left-contents">
+                                            <span>{{ exerciseBook.name }}</span>
+                                        </template>
+                                        <template slot="right-contents">
+                                            <FontAwesomeIcon
+                                                @click="
+                                                    openProblemsListModal(
+                                                        exerciseBook.id
+                                                    )
+                                                "
+                                                icon="edit"
+                                                class="text-2xl text-gray-600"
+                                            ></FontAwesomeIcon>
+                                        </template>
+                                    </BaseRecord>
+                                </div>
                             </div>
                         </transition>
                         <!-- ユーザ一覧 -->
@@ -74,39 +76,104 @@
                                 v-if="user.isShow"
                                 class="flex flex-col items-center h-100 w-100"
                             >
-                                <BaseSearchBox
-                                    :placeholder="user.placeholder"
-                                    class="mt-4"
-                                ></BaseSearchBox>
-                                <ChangeTabBtn
-                                    @left-click="followSelected()"
-                                    @right-click="followerSelected()"
-                                    :isLeftActive="user.isFollowTab"
-                                    :isRightActive="user.isFollowerTab"
-                                    :width="'w-4/5'"
-                                    class="my-4"
+                                <div
+                                    class="flex items-center justify-center my-4 h-8 w-screen"
                                 >
-                                    <template v-slot:leftBtnText
-                                        >フォロー</template
+                                    <ChangeTabBtn
+                                        @left-click="followSelected()"
+                                        @right-click="followerSelected()"
+                                        :isLeftActive="user.isFollowTab"
+                                        :isRightActive="user.isFollowerTab"
+                                        :width="'w-4/5'"
                                     >
-                                    <template v-slot:rightBtnText
-                                        >フォロワー</template
+                                        <template v-slot:leftBtnText
+                                            >フォロー</template
+                                        >
+                                        <template v-slot:rightBtnText
+                                            >フォロワー</template
+                                        >
+                                    </ChangeTabBtn>
+                                </div>
+                                <template v-if="user.isFollowerTab">
+                                    <BaseRecord
+                                        v-for="user in user.followers"
+                                        :key="user.id"
+                                        :padding="'p-2'"
                                     >
-                                </ChangeTabBtn>
-                                <BaseRecord :padding="'p-2'">
-                                    <template slot="left-contents">
-                                        <font-awesome-icon
-                                            icon="user-circle"
-                                            class="text-3xl mr-3"
-                                        />
-                                        <span>kazuya</span>
-                                    </template>
-                                    <template slot="right-contents">
-                                        <BaseBtn :color="'bg-blue-300'">
-                                            <template>フォロー中</template>
-                                        </BaseBtn>
-                                    </template>
-                                </BaseRecord>
+                                        <template slot="left-contents">
+                                            <font-awesome-icon
+                                                icon="user-circle"
+                                                class="text-3xl mr-3"
+                                            />
+                                            <span @click="goProfile(user.id)">{{
+                                                user.name
+                                            }}</span>
+                                        </template>
+                                    </BaseRecord>
+                                    <div
+                                        v-if="user.followers.length === 0"
+                                        class="my-4"
+                                    >
+                                        <p>
+                                            まだフォローされていません。
+                                        </p>
+                                    </div>
+                                </template>
+
+                                <template v-if="user.isFollowTab">
+                                    <div class="scroll-y w-screen h-92">
+                                        <BaseRecord
+                                            v-for="user in user.follows"
+                                            :key="user.id"
+                                            :padding="'p-2'"
+                                        >
+                                            <template slot="left-contents">
+                                                <font-awesome-icon
+                                                    icon="user-circle"
+                                                    class="text-3xl mr-3"
+                                                />
+                                                <span
+                                                    @click="goProfile(user.id)"
+                                                    >{{ user.name }}</span
+                                                >
+                                            </template>
+                                            <template slot="right-contents">
+                                                <BaseBtn
+                                                    @click-btn="isFollow(user)"
+                                                    :color="
+                                                        followBtnBgColor(
+                                                            user.is_followed_by
+                                                        )
+                                                    "
+                                                    :text="
+                                                        followBtnTextColor(
+                                                            user.is_followed_by
+                                                        )
+                                                    "
+                                                    :border-color="
+                                                        followBtnBorderColor(
+                                                            user.is_followed_by
+                                                        )
+                                                    "
+                                                >
+                                                    <template>{{
+                                                        followBtnText(
+                                                            user.is_followed_by
+                                                        )
+                                                    }}</template>
+                                                </BaseBtn>
+                                            </template>
+                                        </BaseRecord>
+                                    </div>
+                                    <div
+                                        v-if="user.follows.length === 0"
+                                        class="my-4"
+                                    >
+                                        <p>
+                                            まだフォローしていません。
+                                        </p>
+                                    </div>
+                                </template>
                             </div>
                         </transition>
                         <TheLoading
@@ -234,8 +301,9 @@ export default {
                 placeholder: "ユーザー名を入力",
                 isFollowTab: true,
                 isFollowerTab: false,
-                follows: {},
-                followers: {}
+                follows: [],
+                followers: [],
+                isFollowedBy: true
             },
             isProblemsListModal: false,
             loading: {
@@ -246,10 +314,15 @@ export default {
         };
     },
 
-    computed: {},
+    computed: {
+        loginUserId() {
+            return this.$store.state.auth.user.id;
+        }
+    },
 
     mounted() {
         this.getOwnExerciseBooksAndProblems();
+        this.followSelected();
     },
 
     methods: {
@@ -257,38 +330,96 @@ export default {
             this.user.isShow = false;
             this.exerciseBooks.isShow = true;
         },
+
         userShow() {
             this.exerciseBooks.isShow = false;
             this.user.isShow = true;
         },
+
         openProblemsListModal(exerciseBooksId) {
             this.exerciseBooks.selecetdId = exerciseBooksId;
             this.setProblem(exerciseBooksId);
             this.isProblemsListModal = true;
         },
+
         closeProblemsListModal() {
             this.isProblemsListModal = false;
         },
+
         goProblemEdit(problemId) {
             this.$router.push({
                 name: "ProblemEdit",
                 params: { id: problemId }
             });
         },
-        followSelected() {
+
+        async followSelected() {
+            this.loading.isLoading = true;
             this.user.isFollowTab = true;
             this.user.isFollowerTab = false;
+
+            const response = await axios
+                .get(`/api/users/${this.loginUserId}/follows`)
+                .catch(error => error.response || error);
+
+            if (response.status === OK) {
+                console.log(response.data);
+                this.user.follows = response.data;
+                this.loading.isLoading = false;
+                return;
+            }
         },
-        followerSelected() {
+
+        async followerSelected() {
+            this.loading.isLoading = true;
             this.user.isFollowTab = false;
             this.user.isFollowerTab = true;
+
+            const response = await axios
+                .get(`/api/users/${this.loginUserId}/followers`)
+                .catch(error => error.response || error);
+
+            if (response.status === OK) {
+                console.log(response.data);
+                this.user.followers = response.data;
+                this.loading.isLoading = false;
+                return;
+            }
         },
+
+        async isFollow(user) {
+            const url = `/api/users/${user.id}/follow`;
+            if (user.is_followed_by === true) {
+                user.is_followed_by = false;
+                const response = await axios
+                    .delete(url)
+                    .catch(error => error.response || error);
+
+                if (response.status === INTERNAL_SERVER_ERROR) {
+                    this.$router.push("/500");
+                    return;
+                }
+            } else {
+                user.is_followed_by = true;
+                const response = await axios
+                    .put(url)
+                    .catch(error => error.response || error);
+
+                if (response.status === INTERNAL_SERVER_ERROR) {
+                    this.$router.push("/500");
+                    return;
+                }
+            }
+        },
+
         goDeletedValidation() {
             this.isExerciseBooksDeletedModal = true;
         },
+
         closeDeletedValidation() {
             this.isExerciseBooksDeletedModal = false;
         },
+
         async deleteExerciseBooks() {
             const response = await axios
                 .delete(`/api/exercise-books/${this.exerciseBooks.selecetdId}`)
@@ -302,6 +433,7 @@ export default {
                 return;
             }
         },
+
         async getOwnExerciseBooksAndProblems() {
             this.loading.isLoading = true;
 
@@ -315,6 +447,7 @@ export default {
                 return;
             }
         },
+
         setProblem(exerciseBooksId) {
             const targetExerciseBook = this.exerciseBooks.data.filter(function(
                 exerciseBook
@@ -322,6 +455,24 @@ export default {
                 return Number(exerciseBook.id) === Number(exerciseBooksId);
             });
             this.targetProblems = targetExerciseBook[0].problem;
+        },
+
+        goProfile(userId) {
+            this.$router.push(`/users/${userId}`);
+        },
+
+        followBtnBgColor(isFollow) {
+            return isFollow ? "bg-blue-300" : "bg-white";
+        },
+
+        followBtnTextColor(isFollow) {
+            return isFollow ? "text-white" : "text-blue-300";
+        },
+        followBtnBorderColor(isFollow) {
+            return isFollow ? false : true;
+        },
+        followBtnText(isFollow) {
+            return isFollow ? "フォロー中" : "フォローする";
         }
     }
 };
@@ -367,5 +518,11 @@ export default {
 .center-modal-enter,
 .center-modal-leave-to {
     opacity: 0;
+}
+
+.scroll-y {
+    overflow-y: scroll;
+    transform: translateZ(0);
+    box-sizing: border-box;
 }
 </style>

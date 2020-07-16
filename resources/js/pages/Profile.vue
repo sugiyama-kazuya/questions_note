@@ -7,7 +7,7 @@
                 </template>
             </TheHeader>
 
-            <main class="overflow-y-scroll h-92">
+            <main class="h-92 scroll-y">
                 <div class="flex bg-white shadow-xl py-3 px-4">
                     <div class="flex flex-col w-1/2">
                         <div class="text-center p-2">
@@ -77,8 +77,8 @@
                 >
                     <ChangeTabBtn
                         v-if="isLoginUser"
-                        @left-click="ownExerciseBooks"
-                        @right-click="favoriteOrder"
+                        @left-click="ownExerciseBooks()"
+                        @right-click="favoriteOrder()"
                         :isLeftActive="displayTab.isOwnExerciseBooks"
                         :isRightActive="displayTab.isFavoriteOrder"
                     >
@@ -93,6 +93,13 @@
                         </div>
                     </div>
                 </div>
+
+                <p
+                    v-if="isEmpty(ExerciseBookCardData)"
+                    class="flex justify-center"
+                >
+                    まだ問題集は作成されていません。
+                </p>
 
                 <ExerciseBookCard
                     v-for="cardData in ExerciseBookCardData"
@@ -202,7 +209,7 @@ export default {
 
     watch: {
         async isFollowedBy() {
-            const url = `/api/users/${this.$route.params.id}/followers`;
+            const url = `/api/users/${this.$route.params.id}/followers/count`;
             const response = await axios
                 .get(url)
                 .catch(error => error.response || error);
@@ -309,6 +316,10 @@ export default {
         },
         goEditScreen() {
             this.$router.push(`/users/${this.$route.params.id}/edit`);
+        },
+
+        isEmpty(data) {
+            return !Object.keys(data).length;
         }
     }
 };
@@ -333,5 +344,11 @@ export default {
 .center-modal-enter,
 .center-modal-leave-to {
     opacity: 0;
+}
+
+.scroll-y {
+    overflow-y: scroll;
+    transform: translateZ(0);
+    box-sizing: border-box;
 }
 </style>

@@ -18,8 +18,10 @@ Route::prefix('users')->name('users.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::put('{id}/follow', 'FollowController')->name('follow');
         Route::delete('{id}/follow', 'unFollowController')->name('unfollow');
-        Route::get('{id}/followers', 'FollowersCountController')->name('followers');
-        Route::get('{id}/follwings', 'FollwingsCountController')->name('follwings');
+        Route::get('{id}/followers/count', 'FollowersCountController')->name('followers');
+        Route::get('{id}/follwings/count', 'FollwingsCountController')->name('follwings');
+        Route::get('{id}/followers', 'OwnFollowersController');
+        Route::get('{id}/follows', 'OwnFollowsController');
     });
 });
 
