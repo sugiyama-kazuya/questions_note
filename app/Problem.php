@@ -38,4 +38,23 @@ class Problem extends Model
             'exercise_book_id' => $exercise_book->id,
         ])->save();
     }
+
+    /**
+     * 問題の編集
+     *
+     * @param [type] $problem_id
+     * @param [type] $request
+     * @param [type] $exercise_book
+     * @return void
+     */
+    public function problemUpdate($problem_id, $request, $exercise_book)
+    {
+        $this->find($problem_id)->fill([
+            'content' => $request->problem,
+            'answer' => $request->answer,
+            'url' => $request->url,
+            'user_id' => Auth::id(),
+            'exercise_book_id' => $exercise_book->id,
+        ])->update();
+    }
 }
