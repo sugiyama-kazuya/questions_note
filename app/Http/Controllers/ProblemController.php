@@ -42,20 +42,11 @@ class ProblemController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateProblem $request, Problem $problem, ExerciseBook $exercise_book)
+    public function store(CreateProblem $request)
     {
-        //ログインユーザーの問題集を取得し、
-        //リクエストから送られてきた問題集があれば取得、なければ登録
-        $exercise_book = $exercise_book->fetchOrRegister($request);
+        $exercise_book = $this->exercise_book->fetchOrRegister($request);
 
-        // 問題と答えの登録
-        $problem->fill([
-            'content' => $request->problem,
-            'answer' => $request->answer,
-            'url' => $request->url,
-            'user_id' => Auth::id(),
-            'exercise_book_id' => $exercise_book->id,
-        ])->save();
+        $this->problem->newRegister($request, $exercise_book);
     }
 
     /**
@@ -94,7 +85,7 @@ class ProblemController extends Controller
 
     public function update($id, UpdateProblem $request)
     {
-        return $id;
+        return;
     }
 
 

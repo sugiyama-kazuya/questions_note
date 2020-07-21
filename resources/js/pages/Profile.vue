@@ -1,144 +1,141 @@
 <template>
-    <div class="relative h-100">
-        <div class="h-90 bg-gray-200">
-            <TheHeader class="h-8">
-                <template v-slot:titleName>
-                    <h5>Mypage</h5>
-                </template>
-            </TheHeader>
-
-            <main class="h-92 scroll-y">
-                <div class="flex bg-white shadow-xl py-3 px-4">
-                    <div class="flex flex-col w-1/2">
-                        <div class="text-center p-2">
-                            <span>{{ userData.name }}</span>
-                        </div>
-                        <div class="flex justify-center">
-                            <div class="w-50 relative img-circle">
-                                <font-awesome-icon
-                                    v-if="!userData.profile_img"
-                                    icon="user-circle"
-                                    class="m-0 h-100 w-100 absolute inset-0 img-profile mr-2"
-                                />
-
-                                <img
-                                    v-if="userData.profile_img"
-                                    class="m-0 h-100 bg-cover absolute inset-0 img-profile"
-                                    :src="userData.profile_img"
-                                    alt="プロフィール画像"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-1/2 flex flex-col text-right">
-                        <div class="w-full h-30 flex justify-end">
-                            <BaseButton
-                                v-if="!isLoginUser"
-                                @click-btn="isFollow"
-                                :text="followBtnTextColor"
-                                :color="followBtnBgColor"
-                                :height="'h-3rem'"
-                                :width="'w-2/3'"
-                                :border-color="true"
-                                class="h-100"
-                            >
-                                <template>{{ followBtnText }}</template>
-                            </BaseButton>
-                            <BaseButton
-                                v-if="isLoginUser"
-                                @click-btn="goEditScreen"
-                                :text="editBtn.btnTextColor"
-                                :color="editBtn.btnBgColor"
-                                :height="'h-3rem'"
-                                :width="'w-1/3'"
-                                :border-color="true"
-                                class="h-100"
-                            >
-                                <template>{{ editBtn.btnText }}</template>
-                            </BaseButton>
-                        </div>
-                        <div
-                            class="h-70 flex flex-col items-center justify-end"
-                        >
-                            <div class="flex flex-col">
-                                <span class="mb-2 text-left"
-                                    >フォロー {{ followingsCount }}</span
-                                >
-                                <span class="text-left"
-                                    >フォロワー {{ followersCount }}</span
-                                >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+    <div class="relative min-h-screen flex flex-col bg-gray-200">
+        <TheHeader>
+            <template v-slot:titleName>
+                <h5>Mypage</h5>
+            </template>
+        </TheHeader>
+        <main class="relative h-100 flex-1">
+            <div class="flex bg-white shadow-xl w-screen h-12rem py-3 px-4 ">
                 <div
-                    class="flex justify-center items-center h-10 px-3 my-3 round-sm"
+                    class="flex flex-col items-center justify-center w-1/2 h-100 "
                 >
-                    <ChangeTabBtn
-                        v-if="isLoginUser"
-                        @left-click="ownExerciseBooks()"
-                        @right-click="favoriteOrder()"
-                        :isLeftActive="displayTab.isOwnExerciseBooks"
-                        :isRightActive="displayTab.isFavoriteOrder"
-                    >
-                        <template v-slot:leftBtnText>問題</template>
-                        <template v-slot:rightBtnText>お気に入り</template>
-                    </ChangeTabBtn>
-                    <div v-else class="w-1/3">
-                        <div
-                            class="bg-indigo-500 py-2 px-4 text-white text-center"
-                        >
-                            問題
+                    <div class="text-center pb-2">
+                        <span>{{ user.name }}</span>
+                    </div>
+                    <div class="flex justify-center w-100">
+                        <div class="w-50 relative img-circle">
+                            <font-awesome-icon
+                                v-if="!user.profile_img"
+                                icon="user-circle"
+                                class="m-0 h-100 w-100 absolute inset-0 img-profile mr-2"
+                            />
+
+                            <img
+                                v-if="user.profile_img"
+                                class="m-0 h-100 bg-cover absolute inset-0 img-profile"
+                                :src="user.profile_img"
+                                alt="プロフィール画像"
+                            />
                         </div>
                     </div>
                 </div>
-
-                <p
-                    v-if="isEmpty(ExerciseBookCardData)"
-                    class="flex justify-center"
+                <div
+                    class="w-1/2 h-100 flex flex-wrap content-between pr-3 py-2 text-right"
                 >
-                    まだ問題集は作成されていません。
-                </p>
-
-                <ExerciseBookCard
-                    v-for="cardData in ExerciseBookCardData"
-                    :key="cardData.id"
-                    :cardData="cardData"
-                    class="mb-4"
-                >
-                    <template v-if="ExerciseBookCardData" />
-                </ExerciseBookCard>
-            </main>
-            <!-- フラッシュメッセージ -->
-            <transition name="center-modal">
-                <CenterModal v-if="isFlashMsg">
-                    <div class="p-2 bg-gray-800 text-white rounded-md">
-                        {{ flashMsg.text }}
+                    <div class="w-full flex justify-end">
+                        <BaseButton
+                            v-if="!isLoginUser"
+                            @click-btn="isFollow"
+                            :text="followBtnTextColor"
+                            :color="followBtnBgColor"
+                            :height="'h-3rem'"
+                            :width="'w-2/3'"
+                            :border-color="true"
+                        >
+                            <template>{{ followBtnText }}</template>
+                        </BaseButton>
+                        <BaseButton
+                            v-if="isLoginUser"
+                            @click-btn="goEditScreen"
+                            :text="editBtn.btnTextColor"
+                            :color="editBtn.btnBgColor"
+                            :height="'h-3rem'"
+                            :width="'w-1/3'"
+                            :border-color="true"
+                        >
+                            <template>{{ editBtn.btnText }}</template>
+                        </BaseButton>
                     </div>
-                </CenterModal>
-            </transition>
-        </div>
-        <TheFooter />
+                    <div class="flex flex-col w-100 justify-end">
+                        <span class="mb-2 text-right"
+                            >フォロー {{ followingsCount }}</span
+                        >
+                        <span class="text-right"
+                            >フォロワー {{ followersCount }}</span
+                        >
+                    </div>
+                </div>
+            </div>
 
+            <div
+                class="flex flex-col justify-center items-center sticky top-0 bg-gray-200 p-4 round-sm"
+            >
+                <BaseSearchBox
+                    v-model="searchBoxKeyword"
+                    @search="filterExerciseBooks"
+                    :placeholder="exerciseBooks.placeholder"
+                    :bg-color="'bg-white'"
+                    class="mb-3"
+                />
+
+                <ChangeTabBtn
+                    v-if="isLoginUser"
+                    @left-click="ownExerciseBooks()"
+                    @right-click="favoriteOrder()"
+                    :isLeftActive="displayTab.isOwnExerciseBooks"
+                    :isRightActive="displayTab.isFavoriteOrder"
+                >
+                    <template v-slot:leftBtnText>問題</template>
+                    <template v-slot:rightBtnText>お気に入り</template>
+                </ChangeTabBtn>
+                <div v-else class="w-1/3">
+                    <div class="bg-indigo-500 py-2 px-4 text-white text-center">
+                        問題
+                    </div>
+                </div>
+            </div>
+
+            <p v-if="isEmpty(exerciseBooks.data)" class="flex justify-center">
+                まだ問題集は作成されていません。
+            </p>
+
+            <ExerciseBookCard
+                v-for="exerciseBook in exerciseBooks.data"
+                :key="exerciseBook.id"
+                :cardData="exerciseBook"
+                class="mb-4"
+            >
+            </ExerciseBookCard>
+        </main>
         <!-- ローディング -->
+        <TheLoading
+            v-if="loading.isLoading"
+            :loading="loading.isLoading"
+            class="h-screen"
+        />
+        <!-- フラッシュメッセージ -->
         <transition name="center-modal">
-            <TheLoading
-                if="loading.isLoading"
-                :loading="loading.isLoading"
-                :opacity="loading.opacity"
-            />
+            <CenterModal v-if="isFlashMsg">
+                <div class="p-2 bg-gray-800 text-white rounded-md">
+                    {{ flashMsg.text }}
+                </div>
+            </CenterModal>
         </transition>
+
+        <TheFooter />
     </div>
 </template>
 
 <script>
+import Common from "../commonMixin";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import BaseButton from "../components/BaseButton";
 import ExerciseBookCard from "../components/ExerciseBookCard";
 import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
+import BaseSearchBox from "../components/BaseSearchBox";
 import CenterModal from "../components/CenterModal";
 import { INTERNAL_SERVER_ERROR, OK } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -156,14 +153,20 @@ export default {
         ExerciseBookCard,
         TheLoading,
         ChangeTabBtn,
+        BaseSearchBox,
         CenterModal,
         FontAwesomeIcon
     },
 
+    mixins: [Common],
+
     data() {
         return {
-            ExerciseBookCardData: {},
-            userData: {},
+            exerciseBooks: {
+                placeholder: "問題集を入力",
+                data: []
+            },
+            user: [],
             displayTab: {
                 isOwnExerciseBooks: true,
                 isFavoriteOrder: false
@@ -175,7 +178,7 @@ export default {
             },
             loading: {
                 isLoading: false,
-                opacity: 1
+                opacity: 0
             },
             isFollowedBy: false,
             followingsCount: 0,
@@ -183,7 +186,9 @@ export default {
             flashMsg: {
                 text: "登録が完了しました。",
                 speed: 2000
-            }
+            },
+            searchBoxKeyword: "",
+            noSearchResults: false
         };
     },
 
@@ -225,6 +230,7 @@ export default {
     },
 
     async created() {
+        this.scrollTop();
         this.loading.isLoading = true;
         await this.getOwnExercizeBooks();
         await this.getUser();
@@ -246,7 +252,7 @@ export default {
                 .get(url)
                 .catch(error => error.response || error);
 
-            this.userData = response.data.user;
+            this.user = response.data.user;
             this.followersCount = response.data.user.followers_count;
             this.followingsCount = response.data.user.followings_count;
             this.isFollowedBy = response.data.user.is_followed_by;
@@ -261,32 +267,36 @@ export default {
                 this.$router.push("/500");
             }
 
-            console.log(`/api/exercise-books/${this.$route.params.id}`);
-
-            this.ExerciseBookCardData = response.data.exercise_books;
+            this.exerciseBooks.data = response.data.exercise_books;
         },
 
         async ownExerciseBooks() {
             this.displayTab.isOwnExerciseBooks = true;
             this.displayTab.isFavoriteOrder = false;
-            this.loading.opacity = 0;
+            this.scrollTop();
             this.loading.isLoading = true;
+            this.searchBoxReset();
             await this.getOwnExercizeBooks();
             this.loading.isLoading = false;
         },
 
-        async favoriteOrder() {
-            this.displayTab.isOwnExerciseBooks = false;
-            this.displayTab.isFavoriteOrder = true;
-            this.loading.opacity = 0;
-            this.loading.isLoading = true;
+        async getFavoriteOrderExerciseBooks() {
             const response = await axios
                 .get(`/api/favorites/asc/${this.$route.params.id}`)
                 .catch(error => error.resoponse);
 
             if (response.status === OK) {
-                this.ExerciseBookCardData = response.data.exercise_books;
+                this.exerciseBooks.data = response.data.exercise_books;
             }
+        },
+
+        async favoriteOrder() {
+            this.displayTab.isOwnExerciseBooks = false;
+            this.displayTab.isFavoriteOrder = true;
+            this.scrollTop();
+            this.loading.isLoading = true;
+            this.searchBoxReset();
+            await this.getFavoriteOrderExerciseBooks();
             this.loading.isLoading = false;
         },
 
@@ -320,6 +330,37 @@ export default {
 
         isEmpty(data) {
             return !Object.keys(data).length;
+        },
+
+        async filterExerciseBooks() {
+            this.scrollTop();
+            this.loading.isLoading = true;
+            if (this.displayTab.isOwnExerciseBooks) {
+                await this.getOwnExercizeBooks();
+            }
+            if (this.displayTab.isFavoriteOrder) {
+                await this.getFavoriteOrderExerciseBooks();
+            }
+
+            const obj = this;
+            const currentExerciseBooks = obj.exerciseBooks.data;
+            const filterExerciseBooks = currentExerciseBooks.filter(function(
+                exerciseBook
+            ) {
+                return exerciseBook.name.includes(obj.searchBoxKeyword);
+            });
+            if (filterExerciseBooks.length === 0) {
+                this.noSearchResults = true;
+            } else {
+                this.noSearchResults = false;
+            }
+            this.exerciseBooks.data = filterExerciseBooks;
+            this.loading.isLoading = false;
+        },
+
+        searchBoxReset() {
+            this.searchBoxKeyword = "";
+            this.noSearchResults = false;
         }
     }
 };
@@ -344,11 +385,5 @@ export default {
 .center-modal-enter,
 .center-modal-leave-to {
     opacity: 0;
-}
-
-.scroll-y {
-    overflow-y: scroll;
-    transform: translateZ(0);
-    box-sizing: border-box;
 }
 </style>

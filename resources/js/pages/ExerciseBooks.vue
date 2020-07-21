@@ -1,13 +1,22 @@
 <template>
-    <div class="relative h-100">
-        <div class="h-90 bg-gray-200">
-            <TheHeader class="h-8">
-                <template v-slot:titleName>
-                    <h5>HOME</h5>
-                </template>
-            </TheHeader>
+    <div class="relative min-h-screen flex flex-col">
+        <TheHeader class="h-5rem">
+            <template v-slot:titleName>
+                <h5>HOME</h5>
+            </template>
+        </TheHeader>
+        <div class="bg-gray-200 text-gray-600 flex-1">
+            <div
+                class="flex flex-col items-center justify-center bg-gray-200 p-3 round-sm sticky top-0 z-50"
+            >
+                <BaseSearchBox
+                    v-model="searchBoxKeyword"
+                    @search="filterExerciseBooks"
+                    :placeholder="exerciseBooks.placeholder"
+                    :bg-color="'bg-white'"
+                    class="mb-3"
+                />
 
-            <div class="flex justify-center items-center h-10 px-3 round-sm">
                 <ChangeTabBtn
                     @left-click="newArrivalsOrder"
                     @right-click="popularOrder"
@@ -19,26 +28,35 @@
                 </ChangeTabBtn>
             </div>
 
-            <main class="scroll-y h-82 py-2">
+            <main class="relative">
+                <div v-if="noSearchResults" class="flex justify-center">
+                    検索に該当する問題はございません。
+                </div>
                 <ExerciseBookCard
-                    v-for="cardData in ExerciseBookCardData"
-                    :key="cardData.id"
-                    :cardData="cardData"
+                    v-for="exerciseBook in exerciseBooks.data"
+                    :key="exerciseBook.id"
+                    :cardData="exerciseBook"
                     class="mb-4"
                 ></ExerciseBookCard>
             </main>
         </div>
+        <TheLoading
+            :loading="isLoading"
+            :background-color="'#edf2f7'"
+            class="h-screen"
+        />
         <TheFooter />
-        <TheLoading if="isLoading" :loading="isLoading" />
     </div>
 </template>
 
 <script>
+import Common from "../commonMixin";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import ExerciseBookCard from "../components/ExerciseBookCard";
 import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
+import BaseSearchBox from "../components/BaseSearchBox";
 
 import { OK, INTERNAL_SERVER_ERROR } from "../util";
 
@@ -49,28 +67,44 @@ export default {
         TheFooter,
         ExerciseBookCard,
         TheLoading,
-        ChangeTabBtn
+        ChangeTabBtn,
+        BaseSearchBox
     },
+
+    mixins: [Common],
+
     data() {
         return {
-            ExerciseBookCardData: {},
+            exerciseBooks: {
+                placeholder: "問題集の名前を入力",
+                data: []
+            },
             isLoading: false,
             displayTab: {
                 isNewActive: false,
                 isPopularActive: false
-            }
+            },
+            searchBoxKeyword: "",
+            noSearchResults: false
         };
     },
-    mounted() {
+
+    created() {
         this.newArrivalsOrder();
     },
+
     methods: {
         async newArrivalsOrder() {
+            this.scrollTop();
             this.isLoading = true;
+            await this.getNewArrivalsOrderExerciseBooks();
             this.displayTab.isPopularActive = false;
             this.displayTab.isNewActive = true;
+            this.searchBoxReset();
+            this.isLoading = false;
+        },
 
-            this.isLoading = true;
+        async getNewArrivalsOrderExerciseBooks() {
             const response = await axios
                 .get("api/exercise-books")
                 .catch(error => error.response || error);
@@ -81,21 +115,57 @@ export default {
             }
 
             if (response.status === OK) {
-                this.ExerciseBookCardData = response.data.exercise_books;
-                this.displayTab.isNewActive = true;
-                this.isLoading = false;
+                this.exerciseBooks.data = response.data.exercise_books;
             }
         },
+
         async popularOrder() {
+            this.scrollTop();
+            this.isLoading = true;
             this.displayTab.isNewActive = false;
             this.displayTab.isPopularActive = true;
-            this.isLoading = true;
+            this.searchBoxReset();
+            await this.getPopularOrderExerciseBooks();
+            this.isLoading = false;
+        },
+
+        async getPopularOrderExerciseBooks() {
             const response = await axios
                 .get("/api/favorites/asc")
                 .catch(error => error.response || error);
 
-            this.ExerciseBookCardData = response.data.exercise_books;
+            this.exerciseBooks.data = response.data.exercise_books;
+        },
+
+        async filterExerciseBooks() {
+            this.scrollTop();
+            this.isLoading = true;
+            if (this.displayTab.isNewActive) {
+                await this.getNewArrivalsOrderExerciseBooks();
+            }
+            if (this.displayTab.isPopularActive) {
+                await this.getPopularOrderExerciseBooks();
+            }
+
+            const obj = this;
+            const currentExerciseBooks = obj.exerciseBooks.data;
+            const filterExerciseBooks = currentExerciseBooks.filter(function(
+                exerciseBook
+            ) {
+                return exerciseBook.name.includes(obj.searchBoxKeyword);
+            });
+            if (filterExerciseBooks.length === 0) {
+                this.noSearchResults = true;
+            } else {
+                this.noSearchResults = false;
+            }
+            this.exerciseBooks.data = filterExerciseBooks;
             this.isLoading = false;
+        },
+
+        searchBoxReset() {
+            this.searchBoxKeyword = "";
+            this.noSearchResults = false;
         }
     }
 };
