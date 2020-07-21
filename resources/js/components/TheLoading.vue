@@ -5,7 +5,6 @@
         :width="40"
         color="#007bff"
         :opacity="opacity ? opacity : 0"
-        :is-full-page="fullPage ? fullPage : isFullPage"
         :background-color="backgroundColor ? backgroundColor : ''"
     ></loading>
 </template>

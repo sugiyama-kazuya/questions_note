@@ -83,11 +83,19 @@ class ProblemController extends Controller
         }
     }
 
+    /**
+     * 問題の更新
+     *
+     * @param [string] $id
+     * @param UpdateProblem $request
+     * @return void
+     */
     public function update($id, UpdateProblem $request)
     {
-        return;
-    }
+        $exercise_book = $this->exercise_book->fetchOrRegister($request);
 
+        $this->problem->problemUpdate($id, $request, $exercise_book);
+    }
 
     /**
      * 問題編集画面の情報
