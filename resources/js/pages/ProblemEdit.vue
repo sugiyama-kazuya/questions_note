@@ -436,7 +436,9 @@ export default {
                 })
                 .catch(error => error.response || error);
 
-            console.log(response);
+            if (response.status === OK) {
+                this.$router.push("/list");
+            }
         },
 
         assignmentToEach(genre, item) {
