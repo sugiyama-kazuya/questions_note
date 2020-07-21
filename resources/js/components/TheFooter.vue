@@ -1,6 +1,6 @@
 <template>
     <footer
-        class="flex py-3 bg-indigo-400 absolute inset-x-0 bottom-0 h-10 text-white"
+        class="flex h-6rem py-3 w-100 bg-indigo-400 sticky bottom-0 text-white"
     >
         <div class="w-1/4 flex flex-col items-center justify-center">
             <router-link
