@@ -7,18 +7,18 @@
                 </template>
             </TheHeader>
 
-            <div class="w-full box-border px-3 h-16 h-10 flex items-center">
-                <button
-                    type="submit"
-                    form="createForm"
-                    class="bg-primary text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none"
-                >
-                    作成
-                </button>
-            </div>
+            <div class="h-92">
+                <div class="w-full box-border px-3 h-16 h-10 flex items-center">
+                    <button
+                        type="submit"
+                        form="createForm"
+                        class="bg-primary text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none"
+                    >
+                        作成
+                    </button>
+                </div>
 
-            <main class="w-full overflow-y-scroll h-82">
-                <div class="h-90">
+                <main class="w-full overflow-y-scroll h-90 relative">
                     <!-- 問題の追加 -->
                     <form
                         id="createForm"
@@ -164,8 +164,13 @@
                             </div>
                         </div>
                     </form>
-                </div>
-            </main>
+                    <TheLoading
+                        v-if="loading.isLoading"
+                        :loading="loading.isLoading"
+                        :opacity="loading.opacity"
+                    />
+                </main>
+            </div>
             <!-- フラッシュメッセージ -->
             <transition name="center-modal">
                 <CenterModal v-if="isFlashMsg">
@@ -175,6 +180,7 @@
                 </CenterModal>
             </transition>
         </div>
+        <TheFooter />
 
         <!-- 問題集への追加（セレクトボックス）-->
         <transition name="select">
@@ -234,33 +240,6 @@
                                     "
                                 />
 
-                                <!-- カテゴリーの選択（セレクトボックス）
-                <FormLabel>
-                  <template>カテゴリー</template>
-                </FormLabel>
-                <div class>
-                  <div
-                    @click="toggleCategorySelected"
-                    :class="categorySelected.isSelect ? 'category-select-close' : 'category-select-open'"
-                    class="flex items-center w-full p-2 border h-3rem relative"
-                  >{{categorySelected.recordText}}</div>
-                  <div
-                    v-if="this.categorySelected.isSelect"
-                    class="h-12rem border overflow-y-scroll absolute bg-white category-selected-size"
-                  >
-                    <div class="text-center">
-                      <div
-                        @click="openCategoryNewAdd"
-                        class="h-2rem leading-8 mt-2 hover:bg-blue-400"
-                      >新規追加</div>
-                      <div
-                        @click="categoryDecision()"
-                        class="h-2rem leading-8 hover:bg-blue-400"
-                      >PHP</div>
-                    </div>
-                  </div>
-                </div> -->
-
                                 <div class="flex justify-end w-full pm-2 mt-3">
                                     <BaseButton
                                         :color="'bg-pink-400'"
@@ -283,70 +262,6 @@
                 </template>
             </CenterModal>
         </transition>
-
-        <!-- カテゴリーの新規作成（モーダル） -->
-        <!-- <transition name="new-problem">
-            <CenterModal v-if="categoryNewAdd.isModal">
-                <template>
-                    <h1
-                        class="bg-primary text-center py-3 text-white text-base m-0 font-bold"
-                    >
-                        新規追加
-                    </h1>
-                    <form>
-                        <div
-                            class="flex flex-col justify-center items-center p-3 box-border h-100"
-                        >
-                            <div
-                                class="w-full pm-2 h-100 flex flex-col justify-center"
-                            >
-                                <div class="h-2.5rem">
-                                    <transition name="validateError">
-                                        <div v-if="categoryNewAdd.errorMsg">
-                                            <p
-                                                v-for="errorMsg in categoryNewAdd
-                                                    .errorMsg.name"
-                                                :key="errorMsg"
-                                                class="text-red-500 text-xs italic m-0 p-1"
-                                            >
-                                                {{ errorMsg }}
-                                            </p>
-                                        </div>
-                                    </transition>
-                                </div>
-                                <FormLabel>
-                                    <template>カテゴリー名</template>
-                                </FormLabel>
-                                <input
-                                    v-model="categoryNewAdd.form.category"
-                                    type="text"
-                                    class="shadow-sm appearance-none border rounded w-full h-2.5rem p-2 focus:outline-none focus:shadow-outline"
-                                />
-                                <div class="flex justify-end w-full pm-2 mt-3">
-                                    <BaseButton
-                                        :color="'bg-pink-400'"
-                                        :text="'text-white'"
-                                        @click.native="categoryNewAddCancel"
-                                    >
-                                        <template>キャンセル</template>
-                                    </BaseButton>
-                                    <BaseButton
-                                        :color="'bg-blue-500'"
-                                        :text="'text-white'"
-                                        @click.native="createCategory"
-                                    >
-                                        <template>追加</template>
-                                    </BaseButton>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </template>
-            </CenterModal>
-        </transition> -->
-
-        <TheFooter />
-        <TheLoading v-if="isLoading" :loading="isLoading" />
     </div>
 </template>
 
@@ -417,7 +332,11 @@ export default {
             text: "問題を作成しました。",
             speed: 2000
         },
-        isLoading: false
+        loading: {
+            isLoading: false,
+            fullPage: false,
+            opacity: 0
+        }
     }),
 
     computed: {
@@ -426,7 +345,8 @@ export default {
         }
     },
 
-    async created() {
+    async mounted() {
+        this.loading.isLoading = true;
         const response = await axios
             .get("/api/problems/create")
             .catch(error => error.response || error);
@@ -438,6 +358,7 @@ export default {
 
         if (response.status === OK) {
             this.exerciseBooks = response.data.exercise_book_list;
+            this.loading.isLoading = false;
             return;
         }
     },

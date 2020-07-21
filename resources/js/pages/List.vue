@@ -1,102 +1,126 @@
 <template>
-    <div class="relative h-100">
-        <div class="h-90">
-            <TheHeader class="h-8 bg-gray-200">
-                <template v-slot:titleName>
-                    <h5 class="m-0">List</h5>
-                </template>
-            </TheHeader>
-            <div class="flex flex-col h-92 text-gray-600">
-                <div class="flex border-b h-5">
-                    <div
-                        @click="exerciseBookShow()"
-                        class="w-1/2 flex justify-center items-center p-2"
-                        :class="exerciseBooks.isShow ? 'active-tab' : ''"
-                    >
-                        問題集
-                    </div>
-                    <div
-                        @click="userShow()"
-                        class="w-1/2 flex justify-center items-center p-2"
-                        :class="user.isShow ? 'active-tab' : ''"
-                    >
-                        ユーザー
-                    </div>
+    <div class="relative min-h-screen flex flex-col">
+        <TheHeader>
+            <template v-slot:titleName>
+                <h5 class="m-0">List</h5>
+            </template>
+        </TheHeader>
+
+        <div class="flex flex-col text-gray-600 flex-1">
+            <div class="flex border-b h-5">
+                <div
+                    @click="exerciseBookShow()"
+                    class="w-1/2 flex justify-center items-center p-2"
+                    :class="exerciseBooks.isShow ? 'active-tab' : ''"
+                >
+                    問題集
                 </div>
-                <main class="w-100 h-95">
-                    <div class="relative h-100 w-100">
-                        <!-- 問題集一覧 -->
-                        <transition name="main">
-                            <div
-                                v-if="exerciseBooks.isShow"
-                                class="flex flex-col items-center w-screen h-100"
-                            >
+                <div
+                    @click="userShow()"
+                    class="w-1/2 flex justify-center items-center p-2"
+                    :class="user.isShow ? 'active-tab' : ''"
+                >
+                    ユーザー
+                </div>
+            </div>
+            <main class="h-100 w-100 ">
+                <div class="relative h-100 w-100">
+                    <!-- 問題集一覧 -->
+                    <transition name="exercisebook">
+                        <div
+                            v-if="exerciseBooks.isShow"
+                            class="flex flex-col items-center w-screen h-100"
+                        >
+                            <div class="sticky top-0 z-50 bg-white">
                                 <BaseSearchBox
+                                    @search="filterExerciseBooks"
+                                    v-model="searchBoxKeyword"
                                     :placeholder="exerciseBooks.placeholder"
-                                    class="mt-4 h-8"
-                                ></BaseSearchBox>
-
-                                <div
-                                    v-if="
-                                        exerciseBooks.isShow &&
-                                            !exerciseBooks.data.length
-                                    "
-                                    class="w-4/5"
-                                >
-                                    作成された問題集はございません。<br />下記のcreateボタンより問題を作成してください。
-                                </div>
-
-                                <div class="scroll-y h-92 w-screen">
-                                    <BaseRecord
-                                        v-for="exerciseBook in exerciseBooks.data"
-                                        :key="exerciseBook.id"
-                                        :padding="'p-3'"
-                                    >
-                                        <template slot="left-contents">
-                                            <span>{{ exerciseBook.name }}</span>
-                                        </template>
-                                        <template slot="right-contents">
-                                            <FontAwesomeIcon
-                                                @click="
-                                                    openProblemsListModal(
-                                                        exerciseBook.id
-                                                    )
-                                                "
-                                                icon="edit"
-                                                class="text-2xl text-gray-600"
-                                            ></FontAwesomeIcon>
-                                        </template>
-                                    </BaseRecord>
-                                </div>
+                                    class="py-4"
+                                />
                             </div>
-                        </transition>
-                        <!-- ユーザ一覧 -->
-                        <transition name="sav">
-                            <div
-                                v-if="user.isShow"
-                                class="flex flex-col items-center h-100 w-100"
-                            >
-                                <div
-                                    class="flex items-center justify-center my-4 h-8 w-screen"
+                            <div v-if="exerciseBooks.emptyFlg" class="w-4/5">
+                                作成された問題集はございません。<br />下記のcreateボタンより問題を作成してください。
+                            </div>
+                            <div v-if="noSearchResults">
+                                検索に該当する問題はございません。
+                            </div>
+
+                            <div class="scroll-y w-screen">
+                                <BaseRecord
+                                    v-for="exerciseBook in exerciseBooks.data"
+                                    :key="exerciseBook.id"
+                                    :padding="'p-3'"
                                 >
-                                    <ChangeTabBtn
-                                        @left-click="followSelected()"
-                                        @right-click="followerSelected()"
-                                        :isLeftActive="user.isFollowTab"
-                                        :isRightActive="user.isFollowerTab"
-                                        :width="'w-4/5'"
+                                    <template slot="left-contents">
+                                        <span>{{ exerciseBook.name }}</span>
+                                    </template>
+                                    <template slot="right-contents">
+                                        <FontAwesomeIcon
+                                            @click="
+                                                openProblemsListModal(
+                                                    exerciseBook.id
+                                                )
+                                            "
+                                            icon="edit"
+                                            class="text-2xl text-gray-600"
+                                        ></FontAwesomeIcon>
+                                    </template>
+                                </BaseRecord>
+                            </div>
+                        </div>
+                    </transition>
+                    <!-- ユーザ一覧 -->
+                    <transition name="user">
+                        <div
+                            v-if="user.isShow"
+                            class="flex flex-col items-center h-100 w-100"
+                        >
+                            <div
+                                class="flex items-center justify-center py-4 w-screen"
+                            >
+                                <ChangeTabBtn
+                                    @left-click="followSelected()"
+                                    @right-click="followerSelected()"
+                                    :isLeftActive="user.isFollowTab"
+                                    :isRightActive="user.isFollowerTab"
+                                    :width="'w-4/5'"
+                                >
+                                    <template v-slot:leftBtnText
+                                        >フォロー</template
                                     >
-                                        <template v-slot:leftBtnText
-                                            >フォロー</template
-                                        >
-                                        <template v-slot:rightBtnText
-                                            >フォロワー</template
-                                        >
-                                    </ChangeTabBtn>
+                                    <template v-slot:rightBtnText
+                                        >フォロワー</template
+                                    >
+                                </ChangeTabBtn>
+                            </div>
+                            <template v-if="user.isFollowerTab">
+                                <BaseRecord
+                                    v-for="user in user.followers"
+                                    :key="user.id"
+                                    :padding="'p-2'"
+                                >
+                                    <template slot="left-contents">
+                                        <font-awesome-icon
+                                            icon="user-circle"
+                                            class="text-3xl mr-3"
+                                        />
+                                        <span @click="goProfile(user.id)">{{
+                                            user.name
+                                        }}</span>
+                                    </template>
+                                </BaseRecord>
+                                <div v-if="user.followersEmptyFlg" class="my-4">
+                                    <p>
+                                        まだフォローされていません。
+                                    </p>
                                 </div>
-                                <template v-if="user.isFollowerTab">
+                            </template>
+
+                            <template v-if="user.isFollowTab">
+                                <div class="scroll-y w-screen h-92">
                                     <BaseRecord
-                                        v-for="user in user.followers"
+                                        v-for="user in user.follows"
                                         :key="user.id"
                                         :padding="'p-2'"
                                     >
@@ -109,81 +133,50 @@
                                                 user.name
                                             }}</span>
                                         </template>
+                                        <template slot="right-contents">
+                                            <BaseBtn
+                                                @click-btn="isFollow(user)"
+                                                :color="
+                                                    followBtnBgColor(
+                                                        user.is_followed_by
+                                                    )
+                                                "
+                                                :text="
+                                                    followBtnTextColor(
+                                                        user.is_followed_by
+                                                    )
+                                                "
+                                                :border-color="
+                                                    followBtnBorderColor(
+                                                        user.is_followed_by
+                                                    )
+                                                "
+                                            >
+                                                <template>{{
+                                                    followBtnText(
+                                                        user.is_followed_by
+                                                    )
+                                                }}</template>
+                                            </BaseBtn>
+                                        </template>
                                     </BaseRecord>
-                                    <div
-                                        v-if="user.followers.length === 0"
-                                        class="my-4"
-                                    >
-                                        <p>
-                                            まだフォローされていません。
-                                        </p>
-                                    </div>
-                                </template>
-
-                                <template v-if="user.isFollowTab">
-                                    <div class="scroll-y w-screen h-92">
-                                        <BaseRecord
-                                            v-for="user in user.follows"
-                                            :key="user.id"
-                                            :padding="'p-2'"
-                                        >
-                                            <template slot="left-contents">
-                                                <font-awesome-icon
-                                                    icon="user-circle"
-                                                    class="text-3xl mr-3"
-                                                />
-                                                <span
-                                                    @click="goProfile(user.id)"
-                                                    >{{ user.name }}</span
-                                                >
-                                            </template>
-                                            <template slot="right-contents">
-                                                <BaseBtn
-                                                    @click-btn="isFollow(user)"
-                                                    :color="
-                                                        followBtnBgColor(
-                                                            user.is_followed_by
-                                                        )
-                                                    "
-                                                    :text="
-                                                        followBtnTextColor(
-                                                            user.is_followed_by
-                                                        )
-                                                    "
-                                                    :border-color="
-                                                        followBtnBorderColor(
-                                                            user.is_followed_by
-                                                        )
-                                                    "
-                                                >
-                                                    <template>{{
-                                                        followBtnText(
-                                                            user.is_followed_by
-                                                        )
-                                                    }}</template>
-                                                </BaseBtn>
-                                            </template>
-                                        </BaseRecord>
-                                    </div>
-                                    <div
-                                        v-if="user.follows.length === 0"
-                                        class="my-4"
-                                    >
-                                        <p>
-                                            まだフォローしていません。
-                                        </p>
-                                    </div>
-                                </template>
-                            </div>
-                        </transition>
-                        <TheLoading
-                            if="loading.isLoading"
-                            :loading="loading.isLoading"
-                        />
-                    </div>
-                </main>
-            </div>
+                                </div>
+                                <div v-if="user.followsEmptyFlg" class="my-4">
+                                    <p>
+                                        まだフォローしていません。
+                                    </p>
+                                </div>
+                            </template>
+                        </div>
+                    </transition>
+                </div>
+            </main>
         </div>
+        <TheLoading
+            v-if="loading.isLoading"
+            :loading="loading.isLoading"
+            class="h-screen"
+        />
         <THeFooter />
 
         <!-- 問題一覧モーダル -->
@@ -255,6 +248,7 @@
 </template>
 
 <script>
+import Common from "../commonMixin";
 import TheHeader from "../components/TheHeader";
 import THeFooter from "../components/TheFooter";
 import TheLoading from "../components/TheLoading";
@@ -273,7 +267,7 @@ library.add(faEdit, faTimes);
 import { OK, INTERNAL_SERVER_ERROR } from "../util";
 
 export default {
-    name: "Search",
+    name: "List",
     components: {
         FontAwesomeIcon,
         TheHeader,
@@ -287,13 +281,16 @@ export default {
         ChangeTabBtn
     },
 
+    mixins: [Common],
+
     data() {
         return {
             exerciseBooks: {
                 isShow: true,
                 placeholder: "問題集の名前を入力",
                 data: [],
-                selecetdId: 0
+                selecetdId: 0,
+                emptyFlg: false
             },
             targetProblems: [],
             user: {
@@ -302,15 +299,20 @@ export default {
                 isFollowTab: true,
                 isFollowerTab: false,
                 follows: [],
+                followsEmptyFlg: false,
                 followers: [],
+                followersEmptyFlg: false,
                 isFollowedBy: true
             },
             isProblemsListModal: false,
             loading: {
                 isLoading: false,
-                fullPage: false
+                fullPage: false,
+                opacity: 0
             },
-            isExerciseBooksDeletedModal: false
+            isExerciseBooksDeletedModal: false,
+            searchBoxKeyword: "",
+            noSearchResults: false
         };
     },
 
@@ -320,20 +322,57 @@ export default {
         }
     },
 
-    mounted() {
-        this.getOwnExerciseBooksAndProblems();
-        this.followSelected();
+    async created() {
+        this.scrollTop();
+        this.loading.isLoading = true;
+        await this.getOwnExerciseBooksAndProblems();
+        await this.followSelected();
+        this.loading.isLoading = false;
     },
 
     methods: {
-        exerciseBookShow() {
-            this.user.isShow = false;
-            this.exerciseBooks.isShow = true;
+        async filterExerciseBooks() {
+            this.scrollTop();
+            this.loading.isLoading = true;
+            await this.getOwnExerciseBooksAndProblems();
+            const obj = this;
+            const currentExerciseBooks = obj.exerciseBooks.data;
+            const filterExerciseBooks = currentExerciseBooks.filter(function(
+                exerciseBook
+            ) {
+                return exerciseBook.name.includes(obj.searchBoxKeyword);
+            });
+
+            if (filterExerciseBooks.length === 0) {
+                this.noSearchResults = true;
+            } else {
+                this.noSearchResults = false;
+            }
+            this.exerciseBooks.data = filterExerciseBooks;
+            this.loading.isLoading = false;
         },
 
-        userShow() {
+        searchBoxReset() {
+            this.searchBoxKeyword = "";
+            this.noSearchResults = false;
+        },
+
+        async exerciseBookShow() {
+            this.scrollTop();
+            this.user.isShow = false;
+            this.exerciseBooks.isShow = true;
+            this.loading.isLoading = true;
+            await this.getOwnExerciseBooksAndProblems();
+            this.loading.isLoading = false;
+        },
+
+        async userShow() {
             this.exerciseBooks.isShow = false;
             this.user.isShow = true;
+            this.searchBoxReset();
+            this.loading.isLoading = true;
+            await this.followSelected();
+            this.loading.isLoading = false;
         },
 
         openProblemsListModal(exerciseBooksId) {
@@ -354,6 +393,7 @@ export default {
         },
 
         async followSelected() {
+            this.scrollTop();
             this.loading.isLoading = true;
             this.user.isFollowTab = true;
             this.user.isFollowerTab = false;
@@ -363,14 +403,20 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log(response.data);
-                this.user.follows = response.data;
+                if (response.data.length) {
+                    this.user.followsEmptyFlg = false;
+                    this.user.follows = response.data;
+                } else {
+                    this.user.follows = [];
+                    this.user.followsEmptyFlg = true;
+                }
                 this.loading.isLoading = false;
                 return;
             }
         },
 
         async followerSelected() {
+            this.scrollTop();
             this.loading.isLoading = true;
             this.user.isFollowTab = false;
             this.user.isFollowerTab = true;
@@ -380,8 +426,13 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log(response.data);
-                this.user.followers = response.data;
+                if (response.data.length) {
+                    this.user.followersEmptyFlg = false;
+                    this.user.followers = response.data;
+                } else {
+                    this.user.followers = [];
+                    this.user.followersEmptyFlg = true;
+                }
                 this.loading.isLoading = false;
                 return;
             }
@@ -426,7 +477,6 @@ export default {
                 .catch(error => response.error || error);
 
             if (response.status === OK) {
-                console.log("削除しました");
                 this.getOwnExerciseBooksAndProblems();
                 this.isExerciseBooksDeletedModal = false;
                 this.isProblemsListModal = false;
@@ -435,16 +485,19 @@ export default {
         },
 
         async getOwnExerciseBooksAndProblems() {
-            this.loading.isLoading = true;
-
             const response = await axios
                 .get("/api/own/exercise-books/problems")
                 .catch(error => response.error || error);
 
             if (response.status === OK) {
-                this.exerciseBooks.data = response.data;
-                this.loading.isLoading = false;
-                return;
+                if (response.data.length) {
+                    this.exerciseBooks.emptyFlg = false;
+                    this.exerciseBooks.data = response.data;
+                    return;
+                } else {
+                    this.exerciseBooks.emptyFlg = true;
+                    return;
+                }
             }
         },
 
@@ -485,28 +538,28 @@ export default {
     transition: border-bottom 0.2s linear;
 }
 
-.main-enter-active,
-.main-leave-active,
-.sav-enter-active,
-.sav-leave-active {
+.exercisebook-enter-active,
+.exercisebook-leave-active,
+.user-enter-active,
+.user-leave-active {
     transition: 0.15s linear;
     position: absolute;
 }
 
-.main-enter,
-.main-leave-to {
+.exercisebook-enter,
+.exercisebook-leave-to {
     transform: translateX(-100%);
 }
-.main-enter-to,
-.sav-enter-to {
+.exercisebook-enter-to,
+.user-enter-to {
     transform: translateX(0);
 }
-.main-leave,
-.sav-leave {
+.exercisebook-leave,
+.user-leave {
     transform: translateX(0);
 }
-.sav-enter,
-.sav-leave-to {
+.user-enter,
+.user-leave-to {
     transform: translateX(100%);
 }
 
