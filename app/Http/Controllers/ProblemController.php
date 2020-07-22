@@ -124,6 +124,6 @@ class ProblemController extends Controller
      */
     public function destroy($problem_id)
     {
-        Problem::find($problem_id)->delete();
+        $this->problem->find($problem_id)->delete();
     }
 }
