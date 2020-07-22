@@ -377,7 +377,7 @@ export default {
         //問題集への追加レコードの文字を変更
         exerciseBookRecordChanged(name) {
             this.form.exerciseBook = name;
-            this.exerciseBookSelected.recordText = this.LengthaAdjustment(name);
+            this.exerciseBookSelected.recordText = this.LengthAdjustment(name);
         },
 
         // 問題集の新規作成モーダルを開く
@@ -447,11 +447,11 @@ export default {
             const targetSelected = String(`${target}Selected`);
             this.form[target] = item;
             this.exerciseBookNewAdd.form[target] = item;
-            this[targetSelected].recordText = this.LengthaAdjustment(item);
+            this[targetSelected].recordText = this.LengthAdjustment(item);
         },
 
         //文字の長さの調整
-        LengthaAdjustment(name) {
+        LengthAdjustment(name) {
             let nameLength = name.length;
             if (nameLength >= 12) {
                 const exerciseBookName = name.substring(0, 12) + "...";

@@ -29,9 +29,7 @@
             </div>
 
             <main class="relative">
-                <div v-if="noSearchResults" class="flex justify-center">
-                    検索に該当する問題はございません。
-                </div>
+                <NoSearchResults v-if="noSearchResults" />
                 <ExerciseBookCard
                     v-for="exerciseBook in exerciseBooks.data"
                     :key="exerciseBook.id"
@@ -57,6 +55,7 @@ import ExerciseBookCard from "../components/ExerciseBookCard";
 import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
+import NoSearchResults from "../components/NoSearchResults";
 
 import { OK, INTERNAL_SERVER_ERROR } from "../util";
 
@@ -68,7 +67,8 @@ export default {
         ExerciseBookCard,
         TheLoading,
         ChangeTabBtn,
-        BaseSearchBox
+        BaseSearchBox,
+        NoSearchResults
     },
 
     mixins: [Common],
