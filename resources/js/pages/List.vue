@@ -42,10 +42,7 @@
                             <div v-if="exerciseBooks.emptyFlg" class="w-4/5">
                                 作成された問題集はございません。<br />下記のcreateボタンより問題を作成してください。
                             </div>
-                            <div v-if="noSearchResults">
-                                検索に該当する問題はございません。
-                            </div>
-
+                            <NoSearchResults v-if="noSearchResults" />
                             <div class="scroll-y w-screen">
                                 <BaseRecord
                                     v-for="exerciseBook in exerciseBooks.data"
@@ -316,6 +313,7 @@ import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import BaseBtn from "../components/BaseButton";
 import BaseRecord from "../components/BaseRecord";
+import NoSearchResults from "../components/NoSearchResults";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -336,7 +334,8 @@ export default {
         BaseSearchBox,
         BaseBtn,
         BaseRecord,
-        ChangeTabBtn
+        ChangeTabBtn,
+        NoSearchResults
     },
 
     mixins: [Common],
