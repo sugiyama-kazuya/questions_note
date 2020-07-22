@@ -16,7 +16,7 @@
                     <div class="flex justify-center w-100">
                         <div class="w-50 relative img-circle">
                             <font-awesome-icon
-                                v-if="!user.profile_img"
+                                v-if="isIconProfileImg"
                                 icon="user-circle"
                                 class="m-0 h-100 w-100 absolute inset-0 img-profile mr-2"
                             />
@@ -96,7 +96,7 @@
                 </div>
             </div>
 
-            <p v-if="isEmpty(exerciseBooks.data)" class="flex justify-center">
+            <p v-if="exerciseBooks.emptyFlg" class="flex justify-center">
                 まだ問題集は作成されていません。
             </p>
 
@@ -107,6 +107,8 @@
                 class="mb-4"
             >
             </ExerciseBookCard>
+
+            <NoSearchResults v-if="noSearchResults" />
         </main>
         <!-- ローディング -->
         <TheLoading
@@ -137,6 +139,7 @@ import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import CenterModal from "../components/CenterModal";
+import NoSearchResults from "../components/NoSearchResults";
 import { INTERNAL_SERVER_ERROR, OK } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
@@ -155,7 +158,8 @@ export default {
         ChangeTabBtn,
         BaseSearchBox,
         CenterModal,
-        FontAwesomeIcon
+        FontAwesomeIcon,
+        NoSearchResults
     },
 
     mixins: [Common],
@@ -164,9 +168,11 @@ export default {
         return {
             exerciseBooks: {
                 placeholder: "問題集を入力",
-                data: []
+                data: [],
+                emptyFlg: false
             },
             user: [],
+            isIconProfileImg: false,
             displayTab: {
                 isOwnExerciseBooks: true,
                 isFavoriteOrder: false
@@ -181,8 +187,8 @@ export default {
                 opacity: 0
             },
             isFollowedBy: false,
-            followingsCount: 0,
-            followersCount: 0,
+            followingsCount: "",
+            followersCount: "",
             flashMsg: {
                 text: "登録が完了しました。",
                 speed: 2000
@@ -209,6 +215,18 @@ export default {
         },
         isFlashMsg() {
             return this.$store.state.flashMessage.visible;
+        },
+
+        isProfileImgEmpty() {
+            return this.user.profile_img
+                ? (this.isIconProfileImg = false)
+                : (this.isIconProfileImg = true);
+        },
+
+        isExerciseBooksEmpty() {
+            this.exerciseBooks.data.length === 0
+                ? (this.exerciseBooks.emptyFlg = true)
+                : (this.exerciseBooks.emptyFlg = false);
         }
     },
 
@@ -232,8 +250,8 @@ export default {
     async created() {
         this.scrollTop();
         this.loading.isLoading = true;
-        await this.getOwnExercizeBooks();
         await this.getUser();
+        await this.getOwnExercizeBooks();
         this.loading.isLoading = false;
 
         // フラッシュメッセージがある場合
@@ -253,6 +271,7 @@ export default {
                 .catch(error => error.response || error);
 
             this.user = response.data.user;
+            this.isProfileImgEmpty;
             this.followersCount = response.data.user.followers_count;
             this.followingsCount = response.data.user.followings_count;
             this.isFollowedBy = response.data.user.is_followed_by;
@@ -267,7 +286,11 @@ export default {
                 this.$router.push("/500");
             }
 
-            this.exerciseBooks.data = response.data.exercise_books;
+            if (response.status === OK) {
+                this.exerciseBooks.data = response.data.exercise_books;
+                this.isExerciseBooksEmpty;
+                return;
+            }
         },
 
         async ownExerciseBooks() {
