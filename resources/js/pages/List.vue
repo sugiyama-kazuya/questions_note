@@ -53,7 +53,11 @@
                                     :padding="'p-3'"
                                 >
                                     <template slot="left-contents">
-                                        <span>{{ exerciseBook.name }}</span>
+                                        <span>{{
+                                            exerciseBookLengthAdjustment(
+                                                exerciseBook.name
+                                            )
+                                        }}</span>
                                     </template>
                                     <template slot="right-contents">
                                         <FontAwesomeIcon
@@ -188,12 +192,12 @@
                 :height="'h-60'"
             >
                 <div class="flex items-center h-10 bg-blue-300 text-white">
-                    <div class="flex justify-between items-center px-2 w-5/6">
+                    <div class="flex justify-between items-center p-2 w-5/6">
                         <span class="px-2">問題一覧</span>
                         <BaseBtn
-                            @click-btn="goDeletedValidation()"
+                            @click-btn="openDeletedValidation()"
                             :color="'bg-red-400'"
-                            >削除</BaseBtn
+                            >問題集の削除</BaseBtn
                         >
                     </div>
                     <div class="flex justify-center items-center w-1/6">
@@ -205,20 +209,41 @@
                     </div>
                 </div>
                 <div class="h-90 py-3 overflow-y-scroll">
-                    <BaseRecord
-                        v-for="problem in targetProblems"
-                        :key="problem.id"
-                        :padding="'p-3'"
+                    <div v-if="isTargetProblems">
+                        <BaseRecord
+                            v-for="problem in targetProblems"
+                            :key="problem.id"
+                            :padding="'p-3'"
+                        >
+                            <template slot="left-contents">
+                                <span>{{
+                                    problemLengthAdjustment(problem.content)
+                                }}</span>
+                            </template>
+                            <template slot="right-contents">
+                                <BaseBtn
+                                    @click-btn="goProblemEdit(problem.id)"
+                                    class="mr-2"
+                                >
+                                    <template>編集</template>
+                                </BaseBtn>
+                                <BaseBtn
+                                    @click-btn="
+                                        openProblemDeletedValidation(problem.id)
+                                    "
+                                    :color="'bg-red-400'"
+                                >
+                                    <template>削除</template>
+                                </BaseBtn>
+                            </template>
+                        </BaseRecord>
+                    </div>
+                    <div
+                        v-if="!isTargetProblems"
+                        class="text-center text-gray-600 mt-4"
                     >
-                        <template slot="left-contents">
-                            <span>{{ problem.content }}</span>
-                        </template>
-                        <template slot="right-contents">
-                            <BaseBtn @click-btn="goProblemEdit(problem.id)">
-                                <template>編集</template>
-                            </BaseBtn>
-                        </template>
-                    </BaseRecord>
+                        <p>作成された問題はございません。</p>
+                    </div>
                 </div>
             </CenterModal>
         </transition>
@@ -237,10 +262,43 @@
                         <BaseBtn
                             @click-btn="deleteExerciseBooks()"
                             :color="'bg-red-400'"
+                            class="ml-2"
                         >
                             <template>削除</template>
                         </BaseBtn>
                     </div>
+                </div>
+            </CenterModal>
+        </transition>
+
+        <!-- 問題削除確認モーダル -->
+        <transition name="center-modal">
+            <CenterModal v-if="isProblemDeletedModal">
+                <div class="p-3 bg-gray-100">
+                    <div class="py-2">
+                        この問題を削除します。よろしいですか？
+                    </div>
+                    <div class="flex justify-end p-2">
+                        <BaseBtn @click-btn="closeProblemDeletedValidation()">
+                            <template>戻る</template>
+                        </BaseBtn>
+                        <BaseBtn
+                            @click-btn="deleteProblem()"
+                            :color="'bg-red-400'"
+                            class="ml-2"
+                        >
+                            <template>削除</template>
+                        </BaseBtn>
+                    </div>
+                </div>
+            </CenterModal>
+        </transition>
+
+        <!-- フラッシュメッセージ -->
+        <transition name="center-modal">
+            <CenterModal v-if="isFlashMsg">
+                <div class="p-2 bg-gray-800 text-white rounded-md">
+                    {{ flashMsg.text }}
                 </div>
             </CenterModal>
         </transition>
@@ -293,6 +351,7 @@ export default {
                 emptyFlg: false
             },
             targetProblems: [],
+            problemSelectedId: 0,
             user: {
                 isShow: false,
                 placeholder: "ユーザー名を入力",
@@ -311,14 +370,39 @@ export default {
                 opacity: 0
             },
             isExerciseBooksDeletedModal: false,
+            isProblemDeletedModal: false,
             searchBoxKeyword: "",
-            noSearchResults: false
+            noSearchResults: false,
+            flashMsg: {
+                text: "問題集を削除しました",
+                speed: 2000
+            }
         };
     },
 
     computed: {
         loginUserId() {
             return this.$store.state.auth.user.id;
+        },
+
+        isFlashMsg() {
+            return this.$store.state.flashMessage.visible;
+        },
+
+        isTargetProblems() {
+            return this.targetProblems.length ? true : false;
+        },
+
+        problemLengthAdjustment: function() {
+            return function(name) {
+                return name.length > 8 ? name.substring(0, 8) + "..." : name;
+            };
+        },
+
+        exerciseBookLengthAdjustment: function() {
+            return function(name) {
+                return name.length >= 12 ? name.substring(0, 12) + "..." : name;
+            };
         }
     },
 
@@ -463,12 +547,22 @@ export default {
             }
         },
 
-        goDeletedValidation() {
+        openDeletedValidation() {
             this.isExerciseBooksDeletedModal = true;
         },
 
         closeDeletedValidation() {
             this.isExerciseBooksDeletedModal = false;
+        },
+
+        openProblemDeletedValidation(problemId) {
+            this.isProblemDeletedModal = true;
+            this.problemSelectedId = problemId;
+        },
+
+        closeProblemDeletedValidation() {
+            this.isProblemDeletedModal = false;
+            this.problemSelectedId = 0;
         },
 
         async deleteExerciseBooks() {
@@ -477,9 +571,41 @@ export default {
                 .catch(error => response.error || error);
 
             if (response.status === OK) {
-                this.getOwnExerciseBooksAndProblems();
+                this.loading.isLoading = true;
+                await this.getOwnExerciseBooksAndProblems();
+                this.loading.isLoading = false;
                 this.isExerciseBooksDeletedModal = false;
                 this.isProblemsListModal = false;
+                await this.$store.dispatch("flashMessage/showFlashMsg", true);
+                await this.$store.dispatch(
+                    "flashMessage/hideFlashMsg",
+                    this.flashMsg.speed
+                );
+                return;
+            }
+
+            if (response.status === INTERNAL_SERVER_ERROR) {
+                this.$router.push("/500");
+                return;
+            }
+        },
+
+        async deleteProblem() {
+            const response = await axios
+                .delete(`/api/problems/${this.problemSelectedId}`)
+                .catch(error => response.error);
+
+            if (response.status === OK) {
+                this.closeProblemDeletedValidation();
+                this.loading.isLoading = true;
+                await this.getOwnExerciseBooksAndProblems();
+                await this.setProblem(this.exerciseBooks.selecetdId);
+                this.loading.isLoading = false;
+                return;
+            }
+
+            if (response.status === INTERNAL_SERVER_ERROR) {
+                this.$router.push("/500");
                 return;
             }
         },
