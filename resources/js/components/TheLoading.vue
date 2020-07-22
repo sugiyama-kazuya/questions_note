@@ -6,6 +6,7 @@
         color="#007bff"
         :opacity="opacity ? opacity : 0"
         :background-color="backgroundColor ? backgroundColor : ''"
+        class="most-preferred"
     ></loading>
 </template>
 
@@ -39,3 +40,9 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.most-preferred {
+    z-index: 9999;
+}
+</style>
