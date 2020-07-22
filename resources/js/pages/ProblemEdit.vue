@@ -2,6 +2,13 @@
     <div class="h-100 relative">
         <div class="h-90">
             <TheHeader class="h-8">
+                <template v-slot:leftSide>
+                    <font-awesome-icon
+                        icon="arrow-left"
+                        class="text-3xl text-white"
+                        @click="historyBack()"
+                    ></font-awesome-icon>
+                </template>
                 <template v-slot:titleName>
                     <h5 class="m-0">edit</h5>
                 </template>
@@ -281,10 +288,11 @@ import {
     faClipboardList,
     faTimes,
     faBook,
-    faSearch
+    faSearch,
+    faArrowLeft
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-library.add(faAngleRight, faClipboardList, faTimes, faBook);
+library.add(faAngleRight, faClipboardList, faTimes, faBook, faArrowLeft);
 
 export default {
     name: "ProblemEdit",
@@ -478,6 +486,10 @@ export default {
                     exerciseBook: ""
                 }
             };
+        },
+
+        historyBack() {
+            this.$router.go(-1);
         }
     }
 };
