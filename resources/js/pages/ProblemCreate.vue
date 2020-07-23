@@ -12,7 +12,7 @@
                     <button
                         type="submit"
                         form="createForm"
-                        class="bg-primary text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none"
+                        class="bg-blue-400 text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none outline-none focus:bg-blue-400"
                     >
                         作成
                     </button>
@@ -40,7 +40,7 @@
                             </transition>
                             <FormTextarea
                                 v-model="form.problem"
-                                :placeholder="'問題文'"
+                                :placeholder="'問題文 ＊200文字以内入力可'"
                             ></FormTextarea>
 
                             <div class="flex justify-between px-3 items-center">
@@ -73,7 +73,7 @@
                             </transition>
                             <FormTextarea
                                 v-model="form.answer"
-                                :placeholder="'解答文'"
+                                :placeholder="'解答文 ＊200文字以内入力可'"
                             ></FormTextarea>
                             <div class="flex justify-between px-3 items-center">
                                 <p class="m-0">画像を選択</p>
@@ -134,16 +134,14 @@
                                 <div class="py-2 px-4">
                                     <font-awesome-icon
                                         icon="book"
-                                        class="text-3xl text-gray-400 text-primary"
+                                        class="text-3xl text-blue-400"
                                     />
                                 </div>
                                 <div
                                     @click="openSelectedExerciseBook"
                                     class="flex justify-between w-full items-center"
                                 >
-                                    <FormLabel>
-                                        <template>問題集への追加</template>
-                                    </FormLabel>
+                                    <span>問題集への追加</span>
                                     <div class="mr-8 flex items-center">
                                         <p class="m-0 mr-3">
                                             {{
@@ -190,7 +188,7 @@
                 @selected="exerciseBookRecordChanged"
                 @close="closeSelectedExerciseBook"
             >
-                <template v-slot:title>問題集の追加</template>
+                <template v-slot:title class="py-2">問題集の追加</template>
                 <template v-slot:add-list>
                     <li
                         @click="openExerciseBookNewAdd"
@@ -207,7 +205,7 @@
             <CenterModal v-if="exerciseBookNewAdd.isModal">
                 <template>
                     <h1
-                        class="bg-primary text-center py-3 text-white text-base m-0 font-bold"
+                        class="bg-blue-400 text-center py-3 text-white text-base m-0 font-bold"
                     >
                         新規追加
                     </h1>
@@ -218,7 +216,7 @@
                             <div
                                 class="w-full pm-2 h-100 flex flex-col justify-center"
                             >
-                                <div class>
+                                <div class="py-2">
                                     <transition name="validateError">
                                         <div v-if="exerciseBookNewAdd.errorMsg">
                                             <p
@@ -231,7 +229,7 @@
                                         </div>
                                     </transition>
                                 </div>
-                                <FormLabel>
+                                <FormLabel class="mb-1">
                                     <template>問題集の名前</template>
                                 </FormLabel>
                                 <FormText
@@ -249,9 +247,10 @@
                                         <template>キャンセル</template>
                                     </BaseButton>
                                     <BaseButton
-                                        :color="'bg-blue-500'"
+                                        :color="'bg-blue-400'"
                                         :text="'text-white'"
                                         @click.native="createExerciseBook"
+                                        class="ml-2"
                                     >
                                         <template>追加</template>
                                     </BaseButton>
