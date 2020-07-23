@@ -24,7 +24,7 @@ class CreateExerciseBook extends FormRequest
     public function rules()
     {
         return [
-            'exerciseBook' => ['required'],
+            'exerciseBook' => 'required|max:50'
         ];
     }
 }
