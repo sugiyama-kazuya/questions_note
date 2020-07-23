@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Problem;
 use App\ExerciseBook;
 use App\Http\Requests\CreateProblem;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateProblem;
+use Illuminate\Support\Facades\DB;
 
 class ProblemController extends Controller
 {
@@ -26,13 +25,12 @@ class ProblemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(ExerciseBook $exercise_book)
+    public function create()
     {
-        // ログインユーザーの問題集を取得
-        $exercise_book_list = $exercise_book->loginUserExerciseBook;
+        $exercise_books = $this->exercise_book->loginUserExerciseBook;
 
         return response()->json([
-            'exercise_book_list' => $exercise_book_list,
+            'exercise_book_list' => $exercise_books,
         ]);
     }
 
@@ -44,42 +42,27 @@ class ProblemController extends Controller
      */
     public function store(CreateProblem $request)
     {
-        $exercise_book = $this->exercise_book->fetchOrRegister($request);
-
-        $this->problem->newRegister($request, $exercise_book);
+        DB::transaction(function () use ($request) {
+            $exercise_book = $this->exercise_book->fetchOrRegister($request);
+            $this->problem->newRegister($request, $exercise_book);
+        });
     }
 
     /**
      * 問題画面の表示
      *
-     * @param  int  $exercise_books_id
+     * @param  [string]  $exercise_books_id
      * @return \Illuminate\Http\Response
      */
     public function show($exercise_books_id)
     {
+        $problems = $this->problem->where('exercise_book_id', $exercise_books_id)->get();
 
-        $problem_data = Problem::where('exercise_book_id', $exercise_books_id)->get();
-
-        // 取得する問題がない場合
-        if ($problem_data->isEmpty()) {
+        if ($problems->isEmpty()) {
             return response()->json(['exercise_books' => null]);
         } else {
-            $user_id = $problem_data->map(function ($data) {
-                return $data->user_id;
-            });
-
-            $problem_data = $problem_data->map(function ($data) {
-                $problem_data = $data;
-                Arr::except($problem_data, ['user_id']);
-                return $problem_data;
-            });
-
-            $problem_count = $problem_data->count('id');
-
-            $problem_data = Arr::add(['problems' => $problem_data], 'count', $problem_count);
-            $problem_data['user_id'] = $user_id[0];
-
-            return response()->json(['exercise_books' => $problem_data]);
+            $problems = $this->problem->addUserIdAndProblemsCount($problems);
+            return response()->json(['exercise_books' => $problems]);
         }
     }
 
@@ -92,27 +75,25 @@ class ProblemController extends Controller
      */
     public function update($id, UpdateProblem $request)
     {
-        $exercise_book = $this->exercise_book->fetchOrRegister($request);
-
-        $this->problem->problemUpdate($id, $request, $exercise_book);
+        DB::transaction(function () use ($id, $request) {
+            $exercise_book = $this->exercise_book->fetchOrRegister($request);
+            $this->problem->problemUpdate($id, $request, $exercise_book);
+        });
     }
 
     /**
      * 問題編集画面の情報
      *
-     * @param [type] $id
+     * @param [string] $id
      * @return void
      */
     public function edit($id)
     {
         $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->first();
-
-        // ログインユーザーの問題集を取得
-        $exercise_book_list = $this->exercise_book->loginUserExerciseBook;
-
+        $exercise_books = $this->exercise_book->loginUserExerciseBook;
         return response()->json([
             'problem' => $problem,
-            'exercise_book_list' => $exercise_book_list,
+            'exercise_book_list' => $exercise_books,
         ]);
     }
 
