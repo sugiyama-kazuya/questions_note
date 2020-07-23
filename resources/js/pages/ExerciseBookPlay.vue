@@ -467,7 +467,7 @@ export default {
             if (response.status === OK) {
                 const exerciseBooks = response.data.exercise_books;
                 this.normal.problemData = exerciseBooks.problems;
-                this.normal.count = exerciseBooks.count;
+                this.normal.count = exerciseBooks.problems_count;
                 this.userId = exerciseBooks.user_id;
                 this.isProblemEmpty;
                 return;
