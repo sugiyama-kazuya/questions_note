@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBook;
-use Illuminate\Support\Facades\Auth;
 
 class ExerciseBookController extends Controller
 {

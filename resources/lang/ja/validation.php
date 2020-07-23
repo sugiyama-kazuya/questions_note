@@ -79,7 +79,7 @@ return [
     'max'                  => [
         'numeric' => ':attributeには、:max以下の数字を指定してください。',
         'file'    => ':attributeには、:max kB以下のファイルを指定してください。',
-        'string'  => ':attributeは、:max文字以下で指定してください。',
+        'string'  => ':attributeは:max文字以内で入力してください。',
         'array'   => ':attributeは:max個以下指定してください。',
     ],
     'mimes'                => ':attributeには:valuesタイプのファイルを指定してください。',
@@ -95,7 +95,7 @@ return [
     'numeric'              => ':attributeには、数字を指定してください。',
     'present'              => ':attributeが存在していません。',
     'regex'                => ':attributeに正しい形式を指定してください。',
-    'required'             => ':attributeは必ず指定してください。',
+    'required'             => ':attributeを入力してください。',
     'required_if'          => ':otherが:valueの場合、:attributeも指定してください。',
     'required_unless'      => ':otherが:valuesでない場合、:attributeを指定してください。',
     'required_with'        => ':valuesを指定する場合は、:attributeも指定してください。',
@@ -114,7 +114,7 @@ return [
     'timezone'             => ':attributeには、有効なゾーンを指定してください。',
     'unique'               => ':attributeの値は既に存在しています。',
     'uploaded'             => ':attributeのアップロードに失敗しました。',
-    'url'                  => ':attributeに正しい形式を指定してください。',
+    'url'                  => ':attributeを正しく入力してください',
     'uuid'                 => ':attributeに有効なUUIDを指定してください。',
 
     /*
@@ -148,7 +148,11 @@ return [
     'attributes' => [
         'name' => '名前',
         'email' => 'メールアドレス',
-        'password' => 'パスワード'
+        'password' => 'パスワード',
+        'url' => 'URL',
+        'exerciseBook' => '問題集',
+        'problem' => '問題',
+        'answer' => '解答'
     ],
 
 ];
