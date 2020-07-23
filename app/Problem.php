@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 
 class Problem extends Model
 {
@@ -56,5 +57,24 @@ class Problem extends Model
             'user_id' => Auth::id(),
             'exercise_book_id' => $exercise_book->id,
         ])->update();
+    }
+
+    /**
+     * user_idと問題数を追加する
+     *
+     * @param [object] $problems
+     * @return object
+     */
+    public function addUserIdAndProblemsCount($problems)
+    {
+        $user_id = $problems->map(function ($problem) {
+            return $problem->user_id;
+        });
+
+        $problems_count = $problems->count('id');
+        $problems = Arr::add(['problems' => $problems], 'problems_count', $problems_count);
+        $problems['user_id'] = $user_id[0];
+
+        return $problems;
     }
 }
