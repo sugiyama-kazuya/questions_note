@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -37,7 +37,7 @@ class UserController extends Controller
         }
 
         // ログインユーザー自身のページの場合、それ以外のページの場合
-        if ($login_user_id === (int) $user_id) {
+        if ($login_user_id === $user_id) {
             $current_user = $this->user->getProfileRequiredData($user_id);
         } else {
             $current_user = $this->user->getProfileRequiredData($user_id);
@@ -46,20 +46,25 @@ class UserController extends Controller
         return response()->json(['user' => $current_user]);
     }
 
+    /**
+     * 編集画面
+     *
+     * @param [string] $user_id
+     * @return void
+     */
     public function edit($user_id)
     {
         $user = $this->user->find($user_id);
 
         if ($user->profile_img) {
-            $file_path = $user->awsUrlFetch($user->profile_img);
-            $user->profile_img = $file_path;
+            $user->profile_img = $user->awsUrlFetch($user->profile_img);
         }
 
-        return $user;
+        return response()->json(['user' => $user]);
     }
 
     /**
-     * プロフィール編集
+     * プロフィール編集の更新
      *
      * @param ProfileRequest $request
      * @param User $user
@@ -71,29 +76,21 @@ class UserController extends Controller
             $extension = $request->file->extension();
             $file_path = $user->getRandomId() . '.' . $extension;
 
-            // S3にファイルを保存する。第３引数の名前で第2引数を保存する
-            Storage::cloud()->putFileAs('', $request->file, $file_path, 'public');
-
             DB::beginTransaction();
-
             try {
-                $user->findOrFail(Auth::id())->fill([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'profile_img' => $file_path
-                ])->save();
+                $this->saveFileToS3($request->file, $file_path);
+                $this->profileUpdate($request, $file_path);
                 DB::commit();
             } catch (\Exception $exception) {
+                Log::debug($exception->getMessage());
                 DB::rollback();
-                Storage::cloud()->delete($user->profile_img);
-                throw $exception;
+                Storage::cloud()->delete($this->user->profile_img);
+                return abort(500);
             }
         } else {
-            $user->findOrFail(Auth::id())->fill([
-                'name' => $request->name,
-                'email' => $request->email,
-            ])->save();
+            $this->profileUpdate($request);
         }
+
         return http_response_code(200);
     }
 }

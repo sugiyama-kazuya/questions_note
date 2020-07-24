@@ -29,7 +29,6 @@ class ProfileRequest extends FormRequest
             'name' => '名前',
             'email' => 'メールアドレス',
             'file' => '画像'
-
         ];
     }
 
@@ -41,7 +40,7 @@ class ProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'min:1', 'max:50', Rule::unique('users')->ignore(Auth::id())],
+            'name' => ['required', 'max:50', Rule::unique('users')->ignore(Auth::id())],
             'email' => ['required', 'email'],
             'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif']
         ];

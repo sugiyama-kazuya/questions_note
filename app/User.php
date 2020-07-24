@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -175,5 +176,41 @@ class User extends Authenticatable
             $user['is_followed_by'] = $user->isFollowedBy($user_id);
             return $user;
         });
+    }
+
+    /**
+     * S3にファイルを保存する。
+     *
+     * @param [type] $file
+     * @param [type] $file_path
+     * @return void
+     */
+    public function saveFileToS3($file, $file_path)
+    {
+        // 第３引数の名前で第2引数を保存する
+        Storage::cloud()->putFileAs('', $file, $file_path, 'public');
+    }
+
+    /**
+     * プロフィールの更新
+     *
+     * @param [object] $request
+     * @param [string] $file_path
+     * @return void
+     */
+    public function profileUpdate($request, $file_path)
+    {
+        if ($file_path) {
+            $this->findOrFail(Auth::id())->fill([
+                'name' => $request->name,
+                'email' => $request->email,
+                'profile_img' => $file_path
+            ])->save();
+        } else {
+            $this->findOrFail(Auth::id())->fill([
+                'name' => $request->name,
+                'email' => $request->email,
+            ])->save();
+        }
     }
 }

@@ -23,7 +23,6 @@ class ExerciseBookController extends Controller
     {
         $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()->get();
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
-
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
 
