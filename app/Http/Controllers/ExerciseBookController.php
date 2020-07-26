@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBook;
+use Illuminate\Support\Facades\Log;
 
 class ExerciseBookController extends Controller
 {
@@ -15,13 +16,14 @@ class ExerciseBookController extends Controller
     }
 
     /**
-     * 問題一覧のデータを取得
+     * 問題集一覧のデータを取得
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
         $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()->get();
+        $exercise_books = $this->exercise_book->addNewlyProblemCreatedAt($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
@@ -50,6 +52,7 @@ class ExerciseBookController extends Controller
     {
         $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()
             ->where('user_id', $user_id)->get();
+        $exercise_books = $this->exercise_book->addNewlyProblemCreatedAt($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
