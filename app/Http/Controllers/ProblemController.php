@@ -30,7 +30,7 @@ class ProblemController extends Controller
         $exercise_books = $this->exercise_book->loginUserExerciseBook;
 
         return response()->json([
-            'exercise_book_list' => $exercise_books,
+            'exercise_books' => $exercise_books,
         ]);
     }
 
