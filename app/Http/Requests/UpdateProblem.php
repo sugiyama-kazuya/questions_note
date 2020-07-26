@@ -24,10 +24,17 @@ class UpdateProblem extends FormRequest
     public function rules()
     {
         return [
-            'problem' => 'required|max:255',
-            'answer' => 'required|max:255',
-            'url' => 'url',
+            'problem' => 'required|max:200',
+            'answer' => 'required|max:200',
+            'url' => 'nullable|url',
             'exerciseBook' => 'required'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'exerciseBook.required' => '問題集を選択してください。'
         ];
     }
 }

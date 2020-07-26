@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class CreateProblem extends FormRequest
 {
@@ -27,7 +26,7 @@ class CreateProblem extends FormRequest
     {
         return [
             'problem' => 'required|max:200',
-            'answer' => 'required|max:100',
+            'answer' => 'required|max:200',
             'url' => 'nullable|url',
             'exerciseBook' => 'required'
         ];
