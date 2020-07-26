@@ -103,8 +103,14 @@
                                 >
                                     <template slot="left-contents">
                                         <font-awesome-icon
+                                            v-if="!user.profile_img"
                                             icon="user-circle"
                                             class="text-3xl mr-3"
+                                        />
+                                        <img
+                                            v-if="user.profile_img"
+                                            class="h-2rem w-2rem mr-3 bg-cover img-profile"
+                                            :src="user.profile_img"
                                         />
                                         <span @click="goProfile(user.id)">{{
                                             user.name
@@ -127,9 +133,16 @@
                                     >
                                         <template slot="left-contents">
                                             <font-awesome-icon
+                                                v-if="!user.profile_img"
                                                 icon="user-circle"
                                                 class="text-3xl mr-3"
                                             />
+                                            <img
+                                                v-if="user.profile_img"
+                                                class="h-2rem w-2rem mr-3 bg-cover img-profile"
+                                                :src="user.profile_img"
+                                            />
+
                                             <span @click="goProfile(user.id)">{{
                                                 user.name
                                             }}</span>
@@ -702,5 +715,9 @@ export default {
     overflow-y: scroll;
     transform: translateZ(0);
     box-sizing: border-box;
+}
+
+.img-profile {
+    border-radius: 50%;
 }
 </style>
