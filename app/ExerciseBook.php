@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Log;
 
 class ExerciseBook extends Model
 {
@@ -16,8 +15,6 @@ class ExerciseBook extends Model
     const UPDATED_AT = 'updated_at';
 
     protected $table = 'exercise_books';
-
-    public $timestamps = false;
 
     protected $dateFormat = "Y/m/d";
 
@@ -106,7 +103,7 @@ class ExerciseBook extends Model
      */
     public function fetchExerciseBookCardBaseData(): Object
     {
-        return $this->with(['user:id,name,profile_img', 'likes']);
+        return $this->with(['user:id,name,profile_img', 'likes', 'problem']);
     }
 
     /**
@@ -148,13 +145,13 @@ class ExerciseBook extends Model
 
         if ($login_user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
+                return $data->only(['id', 'newly_problem_created_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
             });
 
             return $exercise_books;
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'updated_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
+                return $data->only(['id', 'newly_problem_created_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
             });
         }
     }
@@ -173,6 +170,8 @@ class ExerciseBook extends Model
             [
                 'name' => $request->exerciseBook,
                 'user_id' => Auth::id(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ]
         );
     }
@@ -183,11 +182,27 @@ class ExerciseBook extends Model
      * @param [Object] $exercise_books
      * @return object
      */
-    public function addProfileUrl(object $exercise_books): object
+    public function addProfileUrl($exercise_books)
     {
         return $exercise_books->map(function ($exercise_book) {
             $data = $exercise_book;
             $data['profile_img'] = $exercise_book->user->awsUrlFetch($exercise_book->user->profile_img);
+            return $data;
+        });
+    }
+
+    /**
+     * 問題集の直近に作成された問題の日付を取得して追加する
+     *
+     * @param [type] $exercise_books
+     * @return void
+     */
+    public function addNewlyProblemCreatedAt($exercise_books)
+    {
+        return $exercise_books->map(function ($exercise_book) {
+            $data = $exercise_book;
+            $newly_problem = $exercise_book->problem->last();
+            $data['newly_problem_created_at'] = $newly_problem['created_at'];
             return $data;
         });
     }
