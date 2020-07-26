@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\User;
 
 class OwnFollowersController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * 自身のフォロワーを取得
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -17,6 +15,7 @@ class OwnFollowersController extends Controller
     public function __invoke($user_id, User $user)
     {
         $users = $user->find($user_id)->followers;
+        $users = $user->addProfileUrl($users);
         return $users;
     }
 }
