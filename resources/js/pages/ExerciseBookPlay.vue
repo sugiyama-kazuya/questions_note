@@ -102,7 +102,7 @@
                                             v-if="
                                                 currentProblemData.problemData[
                                                     orderNumber
-                                                ]
+                                                ] && !isProblemEmptyFlg
                                             "
                                             :href="
                                                 currentProblemData.problemData[
@@ -255,14 +255,7 @@
                             </div>
                             <div class="flex justify-center p-2">
                                 <CenterModalBtn
-                                    @click.native="deleteProblem"
-                                    :text="'作成画面へ'"
-                                    class="mr-2"
-                                />
-                                <CenterModalBtn
-                                    @click.native="
-                                        deleteConfimationModal = false
-                                    "
+                                    @click.native="goExerciseBooksIndex()"
                                     :text="'一覧へ戻る'"
                                     :color="'bg-blue-400'"
                                 />
@@ -353,6 +346,7 @@ import {
     faExchangeAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import commonMixin from "../commonMixin";
 library.add(faTimes, faEllipsisV, faArrowLeft, faExchangeAlt);
 
 export default {
@@ -366,6 +360,8 @@ export default {
         CenterModalBtn,
         BaseButton
     },
+
+    mixins: [commonMixin],
 
     data() {
         return {
@@ -431,12 +427,6 @@ export default {
                 ? true
                 : false;
         },
-        // 問題の有無
-        isProblemEmpty() {
-            return this.currentProblemData.count === null
-                ? (this.isProblemEmptyFlg = true)
-                : (this.isProblemEmptyFlg = false);
-        },
         // フラッシュメッセージの有無
         isFlashMsg() {
             return this.$store.state.flashMessage.visible;
@@ -450,7 +440,6 @@ export default {
         this.loading.isLoading = true;
         await this.getProblems();
         this.loading.isLoading = false;
-        console.log(this.currentProblemData.problemData[0]["url"]);
     },
 
     methods: {
@@ -466,10 +455,13 @@ export default {
 
             if (response.status === OK) {
                 const exerciseBooks = response.data.exercise_books;
+                if (exerciseBooks === null) {
+                    this.isProblemEmptyFlg = true;
+                    return;
+                }
                 this.normal.problemData = exerciseBooks.problems;
                 this.normal.count = exerciseBooks.problems_count;
                 this.userId = exerciseBooks.user_id;
-                this.isProblemEmpty;
                 return;
             }
         },
@@ -626,6 +618,13 @@ export default {
             ].id;
             console.log(problemId);
             this.$router.push(`/problems/${problemId}/edit`);
+        },
+
+        // 問題の有無
+        isProblemEmpty() {
+            this.currentProblemData.count === null
+                ? (this.isProblemEmptyFlg = true)
+                : (this.isProblemEmptyFlg = false);
         }
     }
 };

@@ -6,12 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class Problem extends Model
 {
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+
     protected $fillable = [
         'content', 'answer', 'user_id', 'exercise_book_id', 'url'
     ];
+
+    protected $dateFormat = "Y/m/d";
 
     public function exerciseBook(): BelongsTo
     {
@@ -19,8 +25,20 @@ class Problem extends Model
     }
 
     protected $hidden = [
-        'created_at', 'user_id', 'exercise_book_id'
+        'created_at', 'updated_at', 'user_id', 'exercise_book_id'
     ];
+
+    /**
+     * 日付のフォーマットを変更
+     *
+     * @param $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value): string
+    {
+        return Carbon::parse($value)->format("Y/m/d");
+    }
+
 
     /**
      * 問題と答えの新規登録

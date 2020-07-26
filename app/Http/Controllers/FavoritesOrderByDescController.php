@@ -14,6 +14,7 @@ class FavoritesOrderByDescController extends Controller
     public function __invoke(ExerciseBook $exercise_book)
     {
         $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()->get();
+        $exercise_books = $exercise_book->addNewlyProblemCreatedAt($exercise_books);
         $exercise_books = $exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $exercise_book->filteringExerciseBookCard($exercise_books);

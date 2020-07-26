@@ -14,6 +14,10 @@ export default {
                 this.$router.push("/500");
                 return;
             }
+        },
+
+        goExerciseBooksIndex() {
+            this.$router.push("/exercise-books");
         }
     }
 };

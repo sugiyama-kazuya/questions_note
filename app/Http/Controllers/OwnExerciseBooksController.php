@@ -12,10 +12,10 @@ class OwnExerciseBooksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __invoke()
+    public function __invoke(ExerciseBook $exercise_book)
     {
         $login_user = Auth::id();
-        $exercise_books = ExerciseBook::with(['problem'])->where('user_id', $login_user)->get();
+        $exercise_books = $exercise_book->with(['problem'])->where('user_id', $login_user)->get();
         return $exercise_books;
     }
 }

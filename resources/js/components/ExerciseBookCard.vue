@@ -41,7 +41,9 @@
                 />
                 <span>{{ count }}</span>
             </div>
-            <div class="w-1/3 text-right">{{ cardData.updated_at }}</div>
+            <div class="w-1/3 text-right">
+                {{ cardData.newly_problem_created_at }}
+            </div>
         </div>
     </div>
 </template>
