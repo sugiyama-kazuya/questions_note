@@ -78,8 +78,8 @@ class UserController extends Controller
 
             DB::beginTransaction();
             try {
-                $this->saveFileToS3($request->file, $file_path);
-                $this->profileUpdate($request, $file_path);
+                $this->user->saveFileToS3($request->file, $file_path);
+                $this->user->profileUpdate($request, $file_path);
                 DB::commit();
             } catch (\Exception $exception) {
                 Log::debug($exception->getMessage());
@@ -88,7 +88,7 @@ class UserController extends Controller
                 return abort(500);
             }
         } else {
-            $this->profileUpdate($request);
+            $this->user->profileUpdate($request);
         }
 
         return http_response_code(200);
