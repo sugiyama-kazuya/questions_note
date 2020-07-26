@@ -40,7 +40,7 @@ class ProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'max:50', Rule::unique('users')->ignore(Auth::id())],
+            'name' => ['required', 'max:50', Rule::unique('users')->ignore($this->name, 'name')],
             'email' => ['required', 'email'],
             'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif']
         ];
