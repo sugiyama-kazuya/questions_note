@@ -157,9 +157,30 @@ class User extends Authenticatable
         }
     }
 
+    /**
+     * s3からプロフィール画像のurlを取得
+     *
+     * @param string $file_path
+     * @return string
+     */
     public function awsUrlFetch(string $file_path = null): string
     {
         return $file_path ? Storage::cloud()->url($file_path) : "";
+    }
+
+    /**
+     * プロフィール画像を追加する
+     *
+     * @param [type] $users
+     * @return object
+     */
+    public function addProfileUrl($users)
+    {
+        return $users = $users->map(function ($user) {
+            $user = $user;
+            $user['profile_img'] = $this->awsUrlFetch($user->profile_img);
+            return $user;
+        });
     }
 
     /**
@@ -198,7 +219,7 @@ class User extends Authenticatable
      * @param [string] $file_path
      * @return void
      */
-    public function profileUpdate($request, $file_path)
+    public function profileUpdate($request, $file_path = null)
     {
         if ($file_path) {
             $this->findOrFail(Auth::id())->fill([
