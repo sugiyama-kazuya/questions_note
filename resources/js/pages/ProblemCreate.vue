@@ -23,7 +23,7 @@
                     <form
                         id="createForm"
                         class="pb-8"
-                        @submit.prevent="newProblemCreate"
+                        @submit.prevent="registerProblem()"
                     >
                         <div class="bg-gray-200 p-3 mb-3">
                             <FormLabel>
@@ -249,7 +249,7 @@
                                     <BaseButton
                                         :color="'bg-blue-400'"
                                         :text="'text-white'"
-                                        @click.native="createExerciseBook"
+                                        @click.native="registerExerciseBook()"
                                         class="ml-2"
                                     >
                                         <template>追加</template>
@@ -286,6 +286,7 @@ import {
     faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import commonMixin from "../commonMixin";
 library.add(faAngleRight, faClipboardList, faTimes, faBook);
 
 export default {
@@ -303,6 +304,8 @@ export default {
         FormValidationErrorMessage,
         BaseButton
     },
+
+    mixins: [commonMixin],
 
     data: () => ({
         exerciseBooks: [],
@@ -346,23 +349,24 @@ export default {
 
     async mounted() {
         this.loading.isLoading = true;
-        const response = await axios
-            .get("/api/problems/create")
-            .catch(error => error.response || error);
-
-        if (response.status === INTERNAL_SERVER_ERROR) {
-            this.$route.push("/500");
-            return;
-        }
-
-        if (response.status === OK) {
-            this.exerciseBooks = response.data.exercise_book_list;
-            this.loading.isLoading = false;
-            return;
-        }
+        await this.createProblemView();
+        this.loading.isLoading = false;
     },
 
     methods: {
+        async createProblemView() {
+            const response = await axios
+                .get("/api/problems/create")
+                .catch(error => error.response || error);
+
+            this.internalServerError(response.status);
+
+            if (response.status === OK) {
+                this.exerciseBooks = response.data.exercise_books;
+                return;
+            }
+        },
+
         // 問題集への追加のセレクトボックスを開く
         openSelectedExerciseBook() {
             this.exerciseBookSelected.isModal = true;
@@ -391,11 +395,13 @@ export default {
             this.exerciseBookNewAddClearForm();
         },
 
-        // 問題集の新規作成
-        async createExerciseBook() {
+        // 問題集の新規登録
+        async registerExerciseBook() {
             const response = await axios
                 .post("/api/exercise-books", this.exerciseBookNewAdd.form)
                 .catch(error => error.response || error);
+
+            this.internalServerError(response.status);
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.exerciseBookNewAdd.errorMsg = response.data.errors;
@@ -411,17 +417,14 @@ export default {
             }
         },
 
-        // 問題の作成
-        async newProblemCreate() {
+        // 問題の新規登録
+        async registerProblem() {
             this.exerciseBookNewAdd.errorMsg = "";
             const response = await axios
                 .post("/api/problems", this.form)
                 .catch(error => error.response || error);
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$route.push("/500");
-                return;
-            }
+            this.internalServerError(response.status);
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.validationErrorMsg = response.data.errors;
@@ -440,7 +443,6 @@ export default {
             }
         },
 
-        /** Iterator */
         assignmentToEach(genre, item) {
             const target = String(genre);
             const targetSelected = String(`${target}Selected`);
