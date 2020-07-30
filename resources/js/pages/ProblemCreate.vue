@@ -42,7 +42,6 @@
                                 v-model="form.problem"
                                 :placeholder="'問題文 ＊200文字以内入力可'"
                             ></FormTextarea>
-
                             <div class="flex justify-between px-3 items-center">
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
@@ -52,9 +51,10 @@
                                             class="text-3xl text-gray-400"
                                         />
                                         <input
+                                            @change="onFileChange($event)"
+                                            @click="cleanFileValue($event)"
                                             type="file"
                                             ref="problemImg"
-                                            @change="onFileChange($event)"
                                             class="hidden"
                                             id="problemImage"
                                         />
@@ -105,8 +105,9 @@
                                         />
                                         <input
                                             @change="onFileChange($event)"
-                                            red="answerImg"
+                                            @click="cleanFileValue($event)"
                                             type="file"
+                                            ref="answerImg"
                                             class="hidden"
                                             id="answerImage"
                                         />
@@ -570,19 +571,19 @@ export default {
             }
         },
 
+        cleanFileValue(event) {
+            event.currentTarget.value = "";
+        },
+
         onFileChange(event) {
             const file = event.currentTarget.files[0];
             if ("problemImage" === event.currentTarget.id) {
-                console.log("モンダイ");
                 this.form.problemImage = file;
                 this.createImg(file, "problemUploadImage");
-                return;
             }
             if ("answerImage" === event.currentTarget.id) {
-                console.log("解答");
                 this.form.answerImage = file;
                 this.createImg(file, "answerUploadImage");
-                return;
             }
         },
 
