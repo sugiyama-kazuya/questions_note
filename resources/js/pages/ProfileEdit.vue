@@ -275,9 +275,10 @@ export default {
         },
 
         createImg(file) {
+            const obj = this;
             const profileFileReader = new FileReader();
             profileFileReader.onload = e => {
-                this.uploadImg = e.target.result;
+                obj.uploadImg = e.target.result;
             };
             //base64形式に変換、img要素のsrcの値として機能する
             profileFileReader.readAsDataURL(file);
