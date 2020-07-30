@@ -58,40 +58,80 @@
                                 >
                                     <div class="h-100 w-full overflow-y-scroll">
                                         <transition name="card-text">
-                                            <p
+                                            <div
                                                 v-if="
                                                     currentProblemData
                                                         .problemData[
                                                         orderNumber
                                                     ] && problemDisplay
                                                 "
-                                                class="m-0 p-4 h-100 w-full flex items-center justify-center"
+                                                class="flex flex-col items-center justify-center h-100 p-4"
                                             >
-                                                {{
-                                                    currentProblemData
-                                                        .problemData[
-                                                        orderNumber
-                                                    ].content
-                                                }}
-                                            </p>
+                                                <p
+                                                    class="m-0 mb-2 w-full text-center"
+                                                >
+                                                    {{
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].content
+                                                    }}
+                                                </p>
+                                                <img
+                                                    v-show="
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].problem_img_url
+                                                    "
+                                                    :src="
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].problem_img_url
+                                                    "
+                                                    alt="問題の画像"
+                                                    class="w-full"
+                                                />
+                                            </div>
                                         </transition>
                                         <transition name="card-text">
-                                            <p
+                                            <div
                                                 v-if="
                                                     currentProblemData
                                                         .problemData[
                                                         orderNumber
                                                     ] && answerDisplay
                                                 "
-                                                class="m-0 p-4 h-100 w-full flex items-center justify-center"
+                                                class="flex flex-col items-center justify-center h-100 p-4"
                                             >
-                                                {{
-                                                    currentProblemData
-                                                        .problemData[
-                                                        orderNumber
-                                                    ].answer
-                                                }}
-                                            </p>
+                                                <p
+                                                    class="m-0 mb-2 w-full text-center"
+                                                >
+                                                    {{
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].answer
+                                                    }}
+                                                </p>
+                                                <img
+                                                    v-show="
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].answer_img_url
+                                                    "
+                                                    :src="
+                                                        currentProblemData
+                                                            .problemData[
+                                                            orderNumber
+                                                        ].answer_img_url
+                                                    "
+                                                    alt="解答の画像"
+                                                    class="w-full"
+                                                />
+                                            </div>
                                         </transition>
                                     </div>
                                     <div
@@ -455,6 +495,7 @@ export default {
 
             if (response.status === OK) {
                 const exerciseBooks = response.data.exercise_books;
+                console.log(exerciseBooks);
                 if (exerciseBooks === null) {
                     this.isProblemEmptyFlg = true;
                     return;
