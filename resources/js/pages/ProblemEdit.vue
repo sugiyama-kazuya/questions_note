@@ -60,6 +60,7 @@
                                         />
                                         <input
                                             @change="onFileChange($event)"
+                                            @click="cleanFileValue($event)"
                                             type="file"
                                             class="hidden"
                                             ref="answerImage"
@@ -114,6 +115,7 @@
                                         />
                                         <input
                                             @change="onFileChange($event)"
+                                            @click="cleanFileValue($event)"
                                             type="file"
                                             ref="answerImage"
                                             id="answerImage"
@@ -603,6 +605,10 @@ export default {
                 this.createImg(file, "answerUploadImage");
                 return;
             }
+        },
+
+        cleanFileValue($event) {
+            event.currentTarget.value = "";
         },
 
         createImg(file, target) {
