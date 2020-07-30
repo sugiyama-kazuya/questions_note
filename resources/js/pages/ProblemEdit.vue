@@ -58,8 +58,30 @@
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
-                                        <input type="file" class="hidden" />
+                                        <input
+                                            @change="onFileChange($event)"
+                                            type="file"
+                                            class="hidden"
+                                            ref="answerImage"
+                                            id="problemImage"
+                                        />
                                     </label>
+                                </div>
+                            </div>
+                            <div v-show="problemUploadImage">
+                                <hr class="text-gray-600 mt-0 mb-3" />
+                                <div class="relative">
+                                    <img
+                                        :src="problemUploadImage"
+                                        alt="問題の画像"
+                                        class="h-auto w-screen"
+                                    />
+                                    <CancelButton
+                                        @click-btn="
+                                            deleteImage('problemUploadImage')
+                                        "
+                                        id="problemUploadImage"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -90,8 +112,30 @@
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
-                                        <input type="file" class="hidden" />
+                                        <input
+                                            @change="onFileChange($event)"
+                                            type="file"
+                                            ref="answerImage"
+                                            id="answerImage"
+                                            class="hidden"
+                                        />
                                     </label>
+                                </div>
+                            </div>
+                            <div v-show="answerUploadImage">
+                                <hr class="text-gray-600 mt-0 mb-3" />
+                                <div class="relative">
+                                    <img
+                                        :src="answerUploadImage"
+                                        alt="解答の画像"
+                                        class="h-auto w-screen"
+                                    />
+                                    <CancelButton
+                                        @click-btn="
+                                            deleteImage('answerUploadImage')
+                                        "
+                                        id="answerUploadImage"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -280,6 +324,7 @@ import FormText from "../components/form/FormText";
 import FormTextarea from "../components/form/FormTextarea";
 import FormValidationErrorMessage from "../components/form/FormValidationErrorMessage";
 import BaseButton from "../components/BaseButton";
+import CancelButton from "../components/CancelButton";
 
 import { UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR, OK } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -292,6 +337,7 @@ import {
     faArrowLeft
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import commonMixin from "../commonMixin";
 library.add(faAngleRight, faClipboardList, faTimes, faBook, faArrowLeft);
 
 export default {
@@ -307,19 +353,25 @@ export default {
         FormText,
         FormTextarea,
         FormValidationErrorMessage,
-        BaseButton
+        BaseButton,
+        CancelButton
     },
+
+    mixins: [commonMixin],
 
     data() {
         return {
             problem: [],
             exerciseBooks: [],
-            categories: [],
+            problemUploadImage: "",
+            answerUploadImage: "",
             form: {
                 problem: "",
                 answer: "",
                 url: "",
-                exerciseBook: ""
+                exerciseBook: "",
+                problemImage: null,
+                answerImage: null
             },
             validationErrorMsg: "",
             // 問題集の新規追加
@@ -330,7 +382,7 @@ export default {
                     exerciseBook: ""
                 }
             },
-            // 問題集のセレクトボックス
+            validationErrorMsg: "", // 問題集のセレクトボックス
             exerciseBookSelected: {
                 isModal: false,
                 recordText: "選択してください"
@@ -369,14 +421,19 @@ export default {
 
             if (response.status === OK) {
                 this.problem = response.data.problem;
+                console.log(this.form.answerImage);
 
                 this.form = {
                     problem: this.problem.content,
                     answer: this.problem.answer,
                     url: this.problem.url,
-                    exerciseBook: this.problem.exercise_book.name
+                    exerciseBook: this.problem.exercise_book.name,
+                    problemImage: this.problem.problem_img,
+                    answerImage: this.problem.answer_img
                 };
 
+                this.problemUploadImage = this.problem.problem_img_url;
+                this.answerUploadImage = this.problem.answer_img_url;
                 this.exerciseBooks = response.data.exercise_book_list;
                 this.exerciseBookSelected.recordText = this.form.exerciseBook;
                 this.isLoading = false;
@@ -434,10 +491,30 @@ export default {
 
         // 問題の編集
         async problemEdit() {
+            this.isLoading = true;
             const url = `/api/problems/${this.$route.params.id}`;
             this.exerciseBookNewAdd.errorMsg = "";
+
+            const formData = await new FormData();
+            formData.append("problem", this.form.problem);
+            formData.append("answer", this.form.answer);
+            formData.append("exerciseBook", this.form.exerciseBook);
+            if (this.form.url) {
+                formData.append("url", this.form.url);
+            }
+            if (this.form.problemImage) {
+                formData.append("problem_image", this.form.problemImage);
+            } else {
+                formData.append("problem_image", null);
+            }
+            if (this.form.answerImage) {
+                formData.append("answer_image", this.form.answerImage);
+            } else {
+                formData.append("answer_image", null);
+            }
+
             const response = await axios
-                .post(url, this.form, {
+                .post(url, formData, {
                     headers: {
                         "X-HTTP-Method-Override": "PUT"
                     }
@@ -446,6 +523,14 @@ export default {
 
             if (response.status === OK) {
                 this.$router.push("/list");
+                return;
+            }
+
+            if (response.status === UNPROCESSABLE_ENTITY) {
+                this.validationErrorMsg = response.data.errors;
+                console.log(response.data.errors);
+                this.isLoading = false;
+                return;
             }
         },
 
@@ -490,6 +575,44 @@ export default {
 
         historyBack() {
             this.$router.go(-1);
+        },
+
+        deleteImage() {
+            if (event.currentTarget.id === "problemUploadImage") {
+                this.problemUploadImage = "";
+                this.form.problemImage = "";
+                return;
+            }
+            if (event.currentTarget.id === "answerUploadImage") {
+                this.answerUploadImage = "";
+                this.form.answerImage = "";
+                return;
+            }
+        },
+
+        onFileChange(event) {
+            const file = event.currentTarget.files[0];
+            if ("problemImage" === event.currentTarget.id) {
+                this.form.problemImage = file;
+                this.createImg(file, "problemUploadImage");
+                return;
+            }
+            if ("answerImage" === event.currentTarget.id) {
+                this.form.answerImage = file;
+                console.log(this.form.answerImage);
+                this.createImg(file, "answerUploadImage");
+                return;
+            }
+        },
+
+        createImg(file, target) {
+            const obj = this;
+            const problemFileReader = new FileReader();
+            problemFileReader.onload = function(e) {
+                obj[target] = e.target.result;
+            };
+            //base64形式に変換、img要素のsrcの値として機能する
+            problemFileReader.readAsDataURL(file);
         }
     }
 };

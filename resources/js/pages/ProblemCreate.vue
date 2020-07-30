@@ -46,13 +46,33 @@
                             <div class="flex justify-between px-3 items-center">
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
-                                    <label>
+                                    <label class="m-0">
                                         <font-awesome-icon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
-                                        <input type="file" class="hidden" />
+                                        <input
+                                            type="file"
+                                            ref="problemImg"
+                                            @change="onFileChange($event)"
+                                            class="hidden"
+                                            id="problemImage"
+                                        />
                                     </label>
+                                </div>
+                            </div>
+                            <div v-show="problemUploadImage">
+                                <hr class="text-gray-600 mt-0 mb-3" />
+                                <div class="relative">
+                                    <img
+                                        :src="problemUploadImage"
+                                        alt="問題の画像"
+                                        class="h-auto w-screen"
+                                    />
+                                    <CancelButton
+                                        @click-btn="deleteImage()"
+                                        id="problemUploadImage"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -78,13 +98,33 @@
                             <div class="flex justify-between px-3 items-center">
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
-                                    <label>
+                                    <label class="m-0">
                                         <font-awesome-icon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
-                                        <input type="file" class="hidden" />
+                                        <input
+                                            @change="onFileChange($event)"
+                                            red="answerImg"
+                                            type="file"
+                                            class="hidden"
+                                            id="answerImage"
+                                        />
                                     </label>
+                                </div>
+                            </div>
+                            <div v-show="answerUploadImage">
+                                <hr class="text-gray-600 mt-0 mb-3" />
+                                <div class="relative">
+                                    <img
+                                        :src="answerUploadImage"
+                                        alt="解答の画像"
+                                        class="h-auto w-screen"
+                                    />
+                                    <CancelButton
+                                        @click-btn="deleteImage()"
+                                        id="answerUploadImage"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -275,6 +315,7 @@ import FormText from "../components/form/FormText";
 import FormTextarea from "../components/form/FormTextarea";
 import FormValidationErrorMessage from "../components/form/FormValidationErrorMessage";
 import BaseButton from "../components/BaseButton";
+import CancelButton from "../components/CancelButton";
 
 import { UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR, OK } from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -302,18 +343,23 @@ export default {
         FormText,
         FormTextarea,
         FormValidationErrorMessage,
-        BaseButton
+        BaseButton,
+        CancelButton
     },
 
     mixins: [commonMixin],
 
     data: () => ({
         exerciseBooks: [],
+        problemUploadImage: "",
+        answerUploadImage: "",
         form: {
             problem: "",
             answer: "",
             url: "",
-            exerciseBook: ""
+            exerciseBook: "",
+            problemImage: "",
+            answerImage: ""
         },
         validationErrorMsg: "",
         // 問題集の新規追加
@@ -419,15 +465,25 @@ export default {
 
         // 問題の新規登録
         async registerProblem() {
+            this.loading.isLoading = true;
+            const formData = await new FormData();
+            formData.append("problem", this.form.problem);
+            formData.append("answer", this.form.answer);
+            formData.append("url", this.form.url);
+            formData.append("exerciseBook", this.form.exerciseBook);
+            formData.append("problemImage", this.form.problemImage);
+            formData.append("answerImage", this.form.answerImage);
+
             this.exerciseBookNewAdd.errorMsg = "";
             const response = await axios
-                .post("/api/problems", this.form)
+                .post("/api/problems", formData)
                 .catch(error => error.response || error);
 
             this.internalServerError(response.status);
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.validationErrorMsg = response.data.errors;
+                this.loading.isLoading = false;
                 return;
             }
 
@@ -440,7 +496,21 @@ export default {
                     );
                     this.allClearForm();
                 }
+                this.loading.isLoading = false;
+                return;
             }
+        },
+
+        onProblemFileChange(event) {
+            const file = event.target.files[0];
+            this.form.problemImage = file;
+            return;
+        },
+
+        onAnswerFileChange(event) {
+            const file = event.target.files[0];
+            this.form.answerImage = file;
+            return;
         },
 
         assignmentToEach(genre, item) {
@@ -465,9 +535,14 @@ export default {
             this.form = {
                 problem: "",
                 answer: "",
-                exerciseBook: ""
+                url: "",
+                exerciseBook: "",
+                problemImage: "",
+                answerImage: ""
             };
 
+            this.problemUploadImage = "";
+            this.answerUploadImage = "";
             this.exerciseBookNewAddClearForm();
             this.exerciseBookSelected.recordText = "選択してください";
         },
@@ -480,6 +555,45 @@ export default {
                     exerciseBook: ""
                 }
             };
+        },
+
+        deleteImage() {
+            if (event.currentTarget.id === "problemUploadImage") {
+                this.problemUploadImage = "";
+                this.form.problemImage = "";
+                return;
+            }
+            if (event.currentTarget.id === "answerUploadImage") {
+                this.answerUploadImage = "";
+                this.form.answerImage = "";
+                return;
+            }
+        },
+
+        onFileChange(event) {
+            const file = event.currentTarget.files[0];
+            if ("problemImage" === event.currentTarget.id) {
+                console.log("モンダイ");
+                this.form.problemImage = file;
+                this.createImg(file, "problemUploadImage");
+                return;
+            }
+            if ("answerImage" === event.currentTarget.id) {
+                console.log("解答");
+                this.form.answerImage = file;
+                this.createImg(file, "answerUploadImage");
+                return;
+            }
+        },
+
+        createImg(file, target) {
+            const obj = this;
+            const problemFileReader = new FileReader();
+            problemFileReader.onload = function(e) {
+                obj[target] = e.target.result;
+            };
+            //base64形式に変換、img要素のsrcの値として機能する
+            problemFileReader.readAsDataURL(file);
         }
     }
 };
