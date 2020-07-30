@@ -48,6 +48,9 @@
                                     v-for="exerciseBook in exerciseBooks.data"
                                     :key="exerciseBook.id"
                                     :padding="'p-3'"
+                                    :background-color="
+                                        isProblemBackgroundColor(exerciseBook)
+                                    "
                                 >
                                     <template slot="left-contents">
                                         <span>{{
@@ -415,6 +418,14 @@ export default {
             return function(name) {
                 return name.length >= 12 ? name.substring(0, 12) + "..." : name;
             };
+        },
+
+        isProblemBackgroundColor() {
+            return function(exerciseBook) {
+                return exerciseBook.problem.length === 0
+                    ? "bg-red-300"
+                    : "bg-white";
+            };
         }
     },
 
@@ -631,6 +642,7 @@ export default {
                 if (response.data.length) {
                     this.exerciseBooks.emptyFlg = false;
                     this.exerciseBooks.data = response.data;
+                    console.log(this.exerciseBooks.data);
                     return;
                 } else {
                     this.exerciseBooks.emptyFlg = true;
