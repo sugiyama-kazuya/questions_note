@@ -42,7 +42,7 @@
                 <span>{{ count }}</span>
             </div>
             <div class="w-1/3 text-right">
-                {{ cardData.newly_problem_created_at }}
+                {{ formatDate(cardData.newly_problem_created_at) }}
             </div>
         </div>
     </div>
@@ -73,6 +73,21 @@ export default {
             isLikedBy: false,
             count: ""
         };
+    },
+
+    computed: {
+        formatDate() {
+            return function(currentDate) {
+                const date = new Date(currentDate);
+                return (
+                    date.getFullYear() +
+                    "/" +
+                    date.getMonth() +
+                    "/" +
+                    date.getDate()
+                );
+            };
+        }
     },
 
     watch: {

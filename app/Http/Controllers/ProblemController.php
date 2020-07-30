@@ -58,6 +58,10 @@ class ProblemController extends Controller
     {
         $problems = $this->problem->where('exercise_book_id', $exercise_books_id)->get();
 
+        $problems = $problems->map(function ($problem) {
+            return $problem->addImageUrl($problem);
+        });
+
         if ($problems->isEmpty()) {
             return response()->json(['exercise_books' => null]);
         } else {
@@ -90,6 +94,7 @@ class ProblemController extends Controller
     public function edit($id)
     {
         $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->first();
+        $problem = $this->problem->addImageUrl($problem);
         $exercise_books = $this->exercise_book->loginUserExerciseBook;
         return response()->json([
             'problem' => $problem,

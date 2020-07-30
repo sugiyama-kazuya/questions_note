@@ -11,7 +11,7 @@
             >
                 <BaseSearchBox
                     v-model="searchBoxKeyword"
-                    @search="filterExerciseBooks"
+                    @search="filterExerciseBooks()"
                     :placeholder="exerciseBooks.placeholder"
                     :bg-color="'bg-white'"
                     class="mb-3"

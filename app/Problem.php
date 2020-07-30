@@ -7,38 +7,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use App\Traits\RelatedToFilePathS3;
+use Illuminate\Support\Facades\Log;
 
 class Problem extends Model
 {
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
+    use RelatedToFilePathS3;
 
     protected $fillable = [
-        'content', 'answer', 'user_id', 'exercise_book_id', 'url'
+        'content', 'answer', 'user_id', 'exercise_book_id', 'url', 'problem_img', 'answer_img'
     ];
-
-    protected $dateFormat = "Y/m/d";
-
-    public function exerciseBook(): BelongsTo
-    {
-        return $this->belongsTo('App\ExerciseBook');
-    }
 
     protected $hidden = [
         'created_at', 'updated_at', 'user_id', 'exercise_book_id'
     ];
 
-    /**
-     * 日付のフォーマットを変更
-     *
-     * @param $value
-     * @return string
-     */
-    public function getCreatedAtAttribute($value): string
-    {
-        return Carbon::parse($value)->format("Y/m/d");
-    }
 
+    public function exerciseBook(): BelongsTo
+    {
+        return $this->belongsTo('App\ExerciseBook');
+    }
 
     /**
      * 問題と答えの新規登録
@@ -49,6 +37,55 @@ class Problem extends Model
      */
     public function newRegister($request, $exercise_book)
     {
+        $problem_img = $request->problem_image;
+        $answer_img = $request->answer_image;
+
+        if ($problem_img && !$answer_img) {
+            $problem_img_path  = $this->createFilePath($problem_img);
+            $this->saveFileToS3($problem_img, $problem_img_path);
+            $this->fill([
+                'content' => $request->problem,
+                'answer' => $request->answer,
+                'url' => $request->url,
+                'user_id' => Auth::id(),
+                'exercise_book_id' => $exercise_book->id,
+                'problem_img' => $problem_img_path,
+            ])->save();
+            return;
+        }
+
+        if ($answer_img && !$problem_img) {
+            $answer_img_path = $this->createFilePath($answer_img);
+            $this->saveFileToS3($answer_img, $answer_img_path);
+            $this->fill([
+                'content' => $request->problem,
+                'answer' => $request->answer,
+                'url' => $request->url,
+                'user_id' => Auth::id(),
+                'exercise_book_id' => $exercise_book->id,
+                'answer_img' => $answer_img_path
+            ])->save();
+            return;
+        }
+
+        if ($problem_img && $answer_img) {
+            $problem_img_path = $this->createFilePath($problem_img);
+            $answer_img_path = $this->createFilePath($answer_img);
+            $this->saveFileToS3($problem_img, $problem_img_path);
+            $this->saveFileToS3($answer_img, $answer_img_path);
+
+            $this->fill([
+                'content' => $request->problem,
+                'answer' => $request->answer,
+                'url' => $request->url,
+                'user_id' => Auth::id(),
+                'exercise_book_id' => $exercise_book->id,
+                'problem_img' => $problem_img_path,
+                'answer_img' => $answer_img_path
+            ])->save();
+            return;
+        }
+
         $this->fill([
             'content' => $request->problem,
             'answer' => $request->answer,
@@ -59,7 +96,7 @@ class Problem extends Model
     }
 
     /**
-     * 問題の編集
+     * 問題の更新
      *
      * @param [type] $problem_id
      * @param [type] $request
@@ -68,13 +105,51 @@ class Problem extends Model
      */
     public function problemUpdate($problem_id, $request, $exercise_book)
     {
-        $this->find($problem_id)->fill([
-            'content' => $request->problem,
-            'answer' => $request->answer,
-            'url' => $request->url,
-            'user_id' => Auth::id(),
-            'exercise_book_id' => $exercise_book->id,
-        ])->update();
+        $problem = $this->find($problem_id);
+
+        $problem->content = $request->problem;
+        $problem->answer = $request->answer;
+        $problem->user_id = Auth::id();
+        $problem->exercise_book_id = $exercise_book->id;
+
+        if ($request->url) {
+            $problem->url = $request->url;
+        } else {
+            $problem->url = null;
+        }
+
+        // 問題が空の場合は、S3のデータは削除、DBのデータを空に
+        if ($request->problem_image === 'null') {
+            // 問題が既に存在している場合
+            if (isset($problem->problem_img)) {
+                $this->deleteFile($problem->problem_img);
+            }
+            $problem->problem_img = null;
+        }
+
+        // 問題に変更がある場合は、パスを生成してS３へ登録
+        if ($request->problem_image !== $problem->problem_img && $request->problem_image !== 'null') {
+            $problem_img_path = $this->createFilePath($request->problem_image);
+            $this->saveFileToS3($request->problem_image, $problem_img_path);
+            $problem->problem_img = $problem_img_path;
+        }
+
+        // 解答が空の場合は、S3のデータは削除、DBのデータを空に
+        if ($request->answer_image === 'null') {
+            if (isset($problem->answer_img)) {
+                $this->deleteFile($problem->answer_img);
+            };
+            $problem->answer_img = null;
+        }
+
+        // 解答に変更がある場合は、パスを生成してS３へ
+        if ($request->answer_image !== $problem->answer_img && $request->answer_image !== 'null') {
+            $answer_img_path = $this->createFilePath($request->answer_image);
+            $this->saveFileToS3($request->answer_image, $answer_img_path);
+            $problem->answer_img = $answer_img_path;
+        }
+
+        $problem->save();
     }
 
     /**
@@ -94,5 +169,32 @@ class Problem extends Model
         $problems['user_id'] = $user_id[0];
 
         return $problems;
+    }
+
+    /**
+     * 問題と解答の画像のURLを追加する
+     *
+     * @param [type] $problem
+     * @return void
+     */
+    public function addImageUrl($problem)
+    {
+        $problem_img = $problem->problem_img;
+        $answer_img = $problem->answer_img;
+
+        if ($problem_img && !$answer_img) {
+            $problem['problem_img_url'] = $this->awsUrlFetch($problem_img);
+            return $problem;
+        }
+        if ($answer_img && !$problem_img) {
+            $problem['answer_img_url'] = $this->awsUrlFetch($answer_img);
+            return $problem;
+        }
+        if ($answer_img && $problem_img) {
+            $problem['problem_img_url'] = $this->awsUrlFetch($problem_img);
+            $problem['answer_img_url'] = $this->awsUrlFetch($answer_img);
+            return $problem;
+        }
+        return $problem;
     }
 }
