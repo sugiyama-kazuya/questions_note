@@ -209,9 +209,13 @@ export default {
             return this.isFollowedBy ? "フォロー中" : "フォローする";
         },
         isLoginUser() {
-            const paramsUserId = parseInt(this.$route.params.id);
-            const loginUserId = parseInt(this.$store.state.auth.user.id);
-            return loginUserId === paramsUserId ? true : false;
+            if (this.authCheck) {
+                const paramsUserId = parseInt(this.$route.params.id);
+                const loginUserId = parseInt(this.$store.state.auth.user.id);
+                return loginUserId === paramsUserId ? true : false;
+            } else {
+                return false;
+            }
         },
         isFlashMsg() {
             return this.$store.state.flashMessage.visible;
@@ -324,27 +328,31 @@ export default {
         },
 
         async isFollow() {
-            const url = `/api/users/${this.$route.params.id}/follow`;
-            if (this.isFollowedBy) {
-                this.isFollowedBy = false;
-                const response = await axios
-                    .delete(url)
-                    .catch(error => error.response || error);
+            if (this.authCheck) {
+                const url = `/api/users/${this.$route.params.id}/follow`;
+                if (this.isFollowedBy) {
+                    this.isFollowedBy = false;
+                    const response = await axios
+                        .delete(url)
+                        .catch(error => error.response || error);
 
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    return;
+                    if (response.status === INTERNAL_SERVER_ERROR) {
+                        this.$router.push("/500");
+                        return;
+                    }
+                } else {
+                    this.isFollowedBy = true;
+                    const response = await axios
+                        .put(url)
+                        .catch(error => error.response || error);
+
+                    if (response.status === INTERNAL_SERVER_ERROR) {
+                        this.$router.push("/500");
+                        return;
+                    }
                 }
             } else {
-                this.isFollowedBy = true;
-                const response = await axios
-                    .put(url)
-                    .catch(error => error.response || error);
-
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    return;
-                }
+                this.$store.dispatch("auth/openPromptToRegisterOrLoginModal");
             }
         },
         goEditScreen() {
