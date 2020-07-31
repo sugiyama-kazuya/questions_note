@@ -23,10 +23,12 @@ class ExerciseBookController extends Controller
     public function index()
     {
         $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()->get();
-        $exercise_books = $this->exercise_book->addNewlyProblemCreatedAt($exercise_books);
+        $exercise_books = $this->exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
+        $exercise_books = $this->exercise_book->problemUpdateDateDesc($exercise_books);
+
 
         return response()->json(['exercise_books' => $exercise_books]);
     }
@@ -52,10 +54,11 @@ class ExerciseBookController extends Controller
     {
         $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()
             ->where('user_id', $user_id)->get();
-        $exercise_books = $this->exercise_book->addNewlyProblemCreatedAt($exercise_books);
+        $exercise_books = $this->exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
+        $exercise_books = $this->exercise_book->problemUpdateDateDesc($exercise_books);
 
         return response()->json(['exercise_books' => $exercise_books]);
     }

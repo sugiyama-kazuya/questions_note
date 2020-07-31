@@ -16,6 +16,8 @@ class OwnExerciseBooksController extends Controller
     {
         $login_user = Auth::id();
         $exercise_books = $exercise_book->with(['problem'])->where('user_id', $login_user)->get();
+        $exercise_books = $exercise_book->addProblemUpdateDate($exercise_books);
+        $exercise_books = $exercise_book->problemUpdateDateDesc($exercise_books);
         return $exercise_books;
     }
 }
