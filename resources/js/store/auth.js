@@ -4,7 +4,8 @@ const state = {
     user: null,
     apiStatus: null,
     loginErrorMessages: null,
-    registerErrorMessages: null
+    registerErrorMessages: null,
+    isPromptToRegisterOrLoginModal: false
 };
 
 const getters = {};
@@ -21,6 +22,9 @@ const mutations = {
     },
     setRegisterErrorMessages(state, messages) {
         state.registerErrorMessages = messages;
+    },
+    setIsPromptToRegisterOrLoginModal(state, status) {
+        state.isPromptToRegisterOrLoginModal = status;
     }
 };
 
@@ -32,7 +36,6 @@ const actions = {
             .catch(error => error.response || error);
 
         if (response.status === CREATED) {
-            console.log(response.data);
             context.commit("setApiStatus", true);
             context.commit("setUser", response.data);
             return;
@@ -86,6 +89,14 @@ const actions = {
 
         context.commit("setApiStatus", false);
         context.commit("error/setCode", response.status, { root: true });
+    },
+
+    openPromptToRegisterOrLoginModal(context) {
+        context.commit("setIsPromptToRegisterOrLoginModal", true);
+    },
+
+    closePromptToRegisterOrLoginModal(context) {
+        context.commit("setIsPromptToRegisterOrLoginModal", false);
     }
 };
 

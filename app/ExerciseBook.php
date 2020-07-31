@@ -16,6 +16,8 @@ class ExerciseBook extends Model
 
     protected $table = 'exercise_books';
 
+    public $timestamps = false;
+
     protected $dateFormat = "Y/m/d";
 
     protected $fillable = [
@@ -126,7 +128,7 @@ class ExerciseBook extends Model
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
                 $exercise_book = $data;
-                $exercise_books['favorite_count'] = $data['likes']->count();
+                $exercise_book['favorite_count'] = $data['likes']->count();
                 return $exercise_book;
             });
         }
@@ -145,13 +147,13 @@ class ExerciseBook extends Model
 
         if ($login_user_id) {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'newly_problem_created_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
+                return $data->only(['id', 'problem_update_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
             });
 
             return $exercise_books;
         } else {
             return $exercise_books = $exercise_books->map(function ($data) {
-                return $data->only(['id', 'newly_problem_created_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
+                return $data->only(['id', 'problem_update_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
             });
         }
     }
@@ -170,8 +172,6 @@ class ExerciseBook extends Model
             [
                 'name' => $request->exerciseBook,
                 'user_id' => Auth::id(),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
             ]
         );
     }
@@ -192,22 +192,6 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題集の直近に作成された問題の日付を取得して追加する
-     *
-     * @param [type] $exercise_books
-     * @return void
-     */
-    public function addNewlyProblemCreatedAt($exercise_books)
-    {
-        return $exercise_books->map(function ($exercise_book) {
-            $data = $exercise_book;
-            $newly_problem = $exercise_book->problem->last();
-            $data['newly_problem_created_at'] = $newly_problem['created_at'];
-            return $data;
-        });
-    }
-
-    /**
      * 自身がお気に入り登録している問題集を取得
      *
      * @param [Object] $exercise_books
@@ -221,10 +205,44 @@ class ExerciseBook extends Model
         })->values();
     }
 
+    /**
+     *お気に入り数の数で降順で取得する
+     *
+     * @param [type] $exercise_books
+     * @return object
+     */
     public function favoriteCountDesc($exercise_books): object
     {
         return $exercise_books->sortByDesc(function ($exercise_book) {
             return $exercise_book['favorite_count'];
         })->values();
+    }
+
+    /**
+     * 問題の更新日を降順に並び変える
+     *
+     * @param [type] $exercise_books
+     * @return void
+     */
+    public function problemUpdateDateDesc($exercise_books)
+    {
+        return $exercise_books->sortByDesc(function ($exercise_book) {
+            return $exercise_book['problem_update_at'];
+        })->values();
+    }
+
+    /**
+     * 問題の更新日を取得
+     *
+     * @param [type] $exercise_books
+     * @return void
+     */
+    public function addProblemUpdateDate($exercise_books)
+    {
+        return $exercise_books->map(function ($exercise_book) {
+            $data = $exercise_book;
+            $data['problem_update_at'] = $exercise_book->problem->last()->updated_at;
+            return $data;
+        });
     }
 }

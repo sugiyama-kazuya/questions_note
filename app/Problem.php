@@ -19,7 +19,7 @@ class Problem extends Model
     ];
 
     protected $hidden = [
-        'created_at', 'updated_at', 'user_id', 'exercise_book_id'
+        'created_at', 'user_id', 'exercise_book_id'
     ];
 
 
