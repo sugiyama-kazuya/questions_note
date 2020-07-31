@@ -1,6 +1,12 @@
 import { INTERNAL_SERVER_ERROR } from "./util";
 
 export default {
+    computed: {
+        authCheck() {
+            return this.$store.state.auth.user ? true : false;
+        }
+    },
+
     methods: {
         scrollTop() {
             window.scrollTo({
