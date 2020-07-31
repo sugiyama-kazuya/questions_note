@@ -462,10 +462,14 @@ export default {
         },
         // 問題集の作成者がログインユーザーかどうか
         isProblemsLoginUser() {
-            return Number(this.$store.state.auth.user.id) ===
-                Number(this.userId)
-                ? true
-                : false;
+            return;
+            if (this.$store.state.auth.user) {
+                Number(this.$store.state.auth.user.id) === Number(this.userId)
+                    ? true
+                    : false;
+            } else {
+                return false;
+            }
         },
         // フラッシュメッセージの有無
         isFlashMsg() {
