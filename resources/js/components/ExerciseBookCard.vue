@@ -42,7 +42,8 @@
                 <span>{{ count }}</span>
             </div>
             <div class="w-1/3 text-right">
-                {{ formatDate(cardData.newly_problem_created_at) }}
+                <span class="mr-2">更新日</span
+                >{{ formatDate(cardData.problem_update_at) }}
             </div>
         </div>
     </div>
@@ -82,7 +83,7 @@ export default {
                 return (
                     date.getFullYear() +
                     "/" +
-                    date.getMonth() +
+                    `${date.getMonth() + 1}` +
                     "/" +
                     date.getDate()
                 );
@@ -111,33 +112,37 @@ export default {
         },
 
         async isLiked(problemId) {
-            // 既にいいねしていた場合
-            if (this.isLikedBy) {
-                const response = await axios
-                    .delete("/api/unfavorites", {
-                        data: { id: problemId }
-                    })
-                    .catch(error => error.response || error);
+            if (this.$store.state.auth.user) {
+                // 既にいいねしていた場合
+                if (this.isLikedBy) {
+                    const response = await axios
+                        .delete("/api/unfavorites", {
+                            data: { id: problemId }
+                        })
+                        .catch(error => error.response || error);
 
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    console.log(response);
-                    return;
+                    if (response.status === INTERNAL_SERVER_ERROR) {
+                        this.$router.push("/500");
+                        console.log(response);
+                        return;
+                    }
+
+                    this.isLikedBy = false;
+                } else {
+                    // まだしていない場合
+                    const response = await axios
+                        .put("/api/favorites", { id: problemId })
+                        .catch(error => error.response || error);
+
+                    if (response.status === INTERNAL_SERVER_ERROR) {
+                        this.$router.push("/500");
+                        return;
+                    }
+
+                    this.isLikedBy = true;
                 }
-
-                this.isLikedBy = false;
             } else {
-                // まだしていない場合
-                const response = await axios
-                    .put("/api/favorites", { id: problemId })
-                    .catch(error => error.response || error);
-
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    return;
-                }
-
-                this.isLikedBy = true;
+                this.$store.dispatch("auth/openPromptToRegisterOrLoginModal");
             }
         },
 
