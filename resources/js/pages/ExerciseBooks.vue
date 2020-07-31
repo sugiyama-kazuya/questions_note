@@ -2,7 +2,7 @@
     <div class="relative min-h-screen flex flex-col">
         <TheHeader class="h-5rem">
             <template v-slot:titleName>
-                <h5>HOME</h5>
+                <h5>INDEX</h5>
             </template>
         </TheHeader>
         <div class="bg-gray-200 text-gray-600 flex-1">
@@ -106,7 +106,7 @@ export default {
 
         async getNewArrivalsOrderExerciseBooks() {
             const response = await axios
-                .get("api/exercise-books")
+                .get("/api/exercise-books")
                 .catch(error => error.response || error);
 
             if (response.status === INTERNAL_SERVER_ERROR) {
