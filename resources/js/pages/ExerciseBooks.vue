@@ -116,6 +116,7 @@ export default {
 
             if (response.status === OK) {
                 this.exerciseBooks.data = response.data.exercise_books;
+                return;
             }
         },
 

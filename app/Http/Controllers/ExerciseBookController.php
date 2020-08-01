@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExerciseBook;
 use App\ExerciseBook;
-use Illuminate\Support\Facades\Log;
 
 class ExerciseBookController extends Controller
 {
@@ -28,7 +27,6 @@ class ExerciseBookController extends Controller
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
         $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
         $exercise_books = $this->exercise_book->problemUpdateDateDesc($exercise_books);
-
 
         return response()->json(['exercise_books' => $exercise_books]);
     }
