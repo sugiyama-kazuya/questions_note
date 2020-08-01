@@ -41,9 +41,12 @@
                 />
                 <span>{{ count }}</span>
             </div>
-            <div class="w-1/3 text-right">
+            <div v-if="cardData.problem_update_at" class="w-1/3 text-right">
                 <span class="mr-2">更新日</span
                 >{{ formatDate(cardData.problem_update_at) }}
+            </div>
+            <div v-if="!cardData.problem_update_at" class="w-1/3 text-right">
+                <span>問題がありません</span>
             </div>
         </div>
     </div>
@@ -79,14 +82,18 @@ export default {
     computed: {
         formatDate() {
             return function(currentDate) {
-                const date = new Date(currentDate);
-                return (
-                    date.getFullYear() +
-                    "/" +
-                    `${date.getMonth() + 1}` +
-                    "/" +
-                    date.getDate()
-                );
+                if (currentDate) {
+                    const date = new Date(currentDate);
+                    return (
+                        date.getFullYear() +
+                        "/" +
+                        `${date.getMonth() + 1}` +
+                        "/" +
+                        date.getDate()
+                    );
+                } else {
+                    return currentDate;
+                }
             };
         }
     },
