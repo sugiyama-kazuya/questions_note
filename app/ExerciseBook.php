@@ -240,9 +240,13 @@ class ExerciseBook extends Model
     public function addProblemUpdateDate($exercise_books)
     {
         return $exercise_books->map(function ($exercise_book) {
-            $data = $exercise_book;
-            $data['problem_update_at'] = $exercise_book->problem->last()->updated_at;
-            return $data;
+            if ($exercise_book->problem->first()) {
+                $data = $exercise_book;
+                $data['problem_update_at'] = $exercise_book->problem->last()->updated_at;
+                return $data;
+            } else {
+                return $exercise_book;
+            }
         });
     }
 }
