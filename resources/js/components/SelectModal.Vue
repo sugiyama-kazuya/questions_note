@@ -1,10 +1,10 @@
 <template>
     <div class="absolute inset-x-0 bottom-0 z-10 bg-gray-100 h-30">
         <div
-            class="flex justify-between items-center p-3 bg-blue-500 st-select_title"
+            class="flex justify-between items-center p-3 bg-blue-400 st-select_title"
         >
             <div class="w-1/3"></div>
-            <h5 class="text-white text-center mb-0 w-1/3">
+            <h5 class="text-white text-center mb-0 w-1/3 text-base">
                 <slot name="title"></slot>
             </h5>
             <div class="pr-3 text-white w-1/3 text-right">
