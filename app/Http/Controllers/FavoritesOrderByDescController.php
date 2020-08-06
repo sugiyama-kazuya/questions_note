@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ExerciseBook;
+use Illuminate\Http\Request;
 
 class FavoritesOrderByDescController extends Controller
 {
@@ -11,9 +12,17 @@ class FavoritesOrderByDescController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(ExerciseBook $exercise_book)
+    public function __invoke(Request $request, ExerciseBook $exercise_book)
     {
-        $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()->get();
+        $search_keyword = $request->query('search');
+        if ($search_keyword) {
+            $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()
+                ->where("name", "LIKE", "%$search_keyword%")
+                ->simplePaginate(30);
+        } else {
+            $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()->simplePaginate(30);
+        }
+
         $exercise_books = $exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $exercise_book->addFavoriteInfo($exercise_books);
