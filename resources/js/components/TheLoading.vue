@@ -1,9 +1,9 @@
 <template>
     <loading
         :active.sync="isLoading"
-        :height="40"
-        :width="40"
-        color="#007bff"
+        :height="28"
+        :width="28"
+        color="#777"
         :opacity="opacity ? opacity : 0"
         :background-color="backgroundColor ? backgroundColor : ''"
         class="most-preferred"

@@ -105,7 +105,7 @@ export default {
         }
     },
 
-    async mounted() {
+    mounted() {
         this.count = this.cardData.favorite_count;
         this.isLikedBy = this.cardData.is_liked_by;
     },

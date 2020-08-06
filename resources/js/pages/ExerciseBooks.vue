@@ -20,8 +20,12 @@
                 <ChangeTabBtn
                     @left-click="newArrivalsOrder"
                     @right-click="popularOrder"
-                    :isLeftActive="displayTab.isNewActive"
-                    :isRightActive="displayTab.isPopularActive"
+                    :isLeftActive="
+                        displayTab.isNewActive || displayTab.isNewArrivalSearch
+                    "
+                    :isRightActive="
+                        displayTab.isPopularActive || displayTab.isPopularSearch
+                    "
                 >
                     <template v-slot:leftBtnText>新着</template>
                     <template v-slot:rightBtnText>人気順</template>
@@ -29,20 +33,49 @@
             </div>
 
             <main class="relative">
-                <NoSearchResults v-if="noSearchResults" />
-                <ExerciseBookCard
-                    v-for="exerciseBook in exerciseBooks.data"
-                    :key="exerciseBook.id"
-                    :cardData="exerciseBook"
-                    class="mb-4"
-                ></ExerciseBookCard>
+                <template
+                    v-if="
+                        displayTab.isNewActive || displayTab.isNewArrivalSearch
+                    "
+                >
+                    <ExerciseBookCard
+                        v-for="exerciseBook in exerciseBooks.data"
+                        :key="exerciseBook.id"
+                        :cardData="exerciseBook"
+                        class="mb-4"
+                    />
+                </template>
+                <template
+                    v-if="
+                        displayTab.isPopularActive || displayTab.isPopularSearch
+                    "
+                >
+                    <ExerciseBookCard
+                        v-for="exerciseBook in exerciseBooks.data"
+                        :key="exerciseBook.id"
+                        :cardData="exerciseBook"
+                        class="mb-4"
+                    />
+                </template>
+                <infinite-loading
+                    @infinite="infiniteHandler"
+                    :identifier="infiniteId"
+                    :spinner="'spiral'"
+                    class="pb-4"
+                >
+                    <template v-slot:no-more
+                        ><span class="text-sm text-gray-500"
+                            >これ以上問題はありません</span
+                        ></template
+                    >
+                    <template v-slot:no-results
+                        ><span class="text-sm text-gray-600"
+                            >検索結果に該当する問題集はありません</span
+                        ></template
+                    ></infinite-loading
+                >
             </main>
         </div>
-        <TheLoading
-            :loading="isLoading"
-            :background-color="'#edf2f7'"
-            class="h-screen"
-        />
         <TheFooter />
     </div>
 </template>
@@ -52,10 +85,10 @@ import Common from "../commonMixin";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import ExerciseBookCard from "../components/ExerciseBookCard";
-import TheLoading from "../components/TheLoading";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import NoSearchResults from "../components/NoSearchResults";
+import InfiniteLoading from "vue-infinite-loading";
 
 import { OK, INTERNAL_SERVER_ERROR } from "../util";
 
@@ -65,10 +98,10 @@ export default {
         TheHeader,
         TheFooter,
         ExerciseBookCard,
-        TheLoading,
         ChangeTabBtn,
         BaseSearchBox,
-        NoSearchResults
+        NoSearchResults,
+        InfiniteLoading
     },
 
     mixins: [Common],
@@ -82,91 +115,166 @@ export default {
             isLoading: false,
             displayTab: {
                 isNewActive: false,
-                isPopularActive: false
+                isNewArrivalSearch: false,
+                isPopularActive: false,
+                isPopularSearch: false
             },
             searchBoxKeyword: "",
-            noSearchResults: false
+            page: 1,
+            infiniteId: new Date(),
+            url: ""
         };
     },
 
-    created() {
-        this.newArrivalsOrder();
+    mounted() {
+        this.displayTab.isPopularActive = false;
+        this.displayTab.isNewActive = true;
     },
 
     methods: {
-        async newArrivalsOrder() {
+        newArrivalsOrder() {
             this.scrollTop();
-            this.isLoading = true;
-            await this.getNewArrivalsOrderExerciseBooks();
-            this.displayTab.isPopularActive = false;
             this.displayTab.isNewActive = true;
+            this.displayTab.isPopularActive = false;
+            this.displayTab.isPopularSearch = false;
+            this.changeType();
             this.searchBoxReset();
-            this.isLoading = false;
         },
 
-        async getNewArrivalsOrderExerciseBooks() {
+        popularOrder() {
+            this.scrollTop();
+            this.displayTab.isPopularActive = true;
+            this.displayTab.isNewActive = false;
+            this.displayTab.isNewArrivalSearch = false;
+            this.changeType();
+            this.searchBoxReset();
+        },
+
+        async getNewArrivalsOrderExerciseBooks(state) {
+            if (this.displayTab.isNewActive) {
+                console.log("新着API");
+                this.url = `/api/exercise-books?page=${this.page}`;
+            }
+            if (this.displayTab.isNewArrivalSearch) {
+                console.log("新着検索API");
+                this.url = `/api/exercise-books?search=${this.searchBoxKeyword}&page=${this.page}`;
+            }
             const response = await axios
-                .get("/api/exercise-books")
+                .get(this.url)
                 .catch(error => error.response || error);
+
+            if (response.status === OK) {
+                console.log("API取得に成功");
+                if (response.data.exercise_books.length) {
+                    this.page += 1;
+                    console.log(this.url);
+                    this.exerciseBooks.data = this.exerciseBooks.data.concat(
+                        response.data.exercise_books
+                    );
+                    console.log(this.exerciseBooks.data);
+                    state.loaded();
+                    return;
+                } else {
+                    console.log("取得数0");
+                    state.complete();
+                    return;
+                }
+            }
 
             if (response.status === INTERNAL_SERVER_ERROR) {
                 this.$router.push("/500");
                 return;
             }
+        },
+
+        async getPopularOrderExerciseBooks(state) {
+            if (this.displayTab.isPopularActive) {
+                console.log("人気順API");
+                this.url = `/api/favorites/asc?page=${this.page}`;
+            }
+            if (this.displayTab.isPopularSearch) {
+                console.log("人気順検索API");
+                this.url = `/api/favorites/asc?search=${this.searchBoxKeyword}&page=${this.page}`;
+            }
+            const response = await axios
+                .get(this.url)
+                .catch(error => error.response || error);
 
             if (response.status === OK) {
-                this.exerciseBooks.data = response.data.exercise_books;
+                console.log("API取得に成功");
+                if (response.data.exercise_books.length) {
+                    this.page++;
+                    this.exerciseBooks.data = this.exerciseBooks.data.concat(
+                        response.data.exercise_books
+                    );
+                    state.loaded();
+                    console.log(this.exerciseBooks.data);
+                    return;
+                } else {
+                    console.log("取得数0");
+                    state.complete();
+                    return;
+                }
+            }
+
+            if (response.status === INTERNAL_SERVER_ERROR) {
+                this.$router.push("/500");
                 return;
             }
         },
 
-        async popularOrder() {
-            this.scrollTop();
-            this.isLoading = true;
-            this.displayTab.isNewActive = false;
-            this.displayTab.isPopularActive = true;
-            this.searchBoxReset();
-            await this.getPopularOrderExerciseBooks();
-            this.isLoading = false;
-        },
-
-        async getPopularOrderExerciseBooks() {
-            const response = await axios
-                .get("/api/favorites/asc")
-                .catch(error => error.response || error);
-
-            this.exerciseBooks.data = response.data.exercise_books;
-        },
-
         async filterExerciseBooks() {
             this.scrollTop();
-            this.isLoading = true;
-            if (this.displayTab.isNewActive) {
-                await this.getNewArrivalsOrderExerciseBooks();
-            }
-            if (this.displayTab.isPopularActive) {
-                await this.getPopularOrderExerciseBooks();
-            }
-
-            const obj = this;
-            const currentExerciseBooks = obj.exerciseBooks.data;
-            const filterExerciseBooks = currentExerciseBooks.filter(function(
-                exerciseBook
+            if (
+                this.displayTab.isNewActive ||
+                this.displayTab.isNewArrivalSearch
             ) {
-                return exerciseBook.name.includes(obj.searchBoxKeyword);
-            });
-            if (filterExerciseBooks.length === 0) {
-                this.noSearchResults = true;
-            } else {
-                this.noSearchResults = false;
+                console.log("フィルター新着");
+                this.displayTab.isNewActive = false;
+                this.displayTab.isNewArrivalSearch = true;
+                this.changeType();
+                return;
             }
-            this.exerciseBooks.data = filterExerciseBooks;
-            this.isLoading = false;
+            if (
+                this.displayTab.isPopularActive ||
+                this.displayTab.isPopularSearch
+            ) {
+                console.log("フィルター人気");
+                this.displayTab.isPopularActive = false;
+                this.displayTab.isPopularSearch = true;
+                this.changeType();
+                return;
+            }
         },
 
         searchBoxReset() {
             this.searchBoxKeyword = "";
-            this.noSearchResults = false;
+        },
+
+        infiniteHandler($state) {
+            if (
+                this.displayTab.isNewActive ||
+                this.displayTab.isNewArrivalSearch
+            ) {
+                console.log("新着順検索");
+                this.getNewArrivalsOrderExerciseBooks($state);
+                return;
+            }
+
+            if (
+                this.displayTab.isPopularActive ||
+                this.displayTab.isPopularSearch
+            ) {
+                console.log("人気順検索");
+                this.getPopularOrderExerciseBooks($state);
+                return;
+            }
+        },
+
+        changeType() {
+            this.page = 1;
+            this.exerciseBooks.data = [];
+            this.infiniteId += 1;
         }
     }
 };

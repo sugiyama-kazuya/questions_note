@@ -462,9 +462,9 @@ export default {
         },
         // 問題集の作成者がログインユーザーかどうか
         isProblemsLoginUser() {
-            return;
             if (this.$store.state.auth.user) {
-                Number(this.$store.state.auth.user.id) === Number(this.userId)
+                return Number(this.$store.state.auth.user.id) ===
+                    Number(this.userId)
                     ? true
                     : false;
             } else {

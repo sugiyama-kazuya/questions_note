@@ -83,8 +83,14 @@
                     v-if="isLoginUser"
                     @left-click="ownExerciseBooks()"
                     @right-click="favoriteOrder()"
-                    :isLeftActive="displayTab.isOwnExerciseBooks"
-                    :isRightActive="displayTab.isFavoriteOrder"
+                    :isLeftActive="
+                        displayTab.isOwnExerciseBooks ||
+                            displayTab.isOwnExerciseBooksSearch
+                    "
+                    :isRightActive="
+                        displayTab.isFavoriteOrder ||
+                            displayTab.isFavoriteOrderSearch
+                    "
                 >
                     <template v-slot:leftBtnText>問題</template>
                     <template v-slot:rightBtnText>お気に入り</template>
@@ -108,7 +114,22 @@
             >
             </ExerciseBookCard>
 
-            <NoSearchResults v-if="noSearchResults" />
+            <infinite-loading
+                :identifier="infiniteId"
+                @infinite="infiniteHandler"
+                :spinner="'spiral'"
+                class="pb-4"
+                ><template v-slot:no-more
+                    ><span class="text-sm text-gray-500"
+                        >これ以上問題はありません</span
+                    ></template
+                >
+                <template v-slot:no-results
+                    ><span class="text-sm text-gray-600"
+                        >検索結果に該当する問題集はありません</span
+                    ></template
+                ></infinite-loading
+            >
         </main>
         <!-- ローディング -->
         <TheLoading
@@ -145,6 +166,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faUserCircle);
+import InfiniteLoading from "vue-infinite-loading";
 
 export default {
     name: "Profile",
@@ -159,7 +181,8 @@ export default {
         BaseSearchBox,
         CenterModal,
         FontAwesomeIcon,
-        NoSearchResults
+        NoSearchResults,
+        InfiniteLoading
     },
 
     mixins: [Common],
@@ -175,7 +198,9 @@ export default {
             isIconProfileImg: false,
             displayTab: {
                 isOwnExerciseBooks: true,
-                isFavoriteOrder: false
+                isOwnExerciseBooksSearch: false,
+                isFavoriteOrder: false,
+                isFavoriteOrderSearch: false
             },
             editBtn: {
                 btnText: "編集",
@@ -194,7 +219,10 @@ export default {
                 speed: 2000
             },
             searchBoxKeyword: "",
-            noSearchResults: false
+            noSearchResults: false,
+            page: 1,
+            infiniteId: new Date(),
+            url: ""
         };
     },
 
@@ -243,20 +271,14 @@ export default {
 
             this.followersCount = response.data.follower_count;
         },
-        async $route() {
-            this.loading.isLoading = true;
-            await this.getOwnExercizeBooks();
-            await this.getUser();
-            this.loading.isLoading = false;
+        $route() {
+            this.getUser();
         }
     },
 
-    async created() {
+    async mounted() {
         this.scrollTop();
-        this.loading.isLoading = true;
         await this.getUser();
-        await this.getOwnExercizeBooks();
-        this.loading.isLoading = false;
 
         // フラッシュメッセージがある場合
         if (this.isFlashMsg) {
@@ -281,50 +303,94 @@ export default {
             this.isFollowedBy = response.data.user.is_followed_by;
         },
 
-        async getOwnExercizeBooks() {
+        ownExerciseBooks() {
+            this.displayTab.isOwnExerciseBooks = true;
+            this.displayTab.isFavoriteOrder = false;
+            this.displayTab.isFavoriteOrderSearch = false;
+            this.changeType();
+            this.scrollTop();
+            this.searchBoxReset();
+        },
+
+        favoriteOrder() {
+            this.displayTab.isOwnExerciseBooks = false;
+            this.displayTab.isOwnExerciseBooksSearch = false;
+            this.displayTab.isFavoriteOrder = true;
+            this.scrollTop();
+            this.changeType();
+            this.searchBoxReset();
+        },
+
+        async getOwnExercizeBooks(state) {
+            if (this.displayTab.isOwnExerciseBooks) {
+                console.log("自身の問題集検索なし");
+                this.url = `/api/exercise-books/${this.$route.params.id}?page=${this.page}`;
+            }
+            if (this.displayTab.isOwnExerciseBooksSearch) {
+                console.log("自身の問題集検索あり");
+                this.url = `/api/exercise-books/${this.$route.params.id}?search=${this.searchBoxKeyword}&page=${this.page}`;
+            }
+
             const response = await axios
-                .get(`/api/exercise-books/${this.$route.params.id}`)
+                .get(this.url)
                 .catch(error => error.response || error);
+
+            if (response.status === OK) {
+                console.log("API取得に成功");
+                console.log(response);
+                if (response.data.exercise_books.length) {
+                    this.page++;
+                    this.exerciseBooks.data = this.exerciseBooks.data.concat(
+                        response.data.exercise_books
+                    );
+                    state.loaded();
+                    return;
+                } else {
+                    console.log("取得数0");
+                    state.complete();
+                }
+            }
 
             if (response.status === INTERNAL_SERVER_ERROR) {
                 this.$router.push("/500");
             }
+        },
+
+        async getFavoriteOrderExerciseBooks(state) {
+            if (this.displayTab.isFavoriteOrder) {
+                console.log("お気に入り検索なし");
+                this.url = `/api/favorites/asc/${this.$route.params.id}?page=${this.page}`;
+            }
+            if (this.displayTab.isFavoriteOrderSearch) {
+                console.log("お気に入り検索あり");
+                this.url = `/api/favorites/asc/${this.$route.params.id}?search=${this.searchBoxKeyword}&page=${this.page}`;
+            }
+
+            console.log(this.url);
+            const response = await axios
+                .get(this.url)
+                .catch(error => error.response);
 
             if (response.status === OK) {
-                this.exerciseBooks.data = response.data.exercise_books;
-                this.isExerciseBooksEmpty;
+                console.log("API取得に成功");
+                console.log(response);
+                if (response.data.exercise_books.length) {
+                    this.page++;
+                    this.exerciseBooks.data = this.exerciseBooks.data.concat(
+                        response.data.exercise_books
+                    );
+                    state.loaded();
+                    return;
+                } else {
+                    console.log("取得数0");
+                    state.complete();
+                }
+            }
+
+            if (response.status === INTERNAL_SERVER_ERROR) {
+                this.$router.push("/500");
                 return;
             }
-        },
-
-        async ownExerciseBooks() {
-            this.displayTab.isOwnExerciseBooks = true;
-            this.displayTab.isFavoriteOrder = false;
-            this.scrollTop();
-            this.loading.isLoading = true;
-            this.searchBoxReset();
-            await this.getOwnExercizeBooks();
-            this.loading.isLoading = false;
-        },
-
-        async getFavoriteOrderExerciseBooks() {
-            const response = await axios
-                .get(`/api/favorites/asc/${this.$route.params.id}`)
-                .catch(error => error.resoponse);
-
-            if (response.status === OK) {
-                this.exerciseBooks.data = response.data.exercise_books;
-            }
-        },
-
-        async favoriteOrder() {
-            this.displayTab.isOwnExerciseBooks = false;
-            this.displayTab.isFavoriteOrder = true;
-            this.scrollTop();
-            this.loading.isLoading = true;
-            this.searchBoxReset();
-            await this.getFavoriteOrderExerciseBooks();
-            this.loading.isLoading = false;
         },
 
         async isFollow() {
@@ -355,43 +421,63 @@ export default {
                 this.$store.dispatch("auth/openPromptToRegisterOrLoginModal");
             }
         },
+
         goEditScreen() {
             this.$router.push(`/users/${this.$route.params.id}/edit`);
         },
 
-        isEmpty(data) {
-            return !Object.keys(data).length;
-        },
-
-        async filterExerciseBooks() {
+        filterExerciseBooks() {
             this.scrollTop();
-            this.loading.isLoading = true;
-            if (this.displayTab.isOwnExerciseBooks) {
-                await this.getOwnExercizeBooks();
-            }
-            if (this.displayTab.isFavoriteOrder) {
-                await this.getFavoriteOrderExerciseBooks();
-            }
-
-            const obj = this;
-            const currentExerciseBooks = obj.exerciseBooks.data;
-            const filterExerciseBooks = currentExerciseBooks.filter(function(
-                exerciseBook
+            if (
+                this.displayTab.isOwnExerciseBooks ||
+                this.displayTab.isOwnExerciseBooksSearch
             ) {
-                return exerciseBook.name.includes(obj.searchBoxKeyword);
-            });
-            if (filterExerciseBooks.length === 0) {
-                this.noSearchResults = true;
-            } else {
-                this.noSearchResults = false;
+                console.log("自身の問題集検索");
+                this.displayTab.isOwnExerciseBooksSearch = true;
+                this.displayTab.isOwnExerciseBooks = false;
+                this.changeType();
+                return;
             }
-            this.exerciseBooks.data = filterExerciseBooks;
-            this.loading.isLoading = false;
+            if (
+                this.displayTab.isFavoriteOrder ||
+                this.displayTab.isFavoriteOrderSearch
+            ) {
+                console.log("自身がお気に入り登録した問題集");
+                this.displayTab.isFavoriteOrderSearch = true;
+                this.displayTab.isFavoriteOrder = false;
+                this.changeType();
+                return;
+            }
         },
 
         searchBoxReset() {
             this.searchBoxKeyword = "";
-            this.noSearchResults = false;
+        },
+
+        infiniteHandler($state) {
+            if (
+                this.displayTab.isOwnExerciseBooks ||
+                this.displayTab.isOwnExerciseBooksSearch
+            ) {
+                console.log("自身の問題集処理");
+                this.getOwnExercizeBooks($state);
+                return;
+            }
+
+            if (
+                this.displayTab.isFavoriteOrder ||
+                this.displayTab.isFavoriteOrderSearch
+            ) {
+                console.log("お気に入り処理");
+                this.getFavoriteOrderExerciseBooks($state);
+                return;
+            }
+        },
+
+        changeType() {
+            this.page = 1;
+            this.exerciseBooks.data = [];
+            this.infiniteId += 1;
         }
     }
 };

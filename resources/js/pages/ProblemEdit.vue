@@ -18,7 +18,7 @@
                 <button
                     type="submit"
                     form="createForm"
-                    class="bg-primary text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none"
+                    class="bg-blue-400 text-white font-bold py-2 px-4 rounded w-full h-60 focus:outline-none focus:bg-blue-400"
                 >
                     変更
                 </button>
@@ -187,7 +187,7 @@
                                 <div class="py-2 px-4">
                                     <font-awesome-icon
                                         icon="book"
-                                        class="text-3xl text-gray-400 text-primary"
+                                        class="text-3xl text-gray-400 text-blue-400"
                                     />
                                 </div>
                                 <div

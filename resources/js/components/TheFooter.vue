@@ -91,11 +91,14 @@
                         </div>
                         <div class="text-right">
                             <BaseButton
+                                @click-btn="goRegister()"
                                 :color="goRegisterBtn.color"
                                 class="mr-2"
                                 >新規登録</BaseButton
                             >
-                            <BaseButton>ログイン</BaseButton>
+                            <BaseButton @click-btn="goLogin()"
+                                >ログイン</BaseButton
+                            >
                         </div>
                     </div>
                 </template>
@@ -105,6 +108,7 @@
 </template>
 
 <script>
+import Common from "../commonMixin";
 import CenterModal from "../components/CenterModal";
 import BaseButton from "../components/BaseButton";
 import CancelButton from "../components/CancelButton";
@@ -128,6 +132,8 @@ export default {
         BaseButton,
         CancelButton
     },
+
+    mixins: [Common],
 
     data() {
         return {
@@ -156,10 +162,12 @@ export default {
     methods: {
         goRegister() {
             this.$router.push("/register");
+            this.$store.dispatch("auth/closePromptToRegisterOrLoginModal");
         },
 
         goLogin() {
             this.$router.push("/login");
+            this.$store.dispatch("auth/closePromptToRegisterOrLoginModal");
         },
 
         openPromptToRegisterOrLoginModal() {
