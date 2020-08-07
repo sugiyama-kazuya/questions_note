@@ -8,7 +8,9 @@ const state = {
     isPromptToRegisterOrLoginModal: false
 };
 
-const getters = {};
+const getters = {
+    loginCheck: state => (state.user ? true : false)
+};
 
 const mutations = {
     setUser(state, data) {
