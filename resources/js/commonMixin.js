@@ -1,4 +1,4 @@
-import { INTERNAL_SERVER_ERROR, NotFound } from "./util";
+import { INTERNAL_SERVER_ERROR, NotFound, Forbidden } from "./util";
 
 export default {
     computed: {
@@ -25,6 +25,12 @@ export default {
         notFoundError(status) {
             if (NotFound === status) {
                 this.$router.push("/notFound");
+            }
+        },
+
+        forbidden(status) {
+            if (Forbidden === status) {
+                this.$router.push("/403");
             }
         },
 
