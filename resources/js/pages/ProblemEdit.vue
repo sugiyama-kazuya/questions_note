@@ -437,6 +437,7 @@ export default {
 
             this.internalServerError(response.status);
             this.notFoundError(response.status);
+            this.forbidden(response.status);
         },
 
         // 問題集への追加のセレクトボックスを開く
@@ -528,12 +529,12 @@ export default {
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.validationErrorMsg = response.data.errors;
-                console.log(response.data.errors);
                 this.isLoading = false;
                 return;
             }
 
             this.internalServerError(response.status);
+            this.forbidden(response.status);
         },
 
         assignmentToEach(genre, item) {
