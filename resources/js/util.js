@@ -3,6 +3,7 @@ export const CREATED = 201;
 export const INTERNAL_SERVER_ERROR = 500;
 export const UNPROCESSABLE_ENTITY = 422;
 export const NotFound = 404;
+export const Forbidden = 403;
 
 export function getCookieValue(searchKey) {
     if (typeof searchKey === "undefined") {
