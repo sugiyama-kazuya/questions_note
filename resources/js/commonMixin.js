@@ -1,4 +1,4 @@
-import { INTERNAL_SERVER_ERROR } from "./util";
+import { INTERNAL_SERVER_ERROR, NotFound } from "./util";
 
 export default {
     computed: {
@@ -19,6 +19,12 @@ export default {
             if (INTERNAL_SERVER_ERROR === status) {
                 this.$router.push("/500");
                 return;
+            }
+        },
+
+        notFoundError(status) {
+            if (NotFound === status) {
+                this.$router.push("/notFound");
             }
         },
 

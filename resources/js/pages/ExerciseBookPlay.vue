@@ -289,9 +289,7 @@
                     <CenterModal v-if="isProblemEmptyFlg" :backColor="false">
                         <div class="py-5 px-3">
                             <div class="p-4 text-center text-lg mb-2">
-                                <span
-                                    >表示する問題がありません。問題を追加してください。</span
-                                >
+                                <span>表示する問題がありません。</span>
                             </div>
                             <div class="flex justify-center p-2">
                                 <CenterModalBtn

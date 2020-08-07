@@ -403,7 +403,7 @@ export default {
         }
     },
 
-    async created() {
+    async mounted() {
         this.isLoading = true;
         await this.getProblem();
         this.isLoading = false;
@@ -416,15 +416,8 @@ export default {
                 .get(url)
                 .catch(error => error.response || error);
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$route.push("/500");
-                return;
-            }
-
             if (response.status === OK) {
                 this.problem = response.data.problem;
-                console.log(this.form.answerImage);
-
                 this.form = {
                     problem: this.problem.content,
                     answer: this.problem.answer,
@@ -441,6 +434,9 @@ export default {
                 this.isLoading = false;
                 return;
             }
+
+            this.internalServerError(response.status);
+            this.notFoundError(response.status);
         },
 
         // 問題集への追加のセレクトボックスを開く
@@ -489,6 +485,8 @@ export default {
                 this.exerciseBookNewAdd.isModal = false;
                 return;
             }
+
+            this.internalServerError(response.status);
         },
 
         // 問題の編集
@@ -534,6 +532,8 @@ export default {
                 this.isLoading = false;
                 return;
             }
+
+            this.internalServerError(response.status);
         },
 
         assignmentToEach(genre, item) {
