@@ -81,7 +81,9 @@ class ProblemController extends Controller
     {
         DB::transaction(function () use ($id, $request) {
             $exercise_book = $this->exercise_book->fetchOrRegister($request);
-            $this->problem->problemUpdate($id, $request, $exercise_book);
+            $problem = $this->problem->find($id);
+            $this->authorize('update', $problem);
+            $this->problem->problemUpdate($problem, $request, $exercise_book);
         });
     }
 
@@ -94,6 +96,8 @@ class ProblemController extends Controller
     public function edit($id)
     {
         $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->first();
+        $this->problem->checkExists($problem);
+        $this->authorize('update', $problem);
         $problem = $this->problem->addImageUrl($problem);
         $exercise_books = $this->exercise_book->loginUserExerciseBook;
         return response()->json([
@@ -110,6 +114,8 @@ class ProblemController extends Controller
      */
     public function destroy($problem_id)
     {
-        $this->problem->find($problem_id)->delete();
+        $problem = $this->problem->find($problem_id);
+        $this->authorize('delete', $problem);
+        $problem->delete();
     }
 }
