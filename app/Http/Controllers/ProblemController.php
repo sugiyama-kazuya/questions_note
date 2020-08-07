@@ -82,6 +82,7 @@ class ProblemController extends Controller
         DB::transaction(function () use ($id, $request) {
             $exercise_book = $this->exercise_book->fetchOrRegister($request);
             $problem = $this->problem->find($id);
+            $this->problem->checkExists($problem);
             $this->authorize('update', $problem);
             $this->problem->problemUpdate($problem, $request, $exercise_book);
         });
