@@ -19,7 +19,7 @@ class Problem extends Model
     ];
 
     protected $hidden = [
-        'created_at', 'user_id', 'exercise_book_id'
+        'created_at', 'exercise_book_id'
     ];
 
 
@@ -103,10 +103,8 @@ class Problem extends Model
      * @param [type] $exercise_book
      * @return void
      */
-    public function problemUpdate($problem_id, $request, $exercise_book)
+    public function problemUpdate($problem, $request, $exercise_book)
     {
-        $problem = $this->find($problem_id);
-
         $problem->content = $request->problem;
         $problem->answer = $request->answer;
         $problem->user_id = Auth::id();
@@ -196,5 +194,20 @@ class Problem extends Model
             return $problem;
         }
         return $problem;
+    }
+
+    /**
+     * 問題が存在しているかのチェック
+     *
+     * @param [type] $problem
+     * @return void
+     */
+    public function checkExists($problem)
+    {
+        if (!isset($problem)) {
+            return abort(404);
+        } else {
+            return;
+        }
     }
 }
