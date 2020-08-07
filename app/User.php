@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\RelatedToFilePathS3;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
@@ -108,22 +109,26 @@ class User extends Authenticatable
      * プロフィール画面の表示の為の必須の情報を取得
      *
      * @param integer $user_id
-     * @return object
+     *
      */
-    public function getProfileRequiredData(int $user_id): object
+    public function getProfileRequiredData(int $user_id)
     {
         $current_user = $this->currentUser($user_id);
 
-        if ($current_user->profile_img) {
-            $file_path = $current_user->awsUrlFetch($current_user->profile_img);
-            $current_user['followers_count'] = $current_user->followers_count;
-            $current_user['followings_count'] = $current_user->followings_count;
-            $current_user['profile_img'] = $file_path;
-            return $current_user;
+        if ($current_user) {
+            if ($current_user->profile_img) {
+                $file_path = $current_user->awsUrlFetch($current_user->profile_img);
+                $current_user['followers_count'] = $current_user->followers_count;
+                $current_user['followings_count'] = $current_user->followings_count;
+                $current_user['profile_img'] = $file_path;
+                return $current_user;
+            } else {
+                $current_user['followers_count'] = $current_user->followers_count;
+                $current_user['followings_count'] = $current_user->followings_count;
+                return $current_user;
+            }
         } else {
-            $current_user['followers_count'] = $current_user->followers_count;
-            $current_user['followings_count'] = $current_user->followings_count;
-            return $current_user;
+            return;
         }
     }
 
@@ -178,6 +183,21 @@ class User extends Authenticatable
                 'name' => $request->name,
                 'email' => $request->email,
             ])->save();
+        }
+    }
+
+    /**
+     * ユーザーが存在しているかのチェック
+     *
+     * @param [type] $user
+     * @return void
+     */
+    public function checkExists($user)
+    {
+        if (!isset($user)) {
+            return abort(404);
+        } else {
+            return $user;
         }
     }
 }
