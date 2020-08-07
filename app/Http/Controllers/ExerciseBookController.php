@@ -91,6 +91,8 @@ class ExerciseBookController extends Controller
      */
     public function destroy($id)
     {
-        $this->exercise_book->find($id)->delete();
+        $exercise_book = $this->exercise_book->find($id);
+        $this->authorize('delete', $exercise_book);
+        $exercise_book->delete();
     }
 }
