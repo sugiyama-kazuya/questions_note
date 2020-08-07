@@ -11,8 +11,8 @@ import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import List from "./pages/List";
-import notFound from "./pages/errors/NotFound";
-
+import NotFound from "./pages/errors/NotFound";
+import Forbidden from "./pages/errors/Forbidden";
 Vue.use(VueRouter);
 
 export default new VueRouter({
@@ -136,10 +136,17 @@ export default new VueRouter({
         },
 
         {
-            name: "/notFound",
+            name: "notFound",
             path: "*",
-            component: notFound,
+            component: NotFound,
             meta: { title: "お探しのページは見つかりませんでした" }
+        },
+
+        {
+            name: "Forbidden",
+            path: "/403",
+            component: Forbidden,
+            meta: { title: "お探しのページは表示できません" }
         }
     ]
 });
