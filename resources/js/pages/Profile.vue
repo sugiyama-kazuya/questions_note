@@ -161,7 +161,12 @@ import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import CenterModal from "../components/CenterModal";
 import NoSearchResults from "../components/NoSearchResults";
-import { INTERNAL_SERVER_ERROR, OK } from "../util";
+import {
+    INTERNAL_SERVER_ERROR,
+    OK,
+    UNPROCESSABLE_ENTITY,
+    NotFound
+} from "../util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -296,11 +301,15 @@ export default {
                 .get(url)
                 .catch(error => error.response || error);
 
-            this.user = response.data.user;
-            this.isProfileImgEmpty;
-            this.followersCount = response.data.user.followers_count;
-            this.followingsCount = response.data.user.followings_count;
-            this.isFollowedBy = response.data.user.is_followed_by;
+            if (response.status === OK) {
+                this.user = response.data.user;
+                this.isProfileImgEmpty;
+                this.followersCount = response.data.user.followers_count;
+                this.followingsCount = response.data.user.followings_count;
+                this.isFollowedBy = response.data.user.is_followed_by;
+            }
+            this.notFoundError(response.status);
+            this.internalServerError(response.status);
         },
 
         ownExerciseBooks() {
@@ -351,9 +360,7 @@ export default {
                 }
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-            }
+            this.internalServerError(response.status);
         },
 
         async getFavoriteOrderExerciseBooks(state) {
@@ -387,10 +394,7 @@ export default {
                 }
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
+            this.internalServerError(response.status);
         },
 
         async isFollow() {
@@ -402,20 +406,14 @@ export default {
                         .delete(url)
                         .catch(error => error.response || error);
 
-                    if (response.status === INTERNAL_SERVER_ERROR) {
-                        this.$router.push("/500");
-                        return;
-                    }
+                    this.internalServerError(response.status);
                 } else {
                     this.isFollowedBy = true;
                     const response = await axios
                         .put(url)
                         .catch(error => error.response || error);
 
-                    if (response.status === INTERNAL_SERVER_ERROR) {
-                        this.$router.push("/500");
-                        return;
-                    }
+                    this.internalServerError(response.status);
                 }
             } else {
                 this.$store.dispatch("auth/openPromptToRegisterOrLoginModal");
