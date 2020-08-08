@@ -15,7 +15,7 @@
                     </div>
                     <div class="flex justify-center w-100">
                         <div class="w-50 relative img-circle">
-                            <font-awesome-icon
+                            <FontAwesomeIcon
                                 v-if="isIconProfileImg"
                                 icon="user-circle"
                                 class="m-0 h-100 w-100 absolute inset-0 img-profile mr-2"
@@ -83,11 +83,11 @@
                     v-if="isLoginUser"
                     @left-click="ownExerciseBooks()"
                     @right-click="favoriteOrder()"
-                    :isLeftActive="
+                    :is-left-active="
                         displayTab.isOwnExerciseBooks ||
                             displayTab.isOwnExerciseBooksSearch
                     "
-                    :isRightActive="
+                    :is-right-active="
                         displayTab.isFavoriteOrder ||
                             displayTab.isFavoriteOrderSearch
                     "
@@ -109,12 +109,12 @@
             <ExerciseBookCard
                 v-for="exerciseBook in exerciseBooks.data"
                 :key="exerciseBook.id"
-                :cardData="exerciseBook"
+                :card-data="exerciseBook"
                 class="mb-4"
             >
             </ExerciseBookCard>
 
-            <infinite-loading
+            <InfiniteLoading
                 :identifier="infiniteId"
                 @infinite="infiniteHandler"
                 :spinner="'spiral'"
@@ -128,7 +128,7 @@
                     ><span class="text-sm text-gray-600"
                         >検索結果に該当する問題集はありません</span
                     ></template
-                ></infinite-loading
+                ></InfiniteLoading
             >
         </main>
         <!-- ローディング -->
@@ -242,7 +242,7 @@ export default {
             return this.isFollowedBy ? "フォロー中" : "フォローする";
         },
         isLoginUser() {
-            if (this.authCheck) {
+            if (this.$_authCheck) {
                 const paramsUserId = parseInt(this.$route.params.id);
                 const loginUserId = parseInt(this.$store.state.auth.user.id);
                 return loginUserId === paramsUserId ? true : false;
@@ -254,12 +254,14 @@ export default {
             return this.$store.state.flashMessage.visible;
         },
 
+        // ユーザー情報に画像が登録されていない場合、デフォルトの画像を表示する為のフラグの操作
         isProfileImgEmpty() {
             return this.user.profile_img
                 ? (this.isIconProfileImg = false)
                 : (this.isIconProfileImg = true);
         },
 
+        // 表示する問題集がない場合に表示するテキストのフラグ操作
         isExerciseBooksEmpty() {
             this.exerciseBooks.data.length === 0
                 ? (this.exerciseBooks.emptyFlg = true)
@@ -268,6 +270,7 @@ export default {
     },
 
     watch: {
+        // フォロー、アンフォローの度に自身のフォロー数を取得する
         async isFollowedBy() {
             const url = `/api/users/${this.$route.params.id}/followers/count`;
             const response = await axios
@@ -282,10 +285,9 @@ export default {
     },
 
     async mounted() {
-        this.scrollTop();
+        this.$_scrollTop();
         await this.getUser();
 
-        // フラッシュメッセージがある場合
         if (this.isFlashMsg) {
             this.$store.dispatch(
                 "flashMessage/hideFlashMsg",
@@ -308,8 +310,8 @@ export default {
                 this.followingsCount = response.data.user.followings_count;
                 this.isFollowedBy = response.data.user.is_followed_by;
             }
-            this.notFoundError(response.status);
-            this.internalServerError(response.status);
+            this.$_notFoundError(response.status);
+            this.$_internalServerError(response.status);
         },
 
         ownExerciseBooks() {
@@ -317,7 +319,7 @@ export default {
             this.displayTab.isFavoriteOrder = false;
             this.displayTab.isFavoriteOrderSearch = false;
             this.changeType();
-            this.scrollTop();
+            this.$_scrollTop();
             this.searchBoxReset();
         },
 
@@ -325,12 +327,12 @@ export default {
             this.displayTab.isOwnExerciseBooks = false;
             this.displayTab.isOwnExerciseBooksSearch = false;
             this.displayTab.isFavoriteOrder = true;
-            this.scrollTop();
+            this.$_scrollTop();
             this.changeType();
             this.searchBoxReset();
         },
 
-        async getOwnExercizeBooks(state) {
+        async getOwnExercizeBooks($_state) {
             if (this.displayTab.isOwnExerciseBooks) {
                 console.log("自身の問題集検索なし");
                 this.url = `/api/exercise-books/${this.$route.params.id}?page=${this.page}`;
@@ -352,18 +354,18 @@ export default {
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
                         response.data.exercise_books
                     );
-                    state.loaded();
+                    $_state.loaded();
                     return;
                 } else {
                     console.log("取得数0");
-                    state.complete();
+                    $_state.complete();
                 }
             }
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
         },
 
-        async getFavoriteOrderExerciseBooks(state) {
+        async getFavoriteOrderExerciseBooks($_state) {
             if (this.displayTab.isFavoriteOrder) {
                 console.log("お気に入り検索なし");
                 this.url = `/api/favorites/asc/${this.$route.params.id}?page=${this.page}`;
@@ -373,7 +375,6 @@ export default {
                 this.url = `/api/favorites/asc/${this.$route.params.id}?search=${this.searchBoxKeyword}&page=${this.page}`;
             }
 
-            console.log(this.url);
             const response = await axios
                 .get(this.url)
                 .catch(error => error.response);
@@ -386,19 +387,19 @@ export default {
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
                         response.data.exercise_books
                     );
-                    state.loaded();
+                    $_state.loaded();
                     return;
                 } else {
                     console.log("取得数0");
-                    state.complete();
+                    $_state.complete();
                 }
             }
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
         },
 
         async isFollow() {
-            if (this.authCheck) {
+            if (this.$_authCheck) {
                 const url = `/api/users/${this.$route.params.id}/follow`;
                 if (this.isFollowedBy) {
                     this.isFollowedBy = false;
@@ -406,14 +407,14 @@ export default {
                         .delete(url)
                         .catch(error => error.response || error);
 
-                    this.internalServerError(response.status);
+                    this.$_internalServerError(response.status);
                 } else {
                     this.isFollowedBy = true;
                     const response = await axios
                         .put(url)
                         .catch(error => error.response || error);
 
-                    this.internalServerError(response.status);
+                    this.$_internalServerError(response.status);
                 }
             } else {
                 this.$store.dispatch("auth/openPromptToRegisterOrLoginModal");
@@ -425,7 +426,7 @@ export default {
         },
 
         filterExerciseBooks() {
-            this.scrollTop();
+            this.$_scrollTop();
             if (
                 this.displayTab.isOwnExerciseBooks ||
                 this.displayTab.isOwnExerciseBooksSearch

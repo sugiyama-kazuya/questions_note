@@ -3,9 +3,9 @@
         :active.sync="isLoading"
         :height="28"
         :width="28"
-        color="#777"
         :opacity="opacity ? opacity : 0"
         :background-color="backgroundColor ? backgroundColor : ''"
+        color="#777"
         class="most-preferred"
     ></loading>
 </template>

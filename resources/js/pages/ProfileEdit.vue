@@ -6,11 +6,11 @@
                     <h5 class="text-2xl m-0">編集</h5>
                 </template>
                 <template v-slot:leftSide>
-                    <font-awesome-icon
+                    <FontAwesomeIcon
                         @click="endConfimationModal = true"
                         icon="times"
                         class="text-3xl text-white"
-                    ></font-awesome-icon>
+                    />
                 </template>
                 <template v-slot:rightSide>
                     <button
@@ -129,7 +129,7 @@
         </div>
         <TheFooter />
         <transition name="center-modal">
-            <CenterModal v-if="endConfimationModal" :backColor="false">
+            <CenterModal v-if="endConfimationModal" :back-color="false">
                 <div class="py-5 px-3">
                     <div class="p-4 text-center text-lg mb-2">
                         <span
@@ -265,7 +265,7 @@ export default {
                 return;
             }
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
         },
 
         onFileChange(event) {

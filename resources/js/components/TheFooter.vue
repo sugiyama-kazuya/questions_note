@@ -10,7 +10,7 @@
                 active-class="text-yellow-300"
                 exact
             >
-                <font-awesome-icon icon="book-open" class="text-3xl" />Index
+                <FontAwesomeIcon icon="book-open" class="text-3xl" />Index
             </router-link>
         </div>
         <div class="w-1/4 flex flex-col items-center justify-center">
@@ -22,11 +22,11 @@
                     active-class="text-yellow-300"
                     exact
                 >
-                    <font-awesome-icon icon="plus" class="text-3xl" />Create
+                    <FontAwesomeIcon icon="plus" class="text-3xl" />Create
                 </router-link>
             </template>
             <template v-if="!loginUserId">
-                <font-awesome-icon
+                <FontAwesomeIcon
                     @click="openPromptToRegisterOrLoginModal()"
                     icon="plus"
                     class="text-3xl"
@@ -42,11 +42,11 @@
                     active-class="text-yellow-300"
                     exact
                 >
-                    <font-awesome-icon icon="home" class="text-3xl" />Home
+                    <FontAwesomeIcon icon="home" class="text-3xl" />Home
                 </router-link>
             </template>
             <template v-if="!loginUserId">
-                <font-awesome-icon
+                <FontAwesomeIcon
                     @click="openPromptToRegisterOrLoginModal()"
                     icon="home"
                     class="text-3xl"
@@ -62,11 +62,11 @@
                     active-class="text-yellow-300"
                     exact
                 >
-                    <font-awesome-icon icon="list-ul" class="text-3xl" />List
+                    <FontAwesomeIcon icon="list-ul" class="text-3xl" />List
                 </router-link>
             </template>
             <template v-if="!loginUserId">
-                <font-awesome-icon
+                <FontAwesomeIcon
                     @click="openPromptToRegisterOrLoginModal()"
                     icon="list-ul"
                     class="text-3xl"
@@ -78,7 +78,7 @@
                 <template>
                     <div class="flex flex-col p-3">
                         <div class="text-right">
-                            <font-awesome-icon
+                            <FontAwesomeIcon
                                 @click="closePromptToRegisterOrLoginModal()"
                                 icon="times-circle"
                                 class="text-4xl text-blue-500"

@@ -3,11 +3,11 @@
         <div class="h-90">
             <TheHeader class="h-8">
                 <template v-slot:leftSide>
-                    <font-awesome-icon
+                    <FontAwesomeIcon
                         icon="arrow-left"
                         class="text-3xl text-white"
                         @click="historyBack()"
-                    ></font-awesome-icon>
+                    />
                 </template>
                 <template v-slot:titleName>
                     <h5 class="m-0">edit</h5>
@@ -39,7 +39,7 @@
                             <transition name="validateError">
                                 <div v-if="validationErrorMsg.problem">
                                     <FormValidationErrorMessage
-                                        :errorMessages="
+                                        :error-messages="
                                             validationErrorMsg.problem
                                         "
                                     />
@@ -54,7 +54,7 @@
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
                                     <label>
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -95,7 +95,7 @@
                             <transition name="validateError">
                                 <div v-if="validationErrorMsg.answer">
                                     <FormValidationErrorMessage
-                                        :errorMessages="
+                                        :error-messages="
                                             validationErrorMsg.answer
                                         "
                                     />
@@ -109,7 +109,7 @@
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
                                     <label>
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -146,7 +146,7 @@
                         <transition name="validateError">
                             <div v-if="validationErrorMsg.url" class="px-3">
                                 <FormValidationErrorMessage
-                                    :errorMessages="validationErrorMsg.url"
+                                    :error-messages="validationErrorMsg.url"
                                 />
                             </div>
                         </transition>
@@ -175,7 +175,7 @@
                                 class="px-3"
                             >
                                 <FormValidationErrorMessage
-                                    :errorMessages="
+                                    :error-messages="
                                         validationErrorMsg.exerciseBook
                                     "
                                 />
@@ -185,7 +185,7 @@
                         <div class="flex flex-col bg-gray-200 mb-6">
                             <div class="flex">
                                 <div class="py-2 px-4">
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         icon="book"
                                         class="text-3xl text-gray-400 text-blue-400"
                                     />
@@ -208,7 +208,7 @@
                                             type="text"
                                             class="hidden"
                                         />
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -265,7 +265,7 @@
                             <div
                                 class="w-full pm-2 h-100 flex flex-col justify-center"
                             >
-                                <div class>
+                                <div>
                                     <transition name="validateError">
                                         <div v-if="exerciseBookNewAdd.errorMsg">
                                             <p
@@ -339,8 +339,8 @@ import {
     faArrowLeft
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import commonMixin from "../commonMixin";
 library.add(faAngleRight, faClipboardList, faTimes, faBook, faArrowLeft);
+import Common from "../commonMixin";
 
 export default {
     name: "ProblemEdit",
@@ -359,7 +359,7 @@ export default {
         CancelButton
     },
 
-    mixins: [commonMixin],
+    mixins: [Common],
 
     data() {
         return {
@@ -435,9 +435,9 @@ export default {
                 return;
             }
 
-            this.internalServerError(response.status);
-            this.notFoundError(response.status);
-            this.forbidden(response.status);
+            this.$_internalServerError(response.status);
+            this.$_notFoundError(response.status);
+            this.$_forbidden(response.status);
         },
 
         // 問題集への追加のセレクトボックスを開く
@@ -487,7 +487,7 @@ export default {
                 return;
             }
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
         },
 
         // 問題の編集
@@ -533,8 +533,8 @@ export default {
                 return;
             }
 
-            this.internalServerError(response.status);
-            this.forbidden(response.status);
+            this.$_internalServerError(response.status);
+            this.$_forbidden(response.status);
         },
 
         assignmentToEach(genre, item) {

@@ -33,8 +33,8 @@
                         >
                             <div class="sticky top-0 z-50 bg-white">
                                 <BaseSearchBox
-                                    @search="filterExerciseBooks"
                                     v-model="searchBoxKeyword"
+                                    @search="filterExerciseBooks"
                                     :placeholder="exerciseBooks.placeholder"
                                     class="py-4"
                                 />
@@ -68,7 +68,7 @@
                                             "
                                             icon="edit"
                                             class="text-2xl text-gray-600"
-                                        ></FontAwesomeIcon>
+                                        />
                                     </template>
                                 </BaseRecord>
                             </div>
@@ -86,8 +86,8 @@
                                 <ChangeTabBtn
                                     @left-click="followSelected()"
                                     @right-click="followerSelected()"
-                                    :isLeftActive="user.isFollowTab"
-                                    :isRightActive="user.isFollowerTab"
+                                    :is-left-active="user.isFollowTab"
+                                    :is-right-active="user.isFollowerTab"
                                     :width="'w-4/5'"
                                 >
                                     <template v-slot:leftBtnText
@@ -105,15 +105,15 @@
                                     :padding="'p-2'"
                                 >
                                     <template slot="left-contents">
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             v-if="!user.profile_img"
                                             icon="user-circle"
                                             class="text-3xl mr-3"
                                         />
                                         <img
                                             v-if="user.profile_img"
-                                            class="h-2rem w-2rem mr-3 bg-cover img-profile"
                                             :src="user.profile_img"
+                                            class="h-2rem w-2rem mr-3 bg-cover img-profile"
                                         />
                                         <span @click="goProfile(user.id)">{{
                                             user.name
@@ -135,15 +135,15 @@
                                         :padding="'p-2'"
                                     >
                                         <template slot="left-contents">
-                                            <font-awesome-icon
+                                            <FontAwesomeIcon
                                                 v-if="!user.profile_img"
                                                 icon="user-circle"
                                                 class="text-3xl mr-3"
                                             />
                                             <img
                                                 v-if="user.profile_img"
-                                                class="h-2rem w-2rem mr-3 bg-cover img-profile"
                                                 :src="user.profile_img"
+                                                class="h-2rem w-2rem mr-3 bg-cover img-profile"
                                             />
 
                                             <span @click="goProfile(user.id)">{{
@@ -200,7 +200,7 @@
         <transition name="center-modal">
             <CenterModal
                 v-if="isProblemsListModal"
-                :backColor="true"
+                :back-color="true"
                 :width="'w-4/5'"
                 :height="'h-60'"
             >
@@ -430,7 +430,7 @@ export default {
     },
 
     async created() {
-        this.scrollTop();
+        this.$_scrollTop();
         this.loading.isLoading = true;
         await this.getOwnExerciseBooksAndProblems();
         await this.followSelected();
@@ -439,7 +439,7 @@ export default {
 
     methods: {
         async filterExerciseBooks() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.loading.isLoading = true;
             await this.getOwnExerciseBooksAndProblems();
             const obj = this;
@@ -465,7 +465,7 @@ export default {
         },
 
         async exerciseBookShow() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.user.isShow = false;
             this.exerciseBooks.isShow = true;
             this.loading.isLoading = true;
@@ -500,7 +500,7 @@ export default {
         },
 
         async followSelected() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.loading.isLoading = true;
             this.user.isFollowTab = true;
             this.user.isFollowerTab = false;

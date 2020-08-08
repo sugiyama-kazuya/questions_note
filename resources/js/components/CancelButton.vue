@@ -1,6 +1,6 @@
 <template>
     <span @click="$emit('click-btn')" class="absolute top-0 right-0 mr-2 mt-2">
-        <font-awesome-icon icon="times-circle" class="text-4xl text-blue-500" />
+        <FontAwesomeIcon icon="times-circle" class="text-4xl text-blue-500" />
     </span>
 </template>
 

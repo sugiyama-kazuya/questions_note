@@ -17,7 +17,7 @@
                     }"
                     class="flex w-100"
                 >
-                    <font-awesome-icon
+                    <FontAwesomeIcon
                         v-if="!cardData.profile_img"
                         icon="user-circle"
                         class="text-3xl mr-2"
@@ -33,7 +33,7 @@
                 </router-link>
             </div>
             <div class="flex w-1/3">
-                <font-awesome-icon
+                <FontAwesomeIcon
                     @click="isLiked(cardData.id)"
                     icon="star"
                     class="text-2xl mr-2"
