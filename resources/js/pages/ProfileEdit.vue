@@ -206,7 +206,7 @@ export default {
         }
     },
 
-    async created() {
+    async mounted() {
         this.isLoading = true;
         await this.getUser();
         this.isLoading = false;
@@ -218,17 +218,14 @@ export default {
                 .get(`/api/users/${this.$route.params.id}/edit`)
                 .catch(error => error.firstDisplay || error);
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
-
             if (response.status === OK) {
                 this.uploadImg = response.data.user.profile_img;
                 this.profile.name = response.data.user.name;
                 this.profile.email = response.data.user.email;
                 return;
             }
+
+            this.$_internalServerError(response.status);
         },
 
         goOwnProfile() {
@@ -251,14 +248,6 @@ export default {
                 })
                 .catch(error => error.response || error);
 
-            if (response.status === UNPROCESSABLE_ENTITY) {
-                this.validationErrorMsg.name = response.data.errors.name;
-                this.validationErrorMsg.email = response.data.errors.email;
-                this.validationErrorMsg.file = response.data.errors.file;
-                this.isLoading = false;
-                return;
-            }
-
             if (response.status === OK) {
                 this.$store.dispatch("flashMessage/showFlashMsg");
                 this.$router.push(`/users/${this.userId}`);
@@ -266,6 +255,14 @@ export default {
             }
 
             this.$_internalServerError(response.status);
+
+            if (response.status === UNPROCESSABLE_ENTITY) {
+                this.validationErrorMsg.name = response.data.errors.name;
+                this.validationErrorMsg.email = response.data.errors.email;
+                this.validationErrorMsg.file = response.data.errors.file;
+                this.isLoading = false;
+                return;
+            }
         },
 
         onFileChange(event) {

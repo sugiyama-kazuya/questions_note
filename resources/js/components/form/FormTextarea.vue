@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { integer } from "vee-validate/dist/rules";
 export default {
     name: "FormTextarea",
     props: {
@@ -29,5 +28,3 @@ export default {
     }
 };
 </script>
-
-<style></style>
