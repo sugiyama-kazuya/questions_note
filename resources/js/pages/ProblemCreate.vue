@@ -371,7 +371,6 @@ export default {
                 exerciseBook: ""
             }
         },
-
         // 問題集のセレクトボックス
         exerciseBookSelected: {
             isModal: false,
@@ -406,12 +405,11 @@ export default {
                 .get("/api/problems/create")
                 .catch(error => error.response || error);
 
-            this.$_internalServerError(response.status);
-
             if (response.status === OK) {
                 this.exerciseBooks = response.data.exercise_books;
                 return;
             }
+            this.$_internalServerError(response.status);
         },
 
         // 問題集への追加のセレクトボックスを開く
@@ -480,14 +478,6 @@ export default {
                 .post("/api/problems", formData)
                 .catch(error => error.response || error);
 
-            this.$_internalServerError(response.status);
-
-            if (response.status === UNPROCESSABLE_ENTITY) {
-                this.validationErrorMsg = response.data.errors;
-                this.loading.isLoading = false;
-                return;
-            }
-
             if (response.status === OK) {
                 await this.$store.commit("flashMessage/setVisible", true);
                 if (this.isFlashMsg) {
@@ -497,6 +487,14 @@ export default {
                     );
                     this.allClearForm();
                 }
+                this.loading.isLoading = false;
+                return;
+            }
+
+            this.$_internalServerError(response.status);
+
+            if (response.status === UNPROCESSABLE_ENTITY) {
+                this.validationErrorMsg = response.data.errors;
                 this.loading.isLoading = false;
                 return;
             }
@@ -571,6 +569,7 @@ export default {
             }
         },
 
+        // 同じファイルを再度読み込んだ時に前回のファイルと同じものは読み込みされないので、その対処法
         cleanFileValue(event) {
             event.currentTarget.value = "";
         },

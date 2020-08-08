@@ -429,7 +429,7 @@ export default {
         }
     },
 
-    async created() {
+    async mounted() {
         this.$_scrollTop();
         this.loading.isLoading = true;
         await this.getOwnExerciseBooksAndProblems();
@@ -520,10 +520,12 @@ export default {
                 this.loading.isLoading = false;
                 return;
             }
+
+            this.$_internalServerError(response.status);
         },
 
         async followerSelected() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.loading.isLoading = true;
             this.user.isFollowTab = false;
             this.user.isFollowerTab = true;
@@ -543,6 +545,8 @@ export default {
                 this.loading.isLoading = false;
                 return;
             }
+
+            this.$_internalServerError(response.status);
         },
 
         async isFollow(user) {
@@ -553,20 +557,14 @@ export default {
                     .delete(url)
                     .catch(error => error.response || error);
 
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    return;
-                }
+                this.$_internalServerError(response.status);
             } else {
                 user.is_followed_by = true;
                 const response = await axios
                     .put(url)
                     .catch(error => error.response || error);
 
-                if (response.status === INTERNAL_SERVER_ERROR) {
-                    this.$router.push("/500");
-                    return;
-                }
+                this.$_internalServerError(response.status);
             }
         },
 
@@ -607,10 +605,7 @@ export default {
                 return;
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
+            this.$_internalServerError(response.status);
         },
 
         async deleteProblem() {
@@ -627,10 +622,7 @@ export default {
                 return;
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
+            this.$_internalServerError(response.status);
         },
 
         async getOwnExerciseBooksAndProblems() {
@@ -649,6 +641,8 @@ export default {
                     return;
                 }
             }
+
+            this.$_internalServerError(response.status);
         },
 
         setProblem(exerciseBooksId) {

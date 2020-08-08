@@ -19,6 +19,8 @@
 
 <script>
 export default {
+    name: "ChangeTabBtn",
+
     props: {
         isLeftActive: {
             type: Boolean

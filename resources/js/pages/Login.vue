@@ -113,10 +113,12 @@ extend("required", {
 
 export default {
     name: "App",
+
     components: {
         ValidationProvider,
         ValidationObserver
     },
+
     data: () => ({
         loginForm: {
             name: "",
@@ -124,6 +126,7 @@ export default {
         },
         isError: false
     }),
+
     computed: {
         apiStatus() {
             return this.$store.state.auth.apiStatus;
@@ -132,22 +135,23 @@ export default {
             return this.$store.state.auth.loginErrorMessages;
         }
     },
+
+    created() {
+        this.clearLoginErrorMasseage();
+    },
+
     methods: {
         async login() {
             await this.$store.dispatch("auth/login", this.loginForm);
-
-            console.log(this.apiStatus);
             // apistatusが成功の場合のみ遷移する
             if (this.apiStatus) {
                 this.$router.push("/exercise-books");
             }
         },
+
         clearLoginErrorMasseage() {
             this.$store.commit("auth/setLoginErrorMessages", null);
         }
-    },
-    created() {
-        this.clearLoginErrorMasseage();
     }
 };
 </script>

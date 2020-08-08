@@ -73,10 +73,12 @@ const actions = {
             return;
         }
     },
+
     async logout(context) {
         const response = await axios.post("/api/logout");
         context.commit("setUser", null);
     },
+
     async currentUser(context) {
         context.commit("setApiStatus", null);
         const response = await axios

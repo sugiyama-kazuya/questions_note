@@ -1,16 +1,16 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import store from "./store";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import store from "./store";
-import SystemError from "./pages/errors/System";
 import ExerciseBooks from "./pages/ExerciseBooks";
-import ProblemCreate from "./pages/ProblemCreate";
 import ExerciseBookPlay from "./pages/ExerciseBookPlay";
+import ProblemCreate from "./pages/ProblemCreate";
 import ProblemEdit from "./pages/ProblemEdit";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import List from "./pages/List";
+import SystemError from "./pages/errors/System";
 import NotFound from "./pages/errors/NotFound";
 import Forbidden from "./pages/errors/Forbidden";
 Vue.use(VueRouter);
@@ -130,12 +130,13 @@ export default new VueRouter({
             }
         },
         {
-            /* エラーページ */
+            /* 500エラーページ */
             path: "/500",
             component: SystemError
         },
 
         {
+            // 404エラーページ
             name: "notFound",
             path: "*",
             component: NotFound,
@@ -143,6 +144,7 @@ export default new VueRouter({
         },
 
         {
+            // 403エラーページ
             name: "Forbidden",
             path: "/403",
             component: Forbidden,

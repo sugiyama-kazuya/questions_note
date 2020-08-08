@@ -373,7 +373,6 @@ import TheLoading from "../components/TheLoading";
 import CenterModal from "../components/CenterModal";
 import BaseButton from "../components/BaseButton";
 import CenterModalBtn from "../components/CenterModalBtn";
-
 import { INTERNAL_SERVER_ERROR, OK } from "../util";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -472,9 +471,6 @@ export default {
         // フラッシュメッセージの有無
         isFlashMsg() {
             return this.$store.state.flashMessage.visible;
-        },
-        problemUrl() {
-            return this.normal.problemData[0].url;
         }
     },
 
@@ -490,14 +486,8 @@ export default {
                 .get(`/api/problems/${this.$route.params.id}`)
                 .catch(error => response.error || error);
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$route.push("/500");
-                return;
-            }
-
             if (response.status === OK) {
                 const exerciseBooks = response.data.exercise_books;
-                console.log(exerciseBooks);
                 if (exerciseBooks === null) {
                     this.isProblemEmptyFlg = true;
                     return;
@@ -507,6 +497,8 @@ export default {
                 this.userId = exerciseBooks.user_id;
                 return;
             }
+
+            this.$_internalServerError(response.status);
         },
 
         showAnswer() {
@@ -534,19 +526,23 @@ export default {
             this.orderNumber++;
             this.currentNumber++;
         },
+
         correct() {
             this.nextProblem();
         },
+
         incorrect(problemId) {
             if (problemId) {
                 this.again.incorrectAnswerId.push(problemId);
             }
             this.nextProblem();
         },
+
         swapProblemAnswer() {
             this.problemDisplay = this.problemDisplay ? false : true;
             this.answerDisplay = this.answerDisplay ? false : true;
         },
+
         returnBack() {
             // 最後の問題を表示していた場合、ボタン内の文言を変更
             if (this.normal.problemData.count === this.currentNumber) {
@@ -555,9 +551,11 @@ export default {
 
             this.putOffProblem();
         },
+
         problemEnd() {
             this.isProblemEndModal = true;
         },
+
         incorrectProblemAgain() {
             // 間違えた問題がなかった場合
             if (this.again.incorrectAnswerId.length === 0) {
@@ -590,25 +588,32 @@ export default {
             this.isProblemEndModal = false;
             this.again.incorrectAnswerId = [];
         },
+
         goHome() {
             this.$router.push("/exercise-books");
         },
+
         inMiddleEnd() {
             this.endConfimationModal = true;
         },
+
         openEditModal() {
             this.editModal = true;
         },
+
         closeEditModal() {
             this.editModal = false;
         },
+
         openDeleteConfimationModal() {
             this.closeEditModal();
             this.deleteConfimationModal = true;
         },
+
         closeDeleteConfimationModal() {
             this.deleteConfimationModal = false;
         },
+
         async deleteProblem() {
             const problemId = this.currentProblemData.problemData[
                 this.orderNumber
@@ -618,11 +623,6 @@ export default {
             const response = await axios
                 .delete(url)
                 .catch(error => response.error || error);
-
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$route.push("/500");
-                return;
-            }
 
             if (response.status === OK) {
                 //現在表示されている問題から対象の問題を削除
@@ -647,7 +647,10 @@ export default {
                     this.flashMsg.speed
                 );
             }
+
+            this.$_internalServerError(response.status);
         },
+
         // 問題を繰り下げる
         putOffProblem() {
             this.orderNumber--;
@@ -659,7 +662,6 @@ export default {
             const problemId = this.currentProblemData.problemData[
                 this.orderNumber
             ].id;
-            console.log(problemId);
             this.$router.push(`/problems/${problemId}/edit`);
         },
 

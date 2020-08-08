@@ -235,12 +235,15 @@ export default {
         followBtnBgColor() {
             return this.isFollowedBy ? "bg-blue-400" : "bg-white";
         },
+
         followBtnTextColor() {
             return this.isFollowedBy ? "text-white" : "text-blue-400";
         },
+
         followBtnText() {
             return this.isFollowedBy ? "フォロー中" : "フォローする";
         },
+
         isLoginUser() {
             if (this.$_authCheck) {
                 const paramsUserId = parseInt(this.$route.params.id);
@@ -250,6 +253,7 @@ export default {
                 return false;
             }
         },
+
         isFlashMsg() {
             return this.$store.state.flashMessage.visible;
         },
@@ -277,7 +281,12 @@ export default {
                 .get(url)
                 .catch(error => error.response || error);
 
-            this.followersCount = response.data.follower_count;
+            if (response.status === OK) {
+                this.followersCount = response.data.follower_count;
+                return;
+            }
+
+            this.$_internalServerError(response.status);
         },
         $route() {
             this.getUser();
@@ -318,8 +327,8 @@ export default {
             this.displayTab.isOwnExerciseBooks = true;
             this.displayTab.isFavoriteOrder = false;
             this.displayTab.isFavoriteOrderSearch = false;
-            this.changeType();
             this.$_scrollTop();
+            this.changeType();
             this.searchBoxReset();
         },
 
@@ -482,7 +491,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .img-circle:before {
     display: block;
     content: "";

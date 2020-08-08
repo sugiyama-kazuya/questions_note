@@ -181,10 +181,7 @@ export default {
                 }
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
+            this.$_internalServerError(response.status);
         },
 
         async getPopularOrderExerciseBooks($_state) {
@@ -217,10 +214,7 @@ export default {
                 }
             }
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
-            }
+            this.$_internalServerError(response.status);
         },
 
         async filterExerciseBooks() {

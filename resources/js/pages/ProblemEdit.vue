@@ -474,11 +474,6 @@ export default {
                 .post("/api/exercise-books", this.exerciseBookNewAdd.form)
                 .catch(error => error.response || error);
 
-            if (response.status === UNPROCESSABLE_ENTITY) {
-                this.exerciseBookNewAdd.errorMsg = response.data.errors;
-                return;
-            }
-
             if (response.status === OK) {
                 const exerciseBook = response.data.exerciseBook;
                 this.assignmentToEach("exerciseBook", exerciseBook);
@@ -488,6 +483,11 @@ export default {
             }
 
             this.$_internalServerError(response.status);
+
+            if (response.status === UNPROCESSABLE_ENTITY) {
+                this.exerciseBookNewAdd.errorMsg = response.data.errors;
+                return;
+            }
         },
 
         // 問題の編集
@@ -608,6 +608,7 @@ export default {
             }
         },
 
+        // 同じファイルを再度読み込んだ時に前回のファイルと同じものは読み込みされないので、その対処法
         cleanFileValue($event) {
             event.currentTarget.value = "";
         },
