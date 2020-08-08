@@ -32,7 +32,7 @@
                             <transition name="validateError">
                                 <div v-if="validationErrorMsg.problem">
                                     <FormValidationErrorMessage
-                                        :errorMessages="
+                                        :error-messages="
                                             validationErrorMsg.problem
                                         "
                                     />
@@ -46,7 +46,7 @@
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
                                     <label class="m-0">
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -85,7 +85,7 @@
                             <transition name="validateError">
                                 <div v-if="validationErrorMsg.answer">
                                     <FormValidationErrorMessage
-                                        :errorMessages="
+                                        :error-messages="
                                             validationErrorMsg.answer
                                         "
                                     />
@@ -99,7 +99,7 @@
                                 <p class="m-0">画像を選択</p>
                                 <div class="text-right">
                                     <label class="m-0">
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -134,7 +134,7 @@
                         <transition name="validateError">
                             <div v-if="validationErrorMsg.url" class="px-3">
                                 <FormValidationErrorMessage
-                                    :errorMessages="validationErrorMsg.url"
+                                    :error-messages="validationErrorMsg.url"
                                 />
                             </div>
                         </transition>
@@ -163,7 +163,7 @@
                                 class="px-3"
                             >
                                 <FormValidationErrorMessage
-                                    :errorMessages="
+                                    :error-messages="
                                         validationErrorMsg.exerciseBook
                                     "
                                 />
@@ -173,7 +173,7 @@
                         <div class="flex flex-col bg-gray-200 mb-6">
                             <div class="flex">
                                 <div class="py-2 px-4">
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
                                         icon="book"
                                         class="text-3xl text-blue-400"
                                     />
@@ -194,7 +194,7 @@
                                             type="text"
                                             class="hidden"
                                         />
-                                        <font-awesome-icon
+                                        <FontAwesomeIcon
                                             icon="angle-right"
                                             class="text-3xl text-gray-400"
                                         />
@@ -328,8 +328,8 @@ import {
     faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import commonMixin from "../commonMixin";
 library.add(faAngleRight, faClipboardList, faTimes, faBook);
+import Common from "../commonMixin";
 
 export default {
     name: "ProbelmCreate",
@@ -348,7 +348,7 @@ export default {
         CancelButton
     },
 
-    mixins: [commonMixin],
+    mixins: [Common],
 
     data: () => ({
         exerciseBooks: [],
@@ -406,7 +406,7 @@ export default {
                 .get("/api/problems/create")
                 .catch(error => error.response || error);
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
 
             if (response.status === OK) {
                 this.exerciseBooks = response.data.exercise_books;
@@ -448,7 +448,7 @@ export default {
                 .post("/api/exercise-books", this.exerciseBookNewAdd.form)
                 .catch(error => error.response || error);
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.exerciseBookNewAdd.errorMsg = response.data.errors;
@@ -480,7 +480,7 @@ export default {
                 .post("/api/problems", formData)
                 .catch(error => error.response || error);
 
-            this.internalServerError(response.status);
+            this.$_internalServerError(response.status);
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.validationErrorMsg = response.data.errors;

@@ -8,7 +8,7 @@
                 <slot name="title"></slot>
             </h5>
             <div class="pr-3 text-white w-1/3 text-right">
-                <font-awesome-icon
+                <FontAwesomeIcon
                     @click="closeSelectModal"
                     icon="times"
                     class="text-2xl"

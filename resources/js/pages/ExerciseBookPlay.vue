@@ -3,11 +3,11 @@
         <div class="h-90 bg-gray-200">
             <TheHeader class="h-8">
                 <template v-if="isBackBtnDisplay" v-slot:leftSide>
-                    <font-awesome-icon
+                    <FontAwesomeIcon
                         icon="arrow-left"
                         @click="returnBack"
                         class="text-3xl text-white"
-                    ></font-awesome-icon>
+                    />
                 </template>
                 <template v-slot:titleName>
                     <h5 v-if="!isProblemEmptyFlg" class="text-2xl m-0">
@@ -15,12 +15,12 @@
                     </h5>
                 </template>
                 <template v-slot:rightSide>
-                    <font-awesome-icon
+                    <FontAwesomeIcon
                         v-if="!isProblemEmptyFlg"
                         @click="inMiddleEnd"
                         icon="times"
                         class="text-4xl text-white"
-                    ></font-awesome-icon>
+                    />
                 </template>
             </TheHeader>
             <main class="h-92">
@@ -29,12 +29,12 @@
                         <div class="bg-white h-100 shadow-sm rounded-sm">
                             <div class="bg-blue-300 h-8 flex items-center">
                                 <div class="w-1/3 pl-3 flex items-center">
-                                    <font-awesome-icon
+                                    <FontAwesomeIcon
+                                        @click="swapProblemAnswer"
                                         icon="exchange-alt"
                                         v-if="displaySecond"
-                                        @click="swapProblemAnswer"
                                         class="text-2xl text-gray-600"
-                                    ></font-awesome-icon>
+                                    />
                                 </div>
                                 <div class="w-1/3">
                                     <h1
@@ -196,7 +196,7 @@
                                 <transition name="center-modal">
                                     <CenterModal
                                         v-if="deleteConfimationModal"
-                                        :backColor="false"
+                                        :back-color="false"
                                     >
                                         <div class="py-5 px-3">
                                             <div
@@ -232,12 +232,12 @@
                             <div
                                 class="h-10 flex justify-end items-center px-3 py-1"
                             >
-                                <font-awesome-icon
+                                <FontAwesomeIcon
                                     v-if="isProblemsLoginUser"
                                     @click="openEditModal"
                                     icon="ellipsis-v"
                                     class="text-2xl text-gray-600"
-                                ></font-awesome-icon>
+                                />
                             </div>
                         </div>
                     </div>
@@ -286,7 +286,7 @@
                 </div>
                 <!-- 表示する問題がない場合のモーダル -->
                 <transition name="center-modal">
-                    <CenterModal v-if="isProblemEmptyFlg" :backColor="false">
+                    <CenterModal v-if="isProblemEmptyFlg" :back-color="false">
                         <div class="py-5 px-3">
                             <div class="p-4 text-center text-lg mb-2">
                                 <span>表示する問題がありません。</span>
@@ -384,8 +384,8 @@ import {
     faExchangeAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import commonMixin from "../commonMixin";
 library.add(faTimes, faEllipsisV, faArrowLeft, faExchangeAlt);
+import Common from "../commonMixin";
 
 export default {
     name: "exerciseBookPlay",
@@ -399,7 +399,7 @@ export default {
         BaseButton
     },
 
-    mixins: [commonMixin],
+    mixins: [Common],
 
     data() {
         return {

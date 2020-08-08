@@ -188,12 +188,15 @@ extend("required", {
     ...required,
     message: "{_field_}は必須です"
 });
+
 export default {
     name: "Register",
+
     components: {
         ValidationProvider,
         ValidationObserver
     },
+
     data() {
         return {
             registerForm: {
@@ -204,16 +207,18 @@ export default {
             }
         };
     },
+
     computed: {
         registerErrorMessages() {
             return this.$store.state.auth.registerErrorMessages;
         },
+
         apiStatus() {
             return this.$store.state.auth.apiStatus;
         }
     },
 
-    created() {
+    mounted() {
         this.clearRegisterErrorMessages();
     },
 
@@ -226,6 +231,7 @@ export default {
             }
         },
 
+        // 新規登録バリデーションエラーメッセージの初期化
         clearRegisterErrorMessages() {
             this.$store.commit("auth/setRegisterErrorMessages", null);
         }

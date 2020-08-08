@@ -20,10 +20,10 @@
                 <ChangeTabBtn
                     @left-click="newArrivalsOrder"
                     @right-click="popularOrder"
-                    :isLeftActive="
+                    :is-left-active="
                         displayTab.isNewActive || displayTab.isNewArrivalSearch
                     "
-                    :isRightActive="
+                    :is-right-active="
                         displayTab.isPopularActive || displayTab.isPopularSearch
                     "
                 >
@@ -41,7 +41,7 @@
                     <ExerciseBookCard
                         v-for="exerciseBook in exerciseBooks.data"
                         :key="exerciseBook.id"
-                        :cardData="exerciseBook"
+                        :card-data="exerciseBook"
                         class="mb-4"
                     />
                 </template>
@@ -53,7 +53,7 @@
                     <ExerciseBookCard
                         v-for="exerciseBook in exerciseBooks.data"
                         :key="exerciseBook.id"
-                        :cardData="exerciseBook"
+                        :card-data="exerciseBook"
                         class="mb-4"
                     />
                 </template>
@@ -133,7 +133,7 @@ export default {
 
     methods: {
         newArrivalsOrder() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.displayTab.isNewActive = true;
             this.displayTab.isPopularActive = false;
             this.displayTab.isPopularSearch = false;
@@ -142,7 +142,7 @@ export default {
         },
 
         popularOrder() {
-            this.scrollTop();
+            this.$_scrollTop();
             this.displayTab.isPopularActive = true;
             this.displayTab.isNewActive = false;
             this.displayTab.isNewArrivalSearch = false;
@@ -150,7 +150,7 @@ export default {
             this.searchBoxReset();
         },
 
-        async getNewArrivalsOrderExerciseBooks(state) {
+        async getNewArrivalsOrderExerciseBooks($_state) {
             if (this.displayTab.isNewActive) {
                 console.log("新着API");
                 this.url = `/api/exercise-books?page=${this.page}`;
@@ -172,11 +172,11 @@ export default {
                         response.data.exercise_books
                     );
                     console.log(this.exerciseBooks.data);
-                    state.loaded();
+                    $_state.loaded();
                     return;
                 } else {
                     console.log("取得数0");
-                    state.complete();
+                    $_state.complete();
                     return;
                 }
             }
@@ -187,7 +187,7 @@ export default {
             }
         },
 
-        async getPopularOrderExerciseBooks(state) {
+        async getPopularOrderExerciseBooks($_state) {
             if (this.displayTab.isPopularActive) {
                 console.log("人気順API");
                 this.url = `/api/favorites/asc?page=${this.page}`;
@@ -207,12 +207,12 @@ export default {
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
                         response.data.exercise_books
                     );
-                    state.loaded();
+                    $_state.loaded();
                     console.log(this.exerciseBooks.data);
                     return;
                 } else {
                     console.log("取得数0");
-                    state.complete();
+                    $_state.complete();
                     return;
                 }
             }
@@ -224,7 +224,7 @@ export default {
         },
 
         async filterExerciseBooks() {
-            this.scrollTop();
+            this.$_scrollTop();
             if (
                 this.displayTab.isNewActive ||
                 this.displayTab.isNewArrivalSearch
