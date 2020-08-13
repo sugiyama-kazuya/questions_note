@@ -165,9 +165,12 @@ export default {
             this.$store.dispatch("auth/closePromptToRegisterOrLoginModal");
         },
 
-        goLogin() {
+        async goLogin() {
+            console.log("通ってます");
+            await this.$store.dispatch(
+                "auth/closePromptToRegisterOrLoginModal"
+            );
             this.$router.push("/login");
-            this.$store.dispatch("auth/closePromptToRegisterOrLoginModal");
         },
 
         openPromptToRegisterOrLoginModal() {

@@ -53,7 +53,8 @@
 </template>
 
 <script>
-import { INTERNAL_SERVER_ERROR } from "../util";
+import { OK } from "../util";
+import Common from "../commonMixin";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -71,6 +72,8 @@ export default {
     components: {
         FontAwesomeIcon
     },
+
+    mixins: [Common],
 
     data() {
         return {
@@ -119,6 +122,7 @@ export default {
         },
 
         async isLiked(problemId) {
+            // ユーザーが未ログインの時は、ログイン処理を促すモーダルを表示
             if (this.$store.state.auth.user) {
                 // 既にいいねしていた場合
                 if (this.isLikedBy) {
@@ -128,11 +132,7 @@ export default {
                         })
                         .catch(error => error.response || error);
 
-                    if (response.status === INTERNAL_SERVER_ERROR) {
-                        this.$router.push("/500");
-                        console.log(response);
-                        return;
-                    }
+                    this.$_internalServerError(response.status);
 
                     this.isLikedBy = false;
                 } else {
@@ -141,10 +141,7 @@ export default {
                         .put("/api/favorites", { id: problemId })
                         .catch(error => error.response || error);
 
-                    if (response.status === INTERNAL_SERVER_ERROR) {
-                        this.$router.push("/500");
-                        return;
-                    }
+                    this.$_internalServerError(response.status);
 
                     this.isLikedBy = true;
                 }
@@ -159,12 +156,10 @@ export default {
                 .get(url)
                 .catch(error => error.response);
 
-            if (response.status === INTERNAL_SERVER_ERROR) {
-                this.$router.push("/500");
-                return;
+            if (response.status === OK) {
+                return response.data.count;
             }
-
-            return response.data.count;
+            this.$_internalServerError(response.status);
         }
     }
 };
