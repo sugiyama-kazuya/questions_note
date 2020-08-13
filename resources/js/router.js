@@ -92,7 +92,7 @@ export default new VueRouter({
                 if (store.getters["auth/loginCheck"]) {
                     next();
                 } else {
-                    next("/login");
+                    store.dispatch("auth/openPromptToRegisterOrLoginModal");
                 }
             }
         },

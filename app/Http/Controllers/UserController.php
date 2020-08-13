@@ -26,13 +26,8 @@ class UserController extends Controller
      */
     public function show($user_id): object
     {
-        $login_user_id = Auth::id();
-        $current_user = $this->user->getProfileRequiredData((int) $user_id);
-        $this->user->checkExists($current_user);
-
-        if ($login_user_id !== (int) $user_id) {
-            $current_user['is_followed_by'] = $current_user->isFollowedBy($login_user_id);
-        }
+        $current_user = $this->user->profileBaseData($user_id);
+        $current_user = $this->user->getLoginUserOtherThanFollowPresence($current_user, $user_id);
 
         return response()->json(['user' => $current_user]);
     }
@@ -45,9 +40,7 @@ class UserController extends Controller
      */
     public function edit($user_id)
     {
-        $user = $this->user->find($user_id);
-        $this->user->checkExists($user);
-
+        $user = $this->user->currentUser($user_id);
         if ($user->profile_img) {
             $user->profile_img = $user->awsUrlFetch($user->profile_img);
         }

@@ -7,7 +7,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\RelatedToFilePathS3;
-use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
@@ -29,7 +28,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'email_verified_at'
+        'password', 'remember_token', 'email_verified_at', 'email'
     ];
 
     /**
@@ -67,9 +66,9 @@ class User extends Authenticatable
      * @param integer $user_id
      * @return
      */
-    public function currentUser(int $user_id)
+    public function currentUser($user_id)
     {
-        return $this->find($user_id);
+        return $this->findOrFail($user_id);
     }
 
     /**
@@ -111,24 +110,20 @@ class User extends Authenticatable
      * @param integer $user_id
      *
      */
-    public function getProfileRequiredData(int $user_id)
+    public function profileBaseData($user_id)
     {
         $current_user = $this->currentUser($user_id);
 
-        if ($current_user) {
-            if ($current_user->profile_img) {
-                $file_path = $current_user->awsUrlFetch($current_user->profile_img);
-                $current_user['followers_count'] = $current_user->followers_count;
-                $current_user['followings_count'] = $current_user->followings_count;
-                $current_user['profile_img'] = $file_path;
-                return $current_user;
-            } else {
-                $current_user['followers_count'] = $current_user->followers_count;
-                $current_user['followings_count'] = $current_user->followings_count;
-                return $current_user;
-            }
+        if ($current_user->profile_img) {
+            $file_path = $current_user->awsUrlFetch($current_user->profile_img);
+            $current_user['followers_count'] = $current_user->followers_count;
+            $current_user['followings_count'] = $current_user->followings_count;
+            $current_user['profile_img'] = $file_path;
+            return $current_user;
         } else {
-            return;
+            $current_user['followers_count'] = $current_user->followers_count;
+            $current_user['followings_count'] = $current_user->followings_count;
+            return $current_user;
         }
     }
 
@@ -187,17 +182,18 @@ class User extends Authenticatable
     }
 
     /**
-     * ユーザーが存在しているかのチェック
+     *ログインユーザー以外のページを表示する時は、フォローの有無が必要となるので取得する
      *
      * @param [type] $user
+     * @param [type] $user_id
      * @return void
      */
-    public function checkExists($user)
+    public function getLoginUserOtherThanFollowPresence($user, $user_id)
     {
-        if (!isset($user)) {
-            return abort(404);
-        } else {
-            return $user;
+        $login_user_id = Auth::id();
+        if ($login_user_id !== (int) $user_id) {
+            $user['is_followed_by'] = $user->isFollowedBy($login_user_id);
         }
+        return $user;
     }
 }

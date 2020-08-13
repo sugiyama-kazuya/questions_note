@@ -14,10 +14,8 @@ Route::resource('exercise-books', 'ExerciseBookController')->only(['index', 'sto
 
 Route::resource('users', 'UserController')->only(['show', 'edit', 'update']);
 
-Route::prefix('users')->name('users.')->group(function () {
+Route::prefix('users')->group(function () {
     Route::middleware('auth')->group(function () {
-        Route::put('{id}/follow', 'FollowController')->name('follow');
-        Route::delete('{id}/follow', 'unFollowController')->name('unfollow');
         Route::get('{id}/followers', 'OwnFollowersController');
         Route::get('{id}/follows', 'OwnFollowsController');
     });
@@ -27,12 +25,13 @@ Route::prefix('users')->group(function () {
     Route::get('{id}/follwings/count', 'FollwingsCountController');
 });
 
-Route::put('favorites', 'Favorites')->name('favorites');
+Route::put('favorites', 'FavoritesController');
 Route::delete('unfavorites', 'UnFavoritesController');
 Route::get('favorites/asc', 'FavoritesOrderByDescController');
 Route::get('favorites/asc/{user_id}', 'OwnFavoritesOrderByDescController');
-Route::get('{id}/favorites/counts', 'FavoritesCount');
+Route::get('{id}/favorites/counts', 'FavoritesCountController');
 Route::get('own/exercise-books/problems', 'OwnExerciseBooksController');
+
 Route::get('/user', function () {
     return Auth::user();
-})->name('user');
+});

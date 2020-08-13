@@ -25,17 +25,17 @@ class ExerciseBookController extends Controller
         $search_keyword = $request->query('search');
         if ($search_keyword) {
             $exercise_books = $this->exercise_book
-                ->fetchExerciseBookCardBaseData()
+                ->BaseData()
                 ->where("name", "LIKE", "%$search_keyword%")
                 ->simplePaginate(30);
         } else {
-            $exercise_books = $this->exercise_book->fetchExerciseBookCardBaseData()->simplePaginate(30);
+            $exercise_books = $this->exercise_book->BaseData()->simplePaginate(30);
         }
 
         $exercise_books = $this->exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
-        $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
+        $exercise_books = $this->exercise_book->filteringCardData($exercise_books);
         $exercise_books = $this->exercise_book->problemUpdateDateDesc($exercise_books);
 
         return response()->json(['exercise_books' => $exercise_books]);
@@ -63,21 +63,21 @@ class ExerciseBookController extends Controller
         $search_keyword = $request->query('search');
         if ($search_keyword) {
             $exercise_books = $this->exercise_book
-                ->fetchExerciseBookCardBaseData()
+                ->BaseData()
                 ->where('user_id', $user_id)
                 ->Where("name", "LIKE", "%$search_keyword%")
-                ->simplePaginate(20);
+                ->simplePaginate(30);
         } else {
             $exercise_books = $this->exercise_book
-                ->fetchExerciseBookCardBaseData()
+                ->BaseData()
                 ->where('user_id', $user_id)
-                ->simplePaginate(20);
+                ->simplePaginate(30);
         }
 
         $exercise_books = $this->exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $this->exercise_book->addProfileUrl($exercise_books);
         $exercise_books = $this->exercise_book->addFavoriteInfo($exercise_books);
-        $exercise_books = $this->exercise_book->filteringExerciseBookCard($exercise_books);
+        $exercise_books = $this->exercise_book->filteringCardData($exercise_books);
         $exercise_books = $this->exercise_book->problemUpdateDateDesc($exercise_books);
 
         return response()->json(['exercise_books' => $exercise_books]);
@@ -91,7 +91,7 @@ class ExerciseBookController extends Controller
      */
     public function destroy($id)
     {
-        $exercise_book = $this->exercise_book->find($id);
+        $exercise_book = $this->exercise_book->findOrFail($id);
         $this->authorize('delete', $exercise_book);
         $exercise_book->delete();
     }

@@ -103,9 +103,9 @@ class ExerciseBook extends Model
      *
      * @return Object
      */
-    public function fetchExerciseBookCardBaseData(): Object
+    public function scopeBaseData($query)
     {
-        return $this->with(['user:id,name,profile_img', 'likes', 'problem']);
+        return $query->with(['user:id,name,profile_img', 'likes', 'problem']);
     }
 
     /**
@@ -118,6 +118,7 @@ class ExerciseBook extends Model
     {
         $login_user_id = Auth::id();
 
+        // ログインしていない場合はお気に入りの有無は表示しない
         if ($login_user_id) {
             return $exercise_books = $exercise_books->map(function ($data) use ($login_user_id) {
                 $exercise_book = $data;
@@ -141,7 +142,7 @@ class ExerciseBook extends Model
      * @param $likes Boolean DBから取得時にlikesテーブルも取得しているか否か
      * @return object
      */
-    public function filteringExerciseBookCard($exercise_books): object
+    public function filteringCardData($exercise_books): object
     {
         $login_user_id = Auth::id();
 
@@ -206,7 +207,7 @@ class ExerciseBook extends Model
     }
 
     /**
-     *お気に入り数の数で降順で取得する
+     *お気に入りの数で降順に並び変える
      *
      * @param [type] $exercise_books
      * @return object

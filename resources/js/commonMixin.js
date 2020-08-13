@@ -25,17 +25,20 @@ export default {
         $_notFoundError(status) {
             if (NotFound === status) {
                 this.$router.push("/notFound");
+                return;
             }
         },
 
         $_forbidden(status) {
             if (Forbidden === status) {
                 this.$router.push("/403");
+                return;
             }
         },
 
         $_goExerciseBooksIndex() {
             this.$router.push("/exercise-books");
+            return;
         }
     }
 };

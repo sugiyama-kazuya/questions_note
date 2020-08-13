@@ -164,7 +164,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faTimes);
-import { OK, UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR } from "../util";
+import { OK, UNPROCESSABLE_ENTITY } from "../util";
 import Common from "../commonMixin";
 
 export default {
