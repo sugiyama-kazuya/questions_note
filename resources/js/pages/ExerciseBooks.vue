@@ -81,7 +81,6 @@
 </template>
 
 <script>
-import Common from "../commonMixin";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import ExerciseBookCard from "../components/ExerciseBookCard";
@@ -89,8 +88,8 @@ import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import NoSearchResults from "../components/NoSearchResults";
 import InfiniteLoading from "vue-infinite-loading";
-
-import { OK, INTERNAL_SERVER_ERROR } from "../util";
+import { OK } from "../util";
+import Common from "../commonMixin";
 
 export default {
     name: "ExerciseBooks",
