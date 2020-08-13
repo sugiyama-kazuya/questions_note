@@ -16,14 +16,13 @@ class OwnFavoritesOrderByDescController extends Controller
     public function __invoke(Request $request, ExerciseBook $exercise_book, $user_id)
     {
         $search_keyword = $request->query('search');
-        Log::debug($search_keyword);
         if ($search_keyword) {
-            $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()
+            $exercise_books = $exercise_book->BaseData()
                 ->where("name", "LIKE", "%$search_keyword%")
-                ->simplePaginate(20);
+                ->simplePaginate(30);
         } else {
-            $exercise_books = $exercise_book->fetchExerciseBookCardBaseData()
-                ->simplePaginate(20);
+            $exercise_books = $exercise_book->BaseData()
+                ->simplePaginate(30);
         }
         $exercise_books = $exercise_book->addProblemUpdateDate($exercise_books);
         $exercise_books = $exercise_book->addProfileUrl($exercise_books);

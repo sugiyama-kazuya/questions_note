@@ -11,7 +11,7 @@ class ProblemPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can update the problem.
+     * 問題編集者と問題作成者idをチェック
      *
      * @param  \App\User  $user
      * @param  \App\Problem  $problem
@@ -23,7 +23,7 @@ class ProblemPolicy
     }
 
     /**
-     * Determine whether the user can delete the problem.
+     * 問題削除者と問題作成者idをチェック
      *
      * @param  \App\User  $user
      * @param  \App\Problem  $problem

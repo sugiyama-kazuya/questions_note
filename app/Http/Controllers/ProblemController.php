@@ -57,11 +57,9 @@ class ProblemController extends Controller
     public function show($exercise_books_id)
     {
         $problems = $this->problem->where('exercise_book_id', $exercise_books_id)->get();
-
         $problems = $problems->map(function ($problem) {
             return $problem->addImageUrl($problem);
         });
-
         if ($problems->isEmpty()) {
             return response()->json(['exercise_books' => null]);
         } else {
@@ -81,8 +79,7 @@ class ProblemController extends Controller
     {
         DB::transaction(function () use ($id, $request) {
             $exercise_book = $this->exercise_book->fetchOrRegister($request);
-            $problem = $this->problem->find($id);
-            $this->problem->checkExists($problem);
+            $problem = $this->problem->findOrFail($id);
             $this->authorize('update', $problem);
             $this->problem->problemUpdate($problem, $request, $exercise_book);
         });
@@ -96,8 +93,7 @@ class ProblemController extends Controller
      */
     public function edit($id)
     {
-        $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->first();
-        $this->problem->checkExists($problem);
+        $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->firstOrFail();
         $this->authorize('update', $problem);
         $problem = $this->problem->addImageUrl($problem);
         $exercise_books = $this->exercise_book->loginUserExerciseBook;
@@ -115,7 +111,7 @@ class ProblemController extends Controller
      */
     public function destroy($problem_id)
     {
-        $problem = $this->problem->find($problem_id);
+        $problem = $this->problem->findOrFail($problem_id);
         $this->authorize('delete', $problem);
         $problem->delete();
     }
