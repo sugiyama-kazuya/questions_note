@@ -7,7 +7,7 @@ use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class Favorites extends Controller
+class FavoritesController extends Controller
 {
 
     private $exercise_book;
@@ -25,7 +25,6 @@ class Favorites extends Controller
      */
     public function __invoke(Request $request)
     {
-        Log::debug($request);
         $exercise_book_id = $request->id;
         $login_user_id = Auth::id();
 

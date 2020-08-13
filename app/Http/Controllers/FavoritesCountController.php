@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\ExerciseBook;
 
-class FavoritesCount extends Controller
+class FavoritesCountController extends Controller
 {
     /**
      * 特定の問題集のお気に入り数の取得
