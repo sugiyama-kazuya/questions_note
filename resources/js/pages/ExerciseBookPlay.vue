@@ -293,7 +293,7 @@
                             </div>
                             <div class="flex justify-center p-2">
                                 <CenterModalBtn
-                                    @click.native="goExerciseBooksIndex()"
+                                    @click.native="$_goExerciseBooksIndex()"
                                     :text="'一覧へ戻る'"
                                     :color="'bg-blue-400'"
                                 />
