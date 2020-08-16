@@ -1,6 +1,6 @@
 <template>
     <div class="h-5rem">
-        <header class="flex bg-indigo-400 h-100">
+        <header :class="bgColor ? bgColor : 'bg-indigo-400'" class="flex h-100">
             <div class="w-1/3 flex justify-start items-center pl-3">
                 <slot name="leftSide"></slot>
             </div>
@@ -19,6 +19,11 @@
 
 <script>
 export default {
-    name: "TheHeader"
+    name: "TheHeader",
+    props: {
+        bgColor: {
+            type: String
+        }
+    }
 };
 </script>
