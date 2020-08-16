@@ -13,6 +13,7 @@ import List from "./pages/List";
 import SystemError from "./pages/errors/System";
 import NotFound from "./pages/errors/NotFound";
 import Forbidden from "./pages/errors/Forbidden";
+import Opening from "./pages/Opening";
 Vue.use(VueRouter);
 
 export default new VueRouter({
@@ -149,6 +150,19 @@ export default new VueRouter({
             path: "/403",
             component: Forbidden,
             meta: { title: "お探しのページは表示できません" }
+        },
+
+        {
+            name: "Opening",
+            path: "/openings",
+            component: Opening,
+            beforeEnter(to, from, next) {
+                if (store.getters["auth/loginCheck"]) {
+                    next("/exercise-books");
+                } else {
+                    next();
+                }
+            }
         }
     ]
 });
