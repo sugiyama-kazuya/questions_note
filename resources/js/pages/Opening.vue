@@ -1,6 +1,6 @@
 <template>
     <div class="scroll">
-        <div class="h-screen target1-s">
+        <div class="h-screen target-first">
             <div class="scroll-target m-0 flex flex-col">
                 <TheHeader
                     :bg-color="'bg-transparent'"
@@ -29,12 +29,12 @@
                         自分って記憶力ないよなぁと感じたことはありませんか？？
                     </p>
                 </div>
-                <a class="target-btn-white flex-none text-center" href="#"
-                    ><span></span>Scroll</a
-                >
+                <div class="target-btn-white flex-none text-center">
+                    <span></span>Scroll
+                </div>
             </div>
         </div>
-        <div class=" h-screen bg-gray-100">
+        <div class="h-screen bg-gray-100">
             <div
                 class="scroll-target flex flex-col items-center justify-center"
             >
@@ -53,10 +53,10 @@
                         </p>
                     </div>
                 </div>
-                <a class="target-btn" href="#"><span></span>Scroll</a>
+                <div class="target-btn"><span></span>Scroll</div>
             </div>
         </div>
-        <div class="h-screen  bg-gray-200">
+        <div class="h-screen bg-gray-200">
             <div
                 class="scroll-target flex flex-col items-center justify-center"
             >
@@ -78,7 +78,7 @@
                         </p>
                     </div>
                 </div>
-                <a class="target-btn " href="#"><span></span>Scroll</a>
+                <div class="target-btn"><span></span>Scroll</div>
             </div>
         </div>
         <div class="h-screen bg-gray-100">
@@ -211,7 +211,7 @@ export default {
     -webkit-overflow-scrolling: touch;
 }
 
-.target1-s {
+.target-first {
     background-image: url("/storage/frustration-1241534_1920.jpg");
     background-size: cover;
 }
