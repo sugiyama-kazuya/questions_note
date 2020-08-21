@@ -8,6 +8,10 @@ Route::post('/login', 'Auth\LoginController@login')->name('login');
 
 Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
+// パスワードリセット
+Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
+
 Route::resource('problems', 'ProblemController')->except(['index']);
 
 Route::resource('exercise-books', 'ExerciseBookController')->only(['index', 'store', 'show', 'destroy']);
