@@ -18,21 +18,18 @@ export default {
         $_internalServerError(status) {
             if (INTERNAL_SERVER_ERROR === status) {
                 this.$router.push("/500");
-                return;
             }
         },
 
         $_notFoundError(status) {
             if (NotFound === status) {
                 this.$router.push("/notFound");
-                return;
             }
         },
 
         $_forbidden(status) {
             if (Forbidden === status) {
                 this.$router.push("/403");
-                return;
             }
         },
 

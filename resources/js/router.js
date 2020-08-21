@@ -14,6 +14,8 @@ import SystemError from "./pages/errors/System";
 import NotFound from "./pages/errors/NotFound";
 import Forbidden from "./pages/errors/Forbidden";
 import Opening from "./pages/Opening";
+import PasswordReset from "./pages/PasswordReset";
+import PasswordResetForm from "./pages/PasswordResetForm";
 Vue.use(VueRouter);
 
 export default new VueRouter({
@@ -163,6 +165,18 @@ export default new VueRouter({
                     next();
                 }
             }
+        },
+
+        {
+            name: "PasswordReset",
+            path: "/password/reset",
+            component: PasswordReset
+        },
+
+        {
+            name: "PasswordResetForm",
+            path: "/password/reset/form/:token/:email",
+            component: PasswordResetForm
         }
     ]
 });
