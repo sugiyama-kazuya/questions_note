@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ProfileRequest;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -15,54 +17,64 @@ class UserController extends Controller
         $this->user = $user;
     }
 
-    public function follow(Request $request, $user_id)
+    /**
+     * プロフィール画面の情報の取得
+     *
+     * @param User $user
+     * @param [string] $user_id
+     * @return object
+     */
+    public function show($user_id): object
     {
-        $login_user = Auth::user();
+        $current_user = $this->user->profileBaseData($user_id);
+        $current_user = $this->user->getLoginUserOtherThanFollowPresence($current_user, $user_id);
 
-        if ($login_user === null) {
-            return;
-        }
-
-        // 自分自身にをフォローを使用とした時（自分自身はフォローできない）
-        if ($login_user->id === (int) $user_id) {
-            return abort('404', 'Cannot follow yourself');
-        }
-
-        $current_user = $this->user->currentUser($login_user->id);
-        $current_user->followings()->detach($user_id);
-        $current_user->followings()->attach($user_id);
-
-        return response()->json(['is_follwed_by' => $current_user->isFollowedBy($user_id)]);
+        return response()->json(['user' => $current_user]);
     }
 
-    public function unfollow(Request $request, $user_id)
+    /**
+     * 編集画面
+     *
+     * @param [string] $user_id
+     * @return void
+     */
+    public function edit($user_id)
     {
-        $login_user = Auth::user();
-
-        if ($login_user === null) {
-            return;
+        $user = $this->user->currentUser($user_id);
+        if ($user->profile_img) {
+            $user->profile_img = $user->awsUrlFetch($user->profile_img);
         }
 
-        // 自分自身のフォロー外そうとした場合（自分自身はフォローできない）
-        if ($login_user->id === (int) $user_id) {
-            return abort('404', 'Cannot follow yourself');
+        return response()->json(['user' => $user]);
+    }
+
+    /**
+     * プロフィール編集の更新
+     *
+     * @param ProfileRequest $request
+     * @param User $user
+     * @return User $user
+     */
+    public function update(ProfileRequest $request, User $user)
+    {
+        if ($request->file) {
+            $extension = $request->file->extension();
+            $file_path = $user->getRandomId() . '.' . $extension;
+
+            DB::beginTransaction();
+            try {
+                $this->user->saveFileToS3($request->file, $file_path);
+                $this->user->profileUpdate($request, $file_path);
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollback();
+                Storage::cloud()->delete($this->user->profile_img);
+                return abort(500);
+            }
+        } else {
+            $this->user->profileUpdate($request);
         }
 
-        $current_user = $this->user->currentUser($login_user->id);
-        $current_user->followings()->detach($user_id);
-
-        return response()->json(['is_follwed_by' => $current_user->isFollowedBy($user_id)]);
-    }
-
-    public function followersCount($user_id)
-    {
-        return response()
-            ->json(['follower_count' => $this->user->currentUser($user_id)->followers_count]);
-    }
-
-    public function follwingsCount($user_id)
-    {
-        return response()
-            ->json(['followings_count' => $this->user->currentUser($user_id)->followings_count]);
+        return http_response_code(200);
     }
 }

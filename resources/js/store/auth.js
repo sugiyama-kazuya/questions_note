@@ -4,10 +4,13 @@ const state = {
     user: null,
     apiStatus: null,
     loginErrorMessages: null,
-    registerErrorMessages: null
+    registerErrorMessages: null,
+    isPromptToRegisterOrLoginModal: false
 };
 
-const getters = {};
+const getters = {
+    loginCheck: state => (state.user ? true : false)
+};
 
 const mutations = {
     setUser(state, data) {
@@ -21,6 +24,9 @@ const mutations = {
     },
     setRegisterErrorMessages(state, messages) {
         state.registerErrorMessages = messages;
+    },
+    setIsPromptToRegisterOrLoginModal(state, status) {
+        state.isPromptToRegisterOrLoginModal = status;
     }
 };
 
@@ -31,11 +37,10 @@ const actions = {
             .post("/api/register", data)
             .catch(error => error.response || error);
 
-        console.log(response.data);
-
         if (response.status === CREATED) {
-            context.commit("apiStatus", true);
-            context.commit("setUser");
+            context.commit("setApiStatus", true);
+            context.commit("setUser", response.data);
+            return;
         }
 
         context.commit("setApiStatus", false);
@@ -45,6 +50,7 @@ const actions = {
             context.commit("error/setCode", response.status, { root: true });
         }
     },
+
     async login(context, data) {
         context.commit("setApiStatus", null);
         const response = await axios
@@ -52,21 +58,27 @@ const actions = {
             .catch(error => error.response || error);
 
         if (response.status === OK) {
+            console.log("成功です");
             context.commit("setApiStatus", true);
             context.commit("setUser", response.data);
+            return;
         }
 
         context.commit("setApiStatus", false);
         if (response.status === UNPROCESSABLE_ENTITY) {
             context.commit("setLoginErrorMessages", response.data.errors);
+            return;
         } else {
             context.commit("error/setCode", response.status, { root: true });
+            return;
         }
     },
+
     async logout(context) {
         const response = await axios.post("/api/logout");
         context.commit("setUser", null);
     },
+
     async currentUser(context) {
         context.commit("setApiStatus", null);
         const response = await axios
@@ -81,6 +93,14 @@ const actions = {
 
         context.commit("setApiStatus", false);
         context.commit("error/setCode", response.status, { root: true });
+    },
+
+    openPromptToRegisterOrLoginModal(context) {
+        context.commit("setIsPromptToRegisterOrLoginModal", true);
+    },
+
+    closePromptToRegisterOrLoginModal(context) {
+        context.commit("setIsPromptToRegisterOrLoginModal", false);
     }
 };
 

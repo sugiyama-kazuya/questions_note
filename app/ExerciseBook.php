@@ -5,12 +5,12 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExerciseBook extends Model
 {
-
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
@@ -21,7 +21,11 @@ class ExerciseBook extends Model
     protected $dateFormat = "Y/m/d";
 
     protected $fillable = [
-        'exercise_books_name_id', 'user_id', 'created_at', 'updated_at'
+        'name', 'user_id', 'created_at', 'updated_at'
+    ];
+
+    protected $hidden = [
+        'created_at', 'updated_at'
     ];
 
     public function user(): BelongsTo
@@ -32,11 +36,6 @@ class ExerciseBook extends Model
     public function problem(): HasMany
     {
         return $this->hasMany('App\Problem');
-    }
-
-    public function exerciseBooksName(): BelongsTo
-    {
-        return $this->belongsTo('App\ExerciseBookName');
     }
 
     /**
@@ -53,6 +52,16 @@ class ExerciseBook extends Model
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
+
+    /**
+     * ログインユーザーの問題集を取得
+     *
+     * @return Object
+     */
+    public function getLoginUserExerciseBookAttribute()
+    {
+        return $this->where('user_id', Auth::id())->get(['id', 'name']);
     }
 
     /**
@@ -90,52 +99,155 @@ class ExerciseBook extends Model
     }
 
     /**
-     * 問題カードを表示する為に必要なデータの絞り込み
+     * 問題カードの表示の為の基本データ取得
+     *
+     * @return Object
+     */
+    public function scopeBaseData($query)
+    {
+        return $query->with(['user:id,name,profile_img', 'likes', 'problem']);
+    }
+
+    /**
+     * お気に入り情報の追加
+     *
+     * @param $exercise_books
+     * @return object
+     */
+    public function addFavoriteInfo($exercise_books)
+    {
+        $login_user_id = Auth::id();
+
+        // ログインしていない場合はお気に入りの有無は表示しない
+        if ($login_user_id) {
+            return $exercise_books = $exercise_books->map(function ($data) use ($login_user_id) {
+                $exercise_book = $data;
+                $exercise_book['favorite_count'] = $data['likes']->count();
+                $exercise_book['is_liked_by'] = $data->isLikedBy($login_user_id);
+                return $exercise_book;
+            });
+        } else {
+            return $exercise_books = $exercise_books->map(function ($data) {
+                $exercise_book = $data;
+                $exercise_book['favorite_count'] = $data['likes']->count();
+                return $exercise_book;
+            });
+        }
+    }
+
+    /**
+     * 問題カードを表示する為の必要なデータの絞り込み
      *
      * @param $exercise_books object
      * @param $likes Boolean DBから取得時にlikesテーブルも取得しているか否か
      * @return object
      */
-    public function filteringRequiredData($exercise_books, int $user_id = null): object
+    public function filteringCardData($exercise_books): object
     {
-        // いいねの数といいねがされているか否かの変数を代入
-        $exercise_books = $exercise_books->map(function ($data) use ($user_id) {
-            $exercise_books_data = $data;
-            $exercise_books_data['favolite_count'] = $data['likes']->count();
-            $exercise_books_data['is_liked_by'] = $data->isLikedBy($user_id);
-            return $exercise_books_data;
-        });
+        $login_user_id = Auth::id();
 
-        //        必要なデータの絞り込み
-        $exercise_books = $exercise_books->map(function ($data) {
-            return $data->only(['id', 'updated_at', 'user_id', 'exercise_books_name_id', 'user', 'exerciseBooksName', 'favolite_count', 'is_liked_by']);
-        });
+        if ($login_user_id) {
+            return $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'problem_update_at', 'name', 'user_id', 'user', 'favorite_count', 'is_liked_by', 'profile_img']);
+            });
 
-        return $exercise_books;
+            return $exercise_books;
+        } else {
+            return $exercise_books = $exercise_books->map(function ($data) {
+                return $data->only(['id', 'problem_update_at', 'name', 'user_id', 'user', 'favorite_count', 'profile_img']);
+            });
+        }
     }
 
     /**
-     * 使用するデータを取得
+     * ログインユーザーの問題集を取得し、
+     * リクエストから送られてきた問題集があれば取得、なければ登録
      *
-     * @return object
+     * @param Object $request
+     * @return Object
      */
-    public function getExerciseBookData(): object
+    public function fetchOrRegister(Object $request)
     {
-        return $this->with(['user:id,name,profile_img', 'exerciseBooksName:id,name', 'likes']);
+        return $this->where('user_id', Auth::id())->firstOrCreate(
+            ['name' => $request->exerciseBook],
+            [
+                'name' => $request->exerciseBook,
+                'user_id' => Auth::id(),
+            ]
+        );
     }
 
     /**
      * S3からユーザー画像のURLを取得
      *
-     * @param [object] $data
+     * @param [Object] $exercise_books
      * @return object
      */
-    public function addProfileUrl($data): object
+    public function addProfileUrl($exercise_books)
     {
-        return $data->map(function ($item) {
-            $data = $item;
-            $data['user']['profile_img'] = $item->user->awsUrlFetch($item->user->profile_img);
+        return $exercise_books->map(function ($exercise_book) {
+            $data = $exercise_book;
+            $data['profile_img'] = $exercise_book->user->awsUrlFetch($exercise_book->user->profile_img);
             return $data;
+        });
+    }
+
+    /**
+     * 自身がお気に入り登録している問題集を取得
+     *
+     * @param [Object] $exercise_books
+     * @param [int] $user_id
+     * @return void
+     */
+    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books): object
+    {
+        return $exercise_books->filter(function ($exercise_book) {
+            return $exercise_book->is_liked_by === true;
+        })->values();
+    }
+
+    /**
+     *お気に入りの数で降順に並び変える
+     *
+     * @param [type] $exercise_books
+     * @return object
+     */
+    public function favoriteCountDesc($exercise_books): object
+    {
+        return $exercise_books->sortByDesc(function ($exercise_book) {
+            return $exercise_book['favorite_count'];
+        })->values();
+    }
+
+    /**
+     * 問題の更新日を降順に並び変える
+     *
+     * @param [type] $exercise_books
+     * @return void
+     */
+    public function problemUpdateDateDesc($exercise_books)
+    {
+        return $exercise_books->sortByDesc(function ($exercise_book) {
+            return $exercise_book['problem_update_at'];
+        })->values();
+    }
+
+    /**
+     * 問題の更新日を取得
+     *
+     * @param [type] $exercise_books
+     * @return void
+     */
+    public function addProblemUpdateDate($exercise_books)
+    {
+        return $exercise_books->map(function ($exercise_book) {
+            if ($exercise_book->problem->first()) {
+                $data = $exercise_book;
+                $data['problem_update_at'] = $exercise_book->problem->last()->updated_at;
+                return $data;
+            } else {
+                return $exercise_book;
+            }
         });
     }
 }

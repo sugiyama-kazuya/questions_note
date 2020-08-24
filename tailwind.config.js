@@ -19,6 +19,7 @@ module.exports = {
             "70": "70%",
             "75": "75%",
             "80": "80%",
+            "72": "72%",
             "82": "82%",
             "84": "84%",
             "85": "85%",
@@ -34,7 +35,9 @@ module.exports = {
             "6rem": "6rem",
             "7rem": "7rem",
             "8rem": "8rem",
-            "12rem": "12rem"
+            "12rem": "12rem",
+            screen: "100vh",
+            auto: "auto"
         },
         extend: {
             width: {

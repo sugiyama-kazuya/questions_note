@@ -15,8 +15,7 @@ class CreateExerciseBooksTable extends Migration
     {
         Schema::create('exercise_books', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('exercise_books_name_id')->unsigned();
-            $table->foreign('exercise_books_name_id')->references('id')->on('exercise_books');
+            $table->string('name')->comment('問題集の名前');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
             $table->bigInteger('problem_id')->unsigned();

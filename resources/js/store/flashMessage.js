@@ -11,8 +11,10 @@ const mutations = {
     }
 };
 const actions = {
-    hideFlashMsg(context) {
-        context.commit("setClearFlashMsg", false);
+    hideFlashMsg(context, speed) {
+        setTimeout(function() {
+            context.commit("setClearFlashMsg", false);
+        }, speed);
     },
     showFlashMsg(context) {
         context.commit("setVisible", true);

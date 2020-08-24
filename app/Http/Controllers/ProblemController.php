@@ -2,112 +2,117 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Problem;
 use App\ExerciseBook;
-use App\ExerciseBookName;
 use App\Http\Requests\CreateProblem;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\UpdateProblem;
+use Illuminate\Support\Facades\DB;
 
 class ProblemController extends Controller
 {
-    /**
-     * 問題一覧画面のデータを取得
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(ExerciseBook $exercise_book)
+    private $problem;
+    private $exercise_book;
+
+    public function __construct(Problem $problem, ExerciseBook $exercise_book)
     {
-        $login_user_id = Auth::id();
-        // 問題カードに必要なデータを取得
-        $exercise_books = $exercise_book->getExerciseBookData()->get();
-        $exercise_books = $exercise_book->addProfileUrl($exercise_books);
-
-        // ユーザーがログインしている場合
-        if ($login_user_id) {
-            $exercise_books = $exercise_book->filteringRequiredData($exercise_books, $login_user_id);
-        } else {
-            $exercise_books = $exercise_book->filteringRequiredData($exercise_books);
-        }
-
-        return response()->json(['exercise_books' => $exercise_books]);
+        $this->problem = $problem;
+        $this->exercise_book = $exercise_book;
     }
 
     /**
      *問題作成画面の表示
+     *ログインユーザーが作成している問題集名を全て取得
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(ExerciseBookName $exercise_book)
+    public function create()
     {
-        $exercise_books_name_list = $exercise_book->where('user_id', Auth::id())->get(['id', 'name']);
+        $exercise_books = $this->exercise_book->loginUserExerciseBook;
 
-        Log::debug($exercise_books_name_list);
-
-        return $exercise_books_name_list;
+        return response()->json([
+            'exercise_books' => $exercise_books,
+        ]);
     }
 
     /**
-     * 問題と解答の作成
+     * 問題と解答の作成、問題集に追加または新規作成
      *
-     * @param  \Illuminate\Http\Request  $req
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateProblem $req, Problem $problem, ExerciseBook $exercise_book, ExerciseBookName $exercise_book_name)
+    public function store(CreateProblem $request)
     {
-        $login_user_id = Auth::id();
-
-        //        DB::enableQueryLog();
-        //        問題集の名前を登録
-        $exercise_book_name->where('user_id', $login_user_id)->firstOrCreate(
-            ['name' => $req->exerciseBook],
-            ['name' => $req->exerciseBook, 'user_id' => $login_user_id]
-        );
-
-        $exercise_book_name_id = $exercise_book_name->where('user_id', $login_user_id)->where('name', $req->exerciseBook)->first('id')->id;
-
-        $exercise_book->where('user_id', $login_user_id)->firstOrCreate(
-            ['exercise_books_name_id' => $exercise_book_name_id],
-            [
-                'exercise_books_name_id' => $exercise_book_name_id,
-                'user_id' => $login_user_id,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ]
-        );
-
-        // 先ほど登録した問題集のIDを取得
-        $insert_exercise_book_id = $exercise_book->where('user_id', $login_user_id)->where('exercise_books_name_id', $exercise_book_name_id)->first('id')->id;
-
-        Log::debug($insert_exercise_book_id);
-
-        // 問題と答えを登録
-        $problem->fill([
-            'content' => $req->problem,
-            'answer' => $req->answer,
-            'user_id' => $login_user_id,
-            'exercise_book_id' => $insert_exercise_book_id
-        ])->save();
+        DB::transaction(function () use ($request) {
+            $exercise_book = $this->exercise_book->fetchOrRegister($request);
+            $this->problem->newRegister($request, $exercise_book);
+        });
     }
 
     /**
      * 問題画面の表示
      *
-     * @param  int  $exercise_books_id
+     * @param  [string]  $exercise_books_id
      * @return \Illuminate\Http\Response
      */
     public function show($exercise_books_id)
     {
+        $problems = $this->problem->where('exercise_book_id', $exercise_books_id)->get();
+        $problems = $problems->map(function ($problem) {
+            return $problem->addImageUrl($problem);
+        });
+        if ($problems->isEmpty()) {
+            return response()->json(['exercise_books' => null]);
+        } else {
+            $problems = $this->problem->addUserIdAndProblemsCount($problems);
+            return response()->json(['exercise_books' => $problems]);
+        }
+    }
 
-        $problem_data = Problem::where('exercise_book_id', $exercise_books_id)->get();
+    /**
+     * 問題の更新
+     *
+     * @param [string] $id
+     * @param UpdateProblem $request
+     * @return void
+     */
+    public function update($id, UpdateProblem $request)
+    {
+        DB::transaction(function () use ($id, $request) {
+            $exercise_book = $this->exercise_book->fetchOrRegister($request);
+            $problem = $this->problem->findOrFail($id);
+            $this->authorize('update', $problem);
+            $this->problem->problemUpdate($problem, $request, $exercise_book);
+        });
+    }
 
-        $problem_count = $problem_data->count('id');
+    /**
+     * 問題編集画面の情報
+     *
+     * @param [string] $id
+     * @return void
+     */
+    public function edit($id)
+    {
+        $problem = $this->problem->with(['exerciseBook'])->where('id', $id)->firstOrFail();
+        $this->authorize('update', $problem);
+        $problem = $this->problem->addImageUrl($problem);
+        $exercise_books = $this->exercise_book->loginUserExerciseBook;
+        return response()->json([
+            'problem' => $problem,
+            'exercise_book_list' => $exercise_books,
+        ]);
+    }
 
-        $problem_data = Arr::add(['problem' => $problem_data], 'count', $problem_count);
-
-        return response()->json(['problem_data' => $problem_data]);
+    /**
+     * 問題の削除
+     *
+     * @param [string] $problem_id
+     * @return void
+     */
+    public function destroy($problem_id)
+    {
+        $problem = $this->problem->findOrFail($problem_id);
+        $this->authorize('delete', $problem);
+        $problem->delete();
     }
 }

@@ -1,6 +1,9 @@
 <template>
     <div :class="backColor ? 'bg-color' : ''" class="modal-mask relative">
-        <div class="bg-white rounded w-2/3 m-0 m-auto shadow modal-view">
+        <div
+            :class="[width ? width : 'w-2/3', height ? height : '']"
+            class="bg-white rounded m-0 m-auto shadow modal-view"
+        >
             <slot></slot>
         </div>
     </div>
@@ -12,6 +15,12 @@ export default {
     props: {
         backColor: {
             type: Boolean
+        },
+        width: {
+            type: String
+        },
+        height: {
+            type: String
         }
     }
 };
@@ -20,7 +29,7 @@ export default {
 <style scoped>
 .modal-mask {
     position: fixed;
-    z-index: 9999;
+    z-index: 999;
     top: 0;
     left: 0;
     width: 100%;

@@ -5,13 +5,14 @@ namespace App;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Traits\RelatedToFilePathS3;
+use App\Notifications\PasswordResetNotification;
 
 class User extends Authenticatable
 {
     use Notifiable;
-
-    const ID_LENGTH = 10;
+    use RelatedToFilePathS3;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +29,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'followers', 'followings', 'email_verified_at'
+        'password', 'remember_token', 'email_verified_at',
     ];
 
     /**
@@ -39,35 +40,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    // public function getUrlAttribute()
-    // {
-    //     return $this->attributes['profile_img'];
-    // }
-
-    /**
-     * ランダムなid値を作成
-     *
-     * @return integer
-     */
-    public function getRandomId(): string
-    {
-        $characters = array_merge(
-            range(0, 9),
-            range('a', 'z'),
-            range('A', 'Z'),
-            ['-', '_']
-        );
-
-        $length = count($characters);
-        $id = "";
-
-        for ($i = 0; $i < self::ID_LENGTH; $i++) {
-            $id .= $characters[random_int(0, $length - 1)];
-        };
-
-        return $id;
-    }
 
     /**
      * フォロワー
@@ -89,15 +61,20 @@ class User extends Authenticatable
         return $this->belongsToMany('App\User', 'follows', 'follower_id', 'followee_id')->withTimestamps();
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new PasswordResetNotification($token, $this->email));
+    }
+
     /**
      * 対象のユーザーを取得
      *
      * @param integer $user_id
-     * @return object
+     * @return
      */
-    public function currentUser(int $user_id): object
+    public function currentUser($user_id)
     {
-        return $this->find($user_id);
+        return $this->findOrFail($user_id);
     }
 
     /**
@@ -137,9 +114,9 @@ class User extends Authenticatable
      * プロフィール画面の表示の為の必須の情報を取得
      *
      * @param integer $user_id
-     * @return object
+     *
      */
-    public function getProfileRequiredData(int $user_id): object
+    public function profileBaseData($user_id)
     {
         $current_user = $this->currentUser($user_id);
 
@@ -156,8 +133,73 @@ class User extends Authenticatable
         }
     }
 
-    public function awsUrlFetch(string $file_path): string
+    /**
+     * プロフィール画像を追加する
+     *
+     * @param [type] $users
+     * @return object
+     */
+    public function addProfileUrl($users)
     {
-        return $file_path ? Storage::cloud()->url($file_path) : "";
+        return $users = $users->map(function ($user) {
+            $user = $user;
+            $user['profile_img'] = $this->awsUrlFetch($user->profile_img);
+            return $user;
+        });
+    }
+
+    /**
+     * フォロー有無のプロパティを追加
+     *
+     * @param [object]] $users
+     * @param [int] $user_id
+     * @return void
+     */
+    public function fetchIsFollowedBy($users, $user_id)
+    {
+        return $users->map(function ($user) use ($user_id) {
+            $user = $user;
+            $user['is_followed_by'] = $user->isFollowedBy($user_id);
+            return $user;
+        });
+    }
+
+    /**
+     * プロフィールの更新
+     *
+     * @param [object] $request
+     * @param [string] $file_path
+     * @return void
+     */
+    public function profileUpdate($request, $file_path = null)
+    {
+        if ($file_path) {
+            $this->findOrFail(Auth::id())->fill([
+                'name' => $request->name,
+                'email' => $request->email,
+                'profile_img' => $file_path
+            ])->save();
+        } else {
+            $this->findOrFail(Auth::id())->fill([
+                'name' => $request->name,
+                'email' => $request->email,
+            ])->save();
+        }
+    }
+
+    /**
+     *ログインユーザー以外のページを表示する時は、フォローの有無が必要となるので取得する
+     *
+     * @param [type] $user
+     * @param [type] $user_id
+     * @return void
+     */
+    public function getLoginUserOtherThanFollowPresence($user, $user_id)
+    {
+        $login_user_id = Auth::id();
+        if ($login_user_id !== (int) $user_id) {
+            $user['is_followed_by'] = $user->isFollowedBy($login_user_id);
+        }
+        return $user;
     }
 }

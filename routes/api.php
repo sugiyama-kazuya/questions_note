@@ -1,49 +1,41 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::post('/register', 'Auth\RegisterController@register')->name('register');
+
 Route::post('/login', 'Auth\LoginController@login')->name('login');
+
 Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
+
+// パスワードリセット
+Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
+
+Route::resource('problems', 'ProblemController')->except(['index']);
+
+Route::resource('exercise-books', 'ExerciseBookController')->only(['index', 'store', 'show', 'destroy']);
+
+Route::resource('users', 'UserController')->only(['show', 'edit', 'update']);
+
+Route::prefix('users')->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('{id}/followers', 'OwnFollowersController');
+        Route::get('{id}/follows', 'OwnFollowsController');
+    });
+});
+Route::prefix('users')->group(function () {
+    Route::get('{id}/followers/count', 'FollowersCountController');
+    Route::get('{id}/follwings/count', 'FollwingsCountController');
+});
+
+Route::put('favorites', 'FavoritesController');
+Route::delete('unfavorites', 'UnFavoritesController');
+Route::get('favorites/asc', 'FavoritesOrderByDescController');
+Route::get('favorites/asc/{user_id}', 'OwnFavoritesOrderByDescController');
+Route::get('{id}/favorites/counts', 'FavoritesCountController');
+Route::get('own/exercise-books/problems', 'OwnExerciseBooksController');
 
 Route::get('/user', function () {
     return Auth::user();
-})->name('user');
-
-Route::resource('problems', 'ProblemController');
-Route::post('problems/newExerciseName', 'ProblemController@createExerciseBooksName')->name('problems.newExerciseName');
-
-Route::get('likes/count', 'LikeController@index')->name('likes.count');
-Route::get('islikedby/{id}', 'isLikedByController');
-Route::get('countLikes/{id}', 'CountLikesController');
-Route::put('like', 'LikeController@like')->name('like');
-Route::delete('unlike', 'LikeController@unlike')->name('unlike');
-
-Route::get('ownExercizeBooks/{id}', 'GetOwnExercizeBooksController');
-
-Route::get('orderFavorite', 'OrderFavoriteController');
-Route::get('ownFavoriteExerciseBooks', 'OwnFavoriteExerciseBooksController');
-
-Route::resource('profile', 'ProfileController');
-
-// userに関するルーティング
-Route::prefix('user')->name('user.')->group(function () {
-    Route::middleware('auth')->group(function () {
-        Route::put('{id}/follow', 'UserController@follow')->name('follow');
-        Route::delete('{id}/follow', 'UserController@unfollow')->name('unfollow');
-        Route::get('{id}/followers', 'UserController@followersCount')->name('followers');
-        Route::get('{id}/follwings', 'UserController@follwingsCount')->name('follwings');
-    });
 });
