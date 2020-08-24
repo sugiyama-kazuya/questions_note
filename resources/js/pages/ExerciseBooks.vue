@@ -77,6 +77,7 @@
             </main>
         </div>
         <TheFooter />
+        <TouchNotPossible v-if="isOperating" />
     </div>
 </template>
 
@@ -87,6 +88,7 @@ import ExerciseBookCard from "../components/ExerciseBookCard";
 import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import NoSearchResults from "../components/NoSearchResults";
+import TouchNotPossible from "../components/TouchNotPossible";
 import InfiniteLoading from "vue-infinite-loading";
 import { OK } from "../util";
 import Common from "../commonMixin";
@@ -100,7 +102,8 @@ export default {
         ChangeTabBtn,
         BaseSearchBox,
         NoSearchResults,
-        InfiniteLoading
+        InfiniteLoading,
+        TouchNotPossible
     },
 
     mixins: [Common],
@@ -121,7 +124,8 @@ export default {
             searchBoxKeyword: "",
             page: 1,
             infiniteId: new Date(),
-            url: ""
+            url: "",
+            isOperating: false
         };
     },
 
@@ -217,6 +221,7 @@ export default {
         },
 
         async filterExerciseBooks() {
+            this.isOperating = true;
             this.$_scrollTop();
             if (
                 this.displayTab.isNewActive ||
@@ -226,6 +231,7 @@ export default {
                 this.displayTab.isNewActive = false;
                 this.displayTab.isNewArrivalSearch = true;
                 this.changeType();
+                this.isOperating = false;
                 return;
             }
             if (
@@ -236,6 +242,7 @@ export default {
                 this.displayTab.isPopularActive = false;
                 this.displayTab.isPopularSearch = true;
                 this.changeType();
+                this.isOperating = false;
                 return;
             }
         },
@@ -244,13 +251,16 @@ export default {
             this.searchBoxKeyword = "";
         },
 
-        infiniteHandler($state) {
+        async infiniteHandler($state) {
             if (
                 this.displayTab.isNewActive ||
                 this.displayTab.isNewArrivalSearch
             ) {
+                this.isOperating = true;
                 console.log("新着順検索");
-                this.getNewArrivalsOrderExerciseBooks($state);
+                await this.getNewArrivalsOrderExerciseBooks($state);
+                this.isOperating = false;
+
                 return;
             }
 
@@ -258,8 +268,10 @@ export default {
                 this.displayTab.isPopularActive ||
                 this.displayTab.isPopularSearch
             ) {
+                this.isOperating = true;
                 console.log("人気順検索");
-                this.getPopularOrderExerciseBooks($state);
+                await this.getPopularOrderExerciseBooks($state);
+                this.isOperating = false;
                 return;
             }
         },

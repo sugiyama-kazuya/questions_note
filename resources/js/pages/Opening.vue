@@ -36,24 +36,28 @@
         </div>
         <div class="h-screen bg-gray-100">
             <div
-                class="scroll-target flex flex-col items-center justify-center"
+                class="h-screen scroll-target flex flex-col items-center justify-center"
             >
-                <div class="flex-grow flex items-center justify-end ">
-                    <div class="w-5/6 text-left">
+                <div
+                    class="h-80 flex-grow flex flex-col items-center justify-center"
+                >
+                    <div class="h-50">
                         <img
                             :src="'/storage/graph-3078545_1280.png'"
                             alt=""
-                            class="bg-cover"
+                            class="bg-cover h-100"
                         />
-                        <p class="mb-0 mt-4 target2 text-xl tracking-wider">
-                            暗記しても明日には大半の記憶が<br />
-                            失ってしまいます。<br />
-                            これは人としての当たり前の機能です。<br />
-                            ではどうやって人は記憶をするのか？？
-                        </p>
                     </div>
+                    <p
+                        class="h-30 mb-0 target2 text-xl tracking-wider flex items-center"
+                    >
+                        暗記しても明日には大半の記憶が<br />
+                        失ってしまいます。<br />
+                        これは人としての当たり前の機能です。<br />
+                        ではどうやって人は記憶をするのか？？
+                    </p>
                 </div>
-                <div class="target-btn"><span></span>Scroll</div>
+                <div class="target-btn h-10"><span></span>Scroll</div>
             </div>
         </div>
         <div class="h-screen bg-gray-200">
@@ -61,24 +65,24 @@
                 class="scroll-target flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex-grow flex flex-col items-center justify-center"
+                    class="h-80 flex-grow flex flex-col items-center justify-center"
                 >
-                    <div class="w-screen text-right">
+                    <div class="h-50">
                         <img
                             :src="'/storage/brain-4961452_1280.jpg'"
                             alt=""
-                            class="bg-cover w-5/6"
+                            class="bg-cover h-100"
                         />
-                        <p
-                            class="mb-0 mt-4 target3 text-xl tracking-wider w-5/6 pt-4 pl-3 leading-loose"
-                        >
-                            人は思い出すことによって<br />
-                            「復習」の回数が増えれば増えるほど<br />
-                            記憶の定着に繋がります。
-                        </p>
                     </div>
+                    <p
+                        class="h-30 mb-0 target3 text-xl tracking-wider pt-4 pl-3 leading-loose flex items-center"
+                    >
+                        人は思い出すことによって<br />
+                        「復習」の回数が増えれば増えるほど<br />
+                        記憶の定着に繋がります。
+                    </p>
                 </div>
-                <div class="target-btn"><span></span>Scroll</div>
+                <div class="target-btn h-10"><span></span>Scroll</div>
             </div>
         </div>
         <div class="h-screen bg-gray-100">

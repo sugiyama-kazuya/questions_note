@@ -147,6 +147,7 @@
         </transition>
 
         <TheFooter />
+        <TouchNotPossible v-if="isOperating" />
     </div>
 </template>
 
@@ -161,6 +162,7 @@ import ChangeTabBtn from "../components/ChangeTabBtn";
 import BaseSearchBox from "../components/BaseSearchBox";
 import CenterModal from "../components/CenterModal";
 import NoSearchResults from "../components/NoSearchResults";
+import TouchNotPossible from "../components/TouchNotPossible";
 import {
     INTERNAL_SERVER_ERROR,
     OK,
@@ -187,7 +189,8 @@ export default {
         CenterModal,
         FontAwesomeIcon,
         NoSearchResults,
-        InfiniteLoading
+        InfiniteLoading,
+        TouchNotPossible
     },
 
     mixins: [Common],
@@ -227,7 +230,8 @@ export default {
             noSearchResults: false,
             page: 1,
             infiniteId: new Date(),
-            url: ""
+            url: "",
+            isOperating: false
         };
     },
 
@@ -462,13 +466,16 @@ export default {
             this.searchBoxKeyword = "";
         },
 
-        infiniteHandler($state) {
+        async infiniteHandler($state) {
             if (
                 this.displayTab.isOwnExerciseBooks ||
                 this.displayTab.isOwnExerciseBooksSearch
             ) {
+                this.isOperating = true;
                 console.log("自身の問題集処理");
-                this.getOwnExercizeBooks($state);
+                await this.getOwnExercizeBooks($state);
+                this.isOperating = false;
+
                 return;
             }
 
@@ -476,8 +483,11 @@ export default {
                 this.displayTab.isFavoriteOrder ||
                 this.displayTab.isFavoriteOrderSearch
             ) {
+                this.isOperating = true;
                 console.log("お気に入り処理");
-                this.getFavoriteOrderExerciseBooks($state);
+                await this.getFavoriteOrderExerciseBooks($state);
+                this.isOperating = false;
+
                 return;
             }
         },
