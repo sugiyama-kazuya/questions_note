@@ -315,6 +315,7 @@
                 </div>
             </CenterModal>
         </transition>
+        <TouchNotPossible v-if="isOperating" />
     </div>
 </template>
 
@@ -330,6 +331,7 @@ import BaseSearchBox from "../components/BaseSearchBox";
 import BaseBtn from "../components/BaseButton";
 import BaseRecord from "../components/BaseRecord";
 import NoSearchResults from "../components/NoSearchResults";
+import TouchNotPossible from "../components/TouchNotPossible";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -351,7 +353,8 @@ export default {
         BaseBtn,
         BaseRecord,
         ChangeTabBtn,
-        NoSearchResults
+        NoSearchResults,
+        TouchNotPossible
     },
 
     mixins: [Common],
@@ -391,7 +394,8 @@ export default {
             flashMsg: {
                 text: "問題集を削除しました",
                 speed: 2000
-            }
+            },
+            isOperating: false
         };
     },
 
@@ -440,6 +444,7 @@ export default {
     methods: {
         async filterExerciseBooks() {
             this.$_scrollTop();
+            this.isOperating = true;
             this.loading.isLoading = true;
             await this.getOwnExerciseBooksAndProblems();
             const obj = this;
@@ -457,6 +462,7 @@ export default {
             }
             this.exerciseBooks.data = filterExerciseBooks;
             this.loading.isLoading = false;
+            this.isOperating = false;
         },
 
         searchBoxReset() {
@@ -500,6 +506,8 @@ export default {
         },
 
         async followSelected() {
+            this.isOperating = true;
+
             this.$_scrollTop();
             this.loading.isLoading = true;
             this.user.isFollowTab = true;
@@ -518,14 +526,17 @@ export default {
                     this.user.followsEmptyFlg = true;
                 }
                 this.loading.isLoading = false;
+                this.isOperating = false;
                 return;
             }
 
             this.$_internalServerError(response.status);
+            this.isOperating = false;
         },
 
         async followerSelected() {
             this.$_scrollTop();
+            this.isOperating = true;
             this.loading.isLoading = true;
             this.user.isFollowTab = false;
             this.user.isFollowerTab = true;
@@ -543,10 +554,12 @@ export default {
                     this.user.followersEmptyFlg = true;
                 }
                 this.loading.isLoading = false;
+                this.isOperating = false;
                 return;
             }
 
             this.$_internalServerError(response.status);
+            this.isOperating = false;
         },
 
         async isFollow(user) {
