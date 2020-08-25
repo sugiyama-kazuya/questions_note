@@ -1,6 +1,6 @@
 <template>
     <div class="scroll">
-        <div class="h-screen target-first">
+        <div class="h-screen target-first max-h-screen">
             <div class="scroll-target m-0 flex flex-col">
                 <TheHeader
                     :bg-color="'bg-transparent'"
@@ -25,7 +25,9 @@
                 </TheHeader>
 
                 <div class="flex-grow flex items-center justify-center">
-                    <p class="target1 text-white text-xl tracking-wider">
+                    <p
+                        class="target1 text-white text-xl tracking-wider font-normal"
+                    >
                         自分って記憶力ないよなぁと感じたことはありませんか？？
                     </p>
                 </div>
@@ -34,68 +36,66 @@
                 </div>
             </div>
         </div>
-        <div class="h-screen bg-gray-100">
+        <div class="h-screen bg-gray-100 max-h-screen">
             <div
                 class="h-screen scroll-target flex flex-col items-center justify-center"
             >
                 <div
-                    class="h-80 flex-grow flex flex-col items-center justify-center"
+                    class="flex-grow flex flex-col items-center justify-center"
                 >
-                    <div class="h-50">
-                        <img
-                            :src="'/storage/graph-3078545_1280.png'"
-                            alt=""
-                            class="bg-cover h-100"
-                        />
-                    </div>
+                    <img
+                        :src="'/storage/graph-3078545_1280.png'"
+                        alt=""
+                        class="bg-cover img-second"
+                    />
                     <p
-                        class="h-30 mb-0 target2 text-xl tracking-wider flex items-center"
+                        class=" mb-0 p-3 target2 text-xl tracking-wider flex items-center leading-normal"
                     >
-                        暗記しても明日には大半の記憶が<br />
-                        失ってしまいます。<br />
-                        これは人としての当たり前の機能です。<br />
-                        ではどうやって人は記憶をするのか？？
+                        人の記憶は1時間後には約50%、24時間後に約75%、1ヶ月後にはほとんど記憶に残っていないという研究結果が出ています。脳の構造上、人は記憶はしにくい仕組みとなっており、暗記など記憶には得意不得意は存在しません。つまり記憶力がないというのは人として当たり前の機能なのです。ではどのように記憶して行けばいいのでしょうか？
                     </p>
                 </div>
-                <div class="target-btn h-10"><span></span>Scroll</div>
+                <div class="target-btn flex-none"><span></span>Scroll</div>
             </div>
         </div>
-        <div class="h-screen bg-gray-200">
+        <div class="h-screen bg-gray-200 max-h-screen">
             <div
                 class="scroll-target flex flex-col items-center justify-center"
             >
                 <div
-                    class="h-80 flex-grow flex flex-col items-center justify-center"
+                    class="flex-grow flex flex-col items-center justify-center"
                 >
-                    <div class="h-50">
-                        <img
-                            :src="'/storage/brain-4961452_1280.jpg'"
-                            alt=""
-                            class="bg-cover h-100"
-                        />
-                    </div>
+                    <img
+                        :src="'/storage/brain-4961452_1280.jpg'"
+                        alt=""
+                        class="bg-cover img-third"
+                    />
                     <p
-                        class="h-30 mb-0 target3 text-xl tracking-wider pt-4 pl-3 leading-loose flex items-center"
+                        class="mb-0 target3 text-xl tracking-wider leading-normal px-3 py-4 flex items-center"
                     >
-                        人は思い出すことによって<br />
-                        「復習」の回数が増えれば増えるほど<br />
-                        記憶の定着に繋がります。
+                        それは思い出すということです。「復習」になります。
+                        人は思い出すことによって
+                        つまり復習の回数が増えれば増えるほど
+                        記憶の定着に繋がると言われています。
+                        記憶の定着には、日頃から細かく復習するという行動がとても大切になります。
                     </p>
                 </div>
-                <div class="target-btn h-10"><span></span>Scroll</div>
+                <div class="target-btn flex-none"><span></span>Scroll</div>
             </div>
         </div>
-        <div class="h-screen bg-gray-100">
+        <div class="h-screen bg-gray-100 max-h-screen">
             <div
                 class="scroll-target flex flex-col items-center justify-center"
             >
                 <div class="flex-grow flex items-center justify-center">
-                    <p class=" m-0 target4 text-xl tracking-wider">
-                        自作で問題集を作っていくアプリです。<br />
-                        自作の問題を作り、反復を繰り返し、知識の定着を促そう。
+                    <p
+                        class=" m-0 target4 text-xl tracking-wider leading-normal"
+                    >
+                        このQuestions'
+                        Noteは自分で問題集を作成し、いつでもどこでも自分で作成した問題を復習できるアプリです。
+                        問題集で復習を繰り返し、知識の定着を促そう。
                     </p>
                 </div>
-                <BaseBtn @click-btn="goIndex()" class="mb-5 p-3"
+                <BaseBtn @click-btn="goIndex()" class="mb-5 p-3 flex-none"
                     >学習を始める</BaseBtn
                 >
             </div>
@@ -185,17 +185,20 @@ export default {
     transition: opacity 1.4s, transform 0.8s;
 }
 .target2 {
+    text-indent: 1em;
     opacity: 0;
     transform: translateX(-40px);
     transition: opacity 1.4s, transform 0.8s;
 }
 .target3 {
+    text-indent: 1em;
     opacity: 0;
     transform: translateX(-40px);
     transition: opacity 1.4s, transform 0.8s;
 }
 
 .target4 {
+    text-indent: 1em;
     opacity: 0;
     padding: 10%;
     transform: translateX(-40px);
@@ -300,5 +303,13 @@ export default {
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
     box-sizing: border-box;
+}
+
+@media screen and (min-width: 960px) {
+    .img-second,
+    .img-third {
+        max-height: 50%;
+        max-width: 50%;
+    }
 }
 </style>
