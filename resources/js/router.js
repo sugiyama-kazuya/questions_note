@@ -61,7 +61,7 @@ export default new VueRouter({
             component: ExerciseBookPlay
         },
         {
-            /* 問題を作成ページ */
+            /* 問題作成ページ */
             path: "/problems/create",
             name: "ProblemCreate",
             component: ProblemCreate,
@@ -155,6 +155,7 @@ export default new VueRouter({
         },
 
         {
+            // オープニングページ
             name: "Opening",
             path: "/openings",
             component: Opening,
@@ -168,15 +169,27 @@ export default new VueRouter({
         },
 
         {
+            // パスワードリセットemail送信ページ
             name: "PasswordReset",
             path: "/password/reset",
             component: PasswordReset
         },
 
         {
+            // パスワードリセット変更フォームページ
             name: "PasswordResetForm",
             path: "/password/reset/form/:token/:email",
             component: PasswordResetForm
+        },
+
+        {
+            // ホームディレクトリ
+            name: "Home",
+            path: "/",
+            component: ExerciseBooks,
+            beforeEnter(to, from, next) {
+                next("/exercise-books");
+            }
         }
     ]
 });
