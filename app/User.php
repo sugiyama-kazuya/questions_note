@@ -83,7 +83,7 @@ class User extends Authenticatable
      * @param integer $user_id
      * @return boolean
      */
-    public function isFollowedBy(int $user_id = null): bool
+    public function isFollowedBy($user_id = null)
     {
         return $user_id
             ?  (bool) $this->followers()->where('users.id', $user_id)->count()
@@ -95,7 +95,7 @@ class User extends Authenticatable
      *
      * @return integer
      */
-    public function getFollowersCountAttribute(): int
+    public function getFollowersCountAttribute()
     {
         return $this->followers->count();
     }
@@ -105,7 +105,7 @@ class User extends Authenticatable
      *
      * @return integer
      */
-    public function getFollowingsCountAttribute(): int
+    public function getFollowingsCountAttribute()
     {
         return $this->followings->count();
     }

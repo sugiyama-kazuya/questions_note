@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class FavoritesController extends Controller
 {
@@ -18,7 +17,7 @@ class FavoritesController extends Controller
     }
 
     /**
-     * いいねを追加する
+     * お気に入りに追加する
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -27,7 +26,6 @@ class FavoritesController extends Controller
     {
         $exercise_book_id = $request->id;
         $login_user_id = Auth::id();
-
         $this->exercise_book->currentExerciseBook($exercise_book_id)->likes()->detach($login_user_id);
         $this->exercise_book->currentExerciseBook($exercise_book_id)->likes()->attach($login_user_id);
     }
