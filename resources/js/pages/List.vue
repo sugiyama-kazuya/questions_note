@@ -647,7 +647,6 @@ export default {
                 if (response.data.length) {
                     this.exerciseBooks.emptyFlg = false;
                     this.exerciseBooks.data = response.data;
-                    console.log(this.exerciseBooks.data);
                     return;
                 } else {
                     this.exerciseBooks.emptyFlg = true;

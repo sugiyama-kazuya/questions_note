@@ -2,7 +2,7 @@
     <div class="relative min-h-screen flex flex-col bg-gray-200">
         <TheHeader>
             <template v-slot:titleName>
-                <h5>Mypage</h5>
+                <h5>Profile</h5>
             </template>
         </TheHeader>
         <main class="relative h-100 flex-1">
@@ -173,6 +173,8 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faUserCircle);
+
+// プラグイン
 import InfiniteLoading from "vue-infinite-loading";
 
 export default {
@@ -345,13 +347,14 @@ export default {
             this.searchBoxReset();
         },
 
+        // 自身の問題集取得
         async getOwnExercizeBooks($_state) {
             if (this.displayTab.isOwnExerciseBooks) {
-                console.log("自身の問題集検索なし");
+                //    自身の問題集検索なし
                 this.url = `/api/exercise-books/${this.$route.params.id}?page=${this.page}`;
             }
             if (this.displayTab.isOwnExerciseBooksSearch) {
-                console.log("自身の問題集検索あり");
+                // 自身の問題集検索あり
                 this.url = `/api/exercise-books/${this.$route.params.id}?search=${this.searchBoxKeyword}&page=${this.page}`;
             }
 
@@ -360,8 +363,6 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log("API取得に成功");
-                console.log(response);
                 if (response.data.exercise_books.length) {
                     this.page++;
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
@@ -370,7 +371,6 @@ export default {
                     $_state.loaded();
                     return;
                 } else {
-                    console.log("取得数0");
                     $_state.complete();
                 }
             }
@@ -378,13 +378,14 @@ export default {
             this.$_internalServerError(response.status);
         },
 
+        // お気に入りの問題集取得
         async getFavoriteOrderExerciseBooks($_state) {
             if (this.displayTab.isFavoriteOrder) {
-                console.log("お気に入り検索なし");
+                // お気に入り検索なし
                 this.url = `/api/favorites/asc/${this.$route.params.id}?page=${this.page}`;
             }
             if (this.displayTab.isFavoriteOrderSearch) {
-                console.log("お気に入り検索あり");
+                // お気に入り検索あり
                 this.url = `/api/favorites/asc/${this.$route.params.id}?search=${this.searchBoxKeyword}&page=${this.page}`;
             }
 
@@ -393,8 +394,6 @@ export default {
                 .catch(error => error.response);
 
             if (response.status === OK) {
-                console.log("API取得に成功");
-                console.log(response);
                 if (response.data.exercise_books.length) {
                     this.page++;
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
@@ -403,7 +402,6 @@ export default {
                     $_state.loaded();
                     return;
                 } else {
-                    console.log("取得数0");
                     $_state.complete();
                 }
             }
@@ -411,6 +409,7 @@ export default {
             this.$_internalServerError(response.status);
         },
 
+        // フォロー機能
         async isFollow() {
             if (this.$_authCheck) {
                 const url = `/api/users/${this.$route.params.id}/follow`;
@@ -438,13 +437,14 @@ export default {
             this.$router.push(`/users/${this.$route.params.id}/edit`);
         },
 
+        // 表示されている問題集から検索
         filterExerciseBooks() {
             this.$_scrollTop();
             if (
                 this.displayTab.isOwnExerciseBooks ||
                 this.displayTab.isOwnExerciseBooksSearch
             ) {
-                console.log("自身の問題集検索");
+                // 自身の問題集検索
                 this.displayTab.isOwnExerciseBooksSearch = true;
                 this.displayTab.isOwnExerciseBooks = false;
                 this.changeType();
@@ -454,7 +454,7 @@ export default {
                 this.displayTab.isFavoriteOrder ||
                 this.displayTab.isFavoriteOrderSearch
             ) {
-                console.log("自身がお気に入り登録した問題集");
+                // 自身がお気に入り登録した問題集
                 this.displayTab.isFavoriteOrderSearch = true;
                 this.displayTab.isFavoriteOrder = false;
                 this.changeType();
@@ -466,13 +466,14 @@ export default {
             this.searchBoxKeyword = "";
         },
 
+        // InfiniteLoadingコンポーネントが一定の部分まで表示されると自動発生するメソッド
         async infiniteHandler($state) {
             if (
                 this.displayTab.isOwnExerciseBooks ||
                 this.displayTab.isOwnExerciseBooksSearch
             ) {
                 this.isOperating = true;
-                console.log("自身の問題集処理");
+                //    自身の問題集処理
                 await this.getOwnExercizeBooks($state);
                 this.isOperating = false;
 
@@ -484,7 +485,7 @@ export default {
                 this.displayTab.isFavoriteOrderSearch
             ) {
                 this.isOperating = true;
-                console.log("お気に入り処理");
+                // お気に入り処理
                 await this.getFavoriteOrderExerciseBooks($state);
                 this.isOperating = false;
 

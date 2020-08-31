@@ -3,7 +3,7 @@
         <div class="h-90">
             <TheHeader class="h-8 bg-gray-200">
                 <template v-slot:titleName>
-                    <h5 class="text-2xl m-0">編集</h5>
+                    <h5 class="text-2xl m-0">Profile Edit</h5>
                 </template>
                 <template v-slot:leftSide>
                     <FontAwesomeIcon

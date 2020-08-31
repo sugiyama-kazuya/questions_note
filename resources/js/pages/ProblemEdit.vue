@@ -254,7 +254,7 @@
             <CenterModal v-if="exerciseBookNewAdd.isModal">
                 <template>
                     <h1
-                        class="bg-primary text-center py-3 text-white text-base m-0 font-bold"
+                        class="bg-blue-400 text-center py-3 text-white text-base m-0 font-bold"
                     >
                         新規追加
                     </h1>
@@ -296,9 +296,10 @@
                                         <template>キャンセル</template>
                                     </BaseButton>
                                     <BaseButton
-                                        :color="'bg-blue-500'"
+                                        :color="'bg-blue-400'"
                                         :text="'text-white'"
                                         @click.native="createExerciseBook"
+                                        class="ml-2"
                                     >
                                         <template>追加</template>
                                     </BaseButton>
@@ -602,7 +603,6 @@ export default {
             }
             if ("answerImage" === event.currentTarget.id) {
                 this.form.answerImage = file;
-                console.log(this.form.answerImage);
                 this.createImg(file, "answerUploadImage");
                 return;
             }

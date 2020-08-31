@@ -128,15 +128,12 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log("送信しました");
-                console.log(response.data);
                 this.isLoading = false;
                 this.isSendedMailModal = true;
             }
 
             if (response.status === UNPROCESSABLE_ENTITY) {
                 this.validationErrorMsg = response.data.errors;
-                console.log(response);
                 this.isLoading = false;
                 return;
             }
