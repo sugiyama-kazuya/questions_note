@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class UnFavoritesController extends Controller
 {
@@ -18,17 +17,15 @@ class UnFavoritesController extends Controller
     }
 
     /**
-     * Handle the incoming request.
+     * お気に入りから外す
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request)
     {
-        Log::debug($request);
         $exercise_book_id = $request->id;
         $login_user_id = Auth::id();
-
         $this->exercise_book->find($exercise_book_id)->likes()->detach($login_user_id);
     }
 }

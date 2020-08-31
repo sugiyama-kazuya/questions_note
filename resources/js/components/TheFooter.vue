@@ -166,7 +166,6 @@ export default {
         },
 
         async goLogin() {
-            console.log("通ってます");
             await this.$store.dispatch(
                 "auth/closePromptToRegisterOrLoginModal"
             );

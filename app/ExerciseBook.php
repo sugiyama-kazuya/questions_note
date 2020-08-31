@@ -93,7 +93,7 @@ class ExerciseBook extends Model
      * @param [type] $id
      * @return object
      */
-    public function currentExerciseBook($id): object
+    public function currentExerciseBook($id)
     {
         return self::find($id);
     }
@@ -142,7 +142,7 @@ class ExerciseBook extends Model
      * @param $likes Boolean DBから取得時にlikesテーブルも取得しているか否か
      * @return object
      */
-    public function filteringCardData($exercise_books): object
+    public function filteringCardData($exercise_books)
     {
         $login_user_id = Auth::id();
 
@@ -199,7 +199,7 @@ class ExerciseBook extends Model
      * @param [int] $user_id
      * @return void
      */
-    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books): object
+    public function fetchOwnFavoriteRegisterdExerciseBooks($exercise_books)
     {
         return $exercise_books->filter(function ($exercise_book) {
             return $exercise_book->is_liked_by === true;
@@ -212,7 +212,7 @@ class ExerciseBook extends Model
      * @param [type] $exercise_books
      * @return object
      */
-    public function favoriteCountDesc($exercise_books): object
+    public function favoriteCountDesc($exercise_books)
     {
         return $exercise_books->sortByDesc(function ($exercise_book) {
             return $exercise_book['favorite_count'];
