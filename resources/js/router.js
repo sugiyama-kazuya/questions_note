@@ -140,7 +140,7 @@ export default new VueRouter({
 
         {
             // 404エラーページ
-            name: "notFound",
+            name: "/notFound",
             path: "*",
             component: NotFound,
             meta: { title: "お探しのページは見つかりませんでした" }
@@ -188,7 +188,7 @@ export default new VueRouter({
             path: "/",
             component: ExerciseBooks,
             beforeEnter(to, from, next) {
-                next("/exercise-books");
+                next("/openings");
             }
         }
     ]
