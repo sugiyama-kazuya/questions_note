@@ -39,11 +39,6 @@
         以下を押下し、パスワードリセットの手続きを行ってください。
     </p>
     <a href={{ $reset_url . "/" . $email }}>こちらをクリック</a>
-    @php
-    var_dump($email);
-
-    @endphp
-
 </body>
 
 </html>

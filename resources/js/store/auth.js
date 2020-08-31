@@ -58,7 +58,6 @@ const actions = {
             .catch(error => error.response || error);
 
         if (response.status === OK) {
-            console.log("成功です");
             context.commit("setApiStatus", true);
             context.commit("setUser", response.data);
             return;

@@ -155,11 +155,9 @@ export default {
 
         async getNewArrivalsOrderExerciseBooks($_state) {
             if (this.displayTab.isNewActive) {
-                console.log("新着API");
                 this.url = `/api/exercise-books?page=${this.page}`;
             }
             if (this.displayTab.isNewArrivalSearch) {
-                console.log("新着検索API");
                 this.url = `/api/exercise-books?search=${this.searchBoxKeyword}&page=${this.page}`;
             }
             const response = await axios
@@ -167,18 +165,14 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log("API取得に成功");
                 if (response.data.exercise_books.length) {
                     this.page += 1;
-                    console.log(this.url);
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
                         response.data.exercise_books
                     );
-                    console.log(this.exerciseBooks.data);
                     $_state.loaded();
                     return;
                 } else {
-                    console.log("取得数0");
                     $_state.complete();
                     return;
                 }
@@ -189,11 +183,11 @@ export default {
 
         async getPopularOrderExerciseBooks($_state) {
             if (this.displayTab.isPopularActive) {
-                console.log("人気順API");
+                // 人気順API
                 this.url = `/api/favorites/asc?page=${this.page}`;
             }
             if (this.displayTab.isPopularSearch) {
-                console.log("人気順検索API");
+                // 人気順検索API
                 this.url = `/api/favorites/asc?search=${this.searchBoxKeyword}&page=${this.page}`;
             }
             const response = await axios
@@ -201,17 +195,14 @@ export default {
                 .catch(error => error.response || error);
 
             if (response.status === OK) {
-                console.log("API取得に成功");
                 if (response.data.exercise_books.length) {
                     this.page++;
                     this.exerciseBooks.data = this.exerciseBooks.data.concat(
                         response.data.exercise_books
                     );
                     $_state.loaded();
-                    console.log(this.exerciseBooks.data);
                     return;
                 } else {
-                    console.log("取得数0");
                     $_state.complete();
                     return;
                 }
@@ -227,7 +218,6 @@ export default {
                 this.displayTab.isNewActive ||
                 this.displayTab.isNewArrivalSearch
             ) {
-                console.log("フィルター新着");
                 this.displayTab.isNewActive = false;
                 this.displayTab.isNewArrivalSearch = true;
                 this.changeType();
@@ -238,7 +228,6 @@ export default {
                 this.displayTab.isPopularActive ||
                 this.displayTab.isPopularSearch
             ) {
-                console.log("フィルター人気");
                 this.displayTab.isPopularActive = false;
                 this.displayTab.isPopularSearch = true;
                 this.changeType();
@@ -257,7 +246,7 @@ export default {
                 this.displayTab.isNewArrivalSearch
             ) {
                 this.isOperating = true;
-                console.log("新着順検索");
+                // 新着順検索
                 await this.getNewArrivalsOrderExerciseBooks($state);
                 this.isOperating = false;
 
@@ -269,7 +258,7 @@ export default {
                 this.displayTab.isPopularSearch
             ) {
                 this.isOperating = true;
-                console.log("人気順検索");
+                // 人気順検索
                 await this.getPopularOrderExerciseBooks($state);
                 this.isOperating = false;
                 return;
