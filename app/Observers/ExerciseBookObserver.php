@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 
 class ExerciseBookObserver
 {

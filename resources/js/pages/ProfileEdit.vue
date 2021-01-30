@@ -209,6 +209,7 @@ export default {
     async mounted() {
         this.isLoading = true;
         await this.getUser();
+        console.log("通ってるよ")
         this.isLoading = false;
     },
 
@@ -217,6 +218,8 @@ export default {
             const response = await axios
                 .get(`/api/users/${this.$route.params.id}/edit`)
                 .catch(error => error.firstDisplay || error);
+
+                console.log(response)
 
             if (response.status === OK) {
                 this.uploadImg = response.data.user.profile_img;
@@ -287,6 +290,9 @@ export default {
 <style scoped>
 .profile-img {
     border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+
 }
 
 .center-modal-enter-active,
