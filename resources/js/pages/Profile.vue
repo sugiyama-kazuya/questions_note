@@ -510,7 +510,10 @@ export default {
 }
 
 .img-profile {
+    width: 100%;
     border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .center-modal-enter-active,

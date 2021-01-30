@@ -635,12 +635,16 @@ export default {
                 this.currentProblemData.problemData = deletedProblems;
                 this.currentProblemData.count = deletedProblems.length;
 
+
                 // 二問目以降であった場合は問題を繰り下げる
                 if (this.currentNumber >= 2) {
                     this.putOffProblem();
                 }
 
                 this.closeDeleteConfimationModal();
+                this.isProblemEmpty();
+
+                // フラッシュメッセージの表示
                 await this.$store.dispatch("flashMessage/showFlashMsg");
                 await this.$store.dispatch(
                     "flashMessage/hideFlashMsg",
@@ -667,9 +671,10 @@ export default {
 
         // 問題の有無
         isProblemEmpty() {
-            this.currentProblemData.count === null
+            this.currentProblemData.count === 0
                 ? (this.isProblemEmptyFlg = true)
                 : (this.isProblemEmptyFlg = false);
+                return;
         }
     }
 };

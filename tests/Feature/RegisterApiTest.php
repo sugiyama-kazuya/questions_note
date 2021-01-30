@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Log;
@@ -30,4 +30,5 @@ class RegisterApiTest extends TestCase
         $response
             ->assertStatus(201)
             ->assertJson(['name' => $user->name]);
-    }}
+    }
+}

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\ExerciseBook;
-use App\User;
+use App\Models\ExerciseBook;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ExerciseBookPolicy
@@ -13,8 +13,8 @@ class ExerciseBookPolicy
     /**
      * Determine whether the user can delete the exercise book.
      *
-     * @param  \App\User  $user
-     * @param  \App\ExerciseBook  $exerciseBook
+     * @param  \App\Models\User $user
+     * @param  \App\Models\ExerciseBook
      * @return mixed
      */
     public function delete(User $user, ExerciseBook $exerciseBook)

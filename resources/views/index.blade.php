@@ -14,7 +14,7 @@
     <div id="app" class="h-100">
         <Home />
     </div>
-    <script src="{{ mix('js/app.js') }}" defer></script>
+    <script src="{{ mix('js/app.js') }}"></script>
 </body>
 
 </html>

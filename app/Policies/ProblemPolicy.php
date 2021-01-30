@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Problem;
-use App\User;
+use App\Models\Problem;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ProblemPolicy
@@ -13,8 +13,8 @@ class ProblemPolicy
     /**
      * 問題編集者と問題作成者idをチェック
      *
-     * @param  \App\User  $user
-     * @param  \App\Problem  $problem
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Problem  $problem
      * @return mixed
      */
     public function update(User $user, Problem $problem)
@@ -25,8 +25,8 @@ class ProblemPolicy
     /**
      * 問題削除者と問題作成者idをチェック
      *
-     * @param  \App\User  $user
-     * @param  \App\Problem  $problem
+     * @param  \App\Models\User $user
+     * @param  \App\Models\Problem  $problem
      * @return mixed
      */
     public function delete(User $user, Problem $problem)
