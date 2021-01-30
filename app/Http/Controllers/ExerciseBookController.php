@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateExerciseBook;
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 use Illuminate\Http\Request;
 
 class ExerciseBookController extends Controller

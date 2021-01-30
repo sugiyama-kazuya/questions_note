@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -40,12 +41,13 @@ class UserController extends Controller
      */
     public function edit($user_id)
     {
-        $user = $this->user->currentUser($user_id);
-        if ($user->profile_img) {
-            $user->profile_img = $user->awsUrlFetch($user->profile_img);
+        $current_user = $this->user->currentUser($user_id);
+        if ($current_user->profile_img) {
+            $file_path = $current_user->urlFetch($current_user->profile_img);
+            $current_user["profile_img"] = $file_path;
         }
 
-        return response()->json(['user' => $user]);
+        return response()->json(['user' => $current_user]);
     }
 
     /**
@@ -58,17 +60,21 @@ class UserController extends Controller
     public function update(ProfileRequest $request, User $user)
     {
         if ($request->file) {
+            $file = $request->file("file");
             $extension = $request->file->extension();
             $file_path = $user->getRandomId() . '.' . $extension;
 
             DB::beginTransaction();
             try {
-                $this->user->saveFileToS3($request->file, $file_path);
+                $this->user->saveFile($file, $file_path);
                 $this->user->profileUpdate($request, $file_path);
                 DB::commit();
             } catch (\Exception $exception) {
+                Log::debug("エラーキャッチ！！");
                 DB::rollback();
-                Storage::cloud()->delete($this->user->profile_img);
+                if (Storage::disk('public')->exists($file_path)) {
+                    $this->user->deleteFile($file_path);
+                }
                 return abort(500);
             }
         } else {

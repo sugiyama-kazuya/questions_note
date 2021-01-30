@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

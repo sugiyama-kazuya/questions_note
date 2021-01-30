@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 use App\Observers\ExerciseBookObserver;
 use Illuminate\Support\ServiceProvider;
 

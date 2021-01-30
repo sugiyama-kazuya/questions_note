@@ -1,6 +1,6 @@
 <?php
 
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 use Illuminate\Database\Seeder;
 
 class ExerciseBooksTableSeeder extends Seeder

@@ -22,7 +22,7 @@
                     <!-- 問題の追加 -->
                     <form
                         id="createForm"
-                        class="pb-8"
+                        class="problem-form pb-8"
                         @submit.prevent="registerProblem()"
                     >
                         <div class="bg-gray-200 p-3 mb-3">
@@ -600,6 +600,11 @@ export default {
 </script>
 
 <style scoped>
+
+.problem-form{
+    box-sizing: border-box;
+}
+
 .st-absolute {
     position: absolute;
     top: 18%;

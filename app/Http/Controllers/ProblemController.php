@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Problem;
-use App\ExerciseBook;
+use App\Models\Problem;
+use App\Models\ExerciseBook;
 use App\Http\Requests\CreateProblem;
 use App\Http\Requests\UpdateProblem;
 use Illuminate\Support\Facades\DB;

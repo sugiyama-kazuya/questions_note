@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\ExerciseBook;
+use App\Models\ExerciseBook;
 use Illuminate\Support\Facades\Auth;
 
 class UnFavoritesController extends Controller
