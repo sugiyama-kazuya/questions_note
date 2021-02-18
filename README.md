@@ -14,13 +14,13 @@ Question's Note は自分で問題集を作成し、いつでもどこでも自�
 
 # URL
 
-https://github.com/sugiyama-kazuya/questions_note
+https://questions-note.xyz/openings
 <br>
 <br>
 
 ### ログイン情報
 
-ユーザー： kazuya
+ユーザー： kazuya\
 パスワード： ssssssss （小文字の s が 8 つ）
 <br>
 <br>
