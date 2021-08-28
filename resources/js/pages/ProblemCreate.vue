@@ -306,19 +306,19 @@
 </template>
 
 <script>
-import TheHeader from "../components/TheHeader";
-import TheFooter from "../components/TheFooter";
-import TheLoading from "../components/TheLoading";
-import SelectModal from "../components/SelectModal";
-import CenterModal from "../components/CenterModal";
-import FormLabel from "../components/form/FormLabel";
-import FormText from "../components/form/FormText";
-import FormTextarea from "../components/form/FormTextarea";
-import FormValidationErrorMessage from "../components/form/FormValidationErrorMessage";
-import BaseButton from "../components/BaseButton";
-import CancelButton from "../components/CancelButton";
+import TheHeader from "@/components/TheHeader";
+import TheFooter from "@/components/TheFooter";
+import TheLoading from "@/components/TheLoading";
+import SelectModal from "@/components/SelectModal";
+import CenterModal from "@/components/CenterModal";
+import FormLabel from "@/components/form/FormLabel";
+import FormText from "@/components/form/FormText";
+import FormTextarea from "@/components/form/FormTextarea";
+import FormValidationErrorMessage from "@/components/form/FormValidationErrorMessage";
+import BaseButton from "@/components/BaseButton";
+import CancelButton from "@/components/CancelButton";
 
-import { UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR, OK } from "../util";
+import { UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR, OK } from "@/util";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
     faAngleRight,
@@ -329,7 +329,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faAngleRight, faClipboardList, faTimes, faBook);
-import Common from "../commonMixin";
+import Common from "@/commonMixin";
 
 export default {
     name: "ProbelmCreate",
@@ -600,8 +600,7 @@ export default {
 </script>
 
 <style scoped>
-
-.problem-form{
+.problem-form {
     box-sizing: border-box;
 }
 
